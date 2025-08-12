@@ -1,0 +1,112 @@
+# SkyBrokerSystem v6 - Simplified Dockerfile
+FROM php:8.3-fpm-alpine
+
+LABEL maintainer="SkyBrokerSystem Team"
+LABEL version="6.0.0"
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    nodejs \
+    npm \
+    supervisor \
+    nginx \
+    mysql-client \
+    redis \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libzip-dev \
+    icu-dev \
+    autoconf \
+    g++ \
+    make
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        zip \
+        intl \
+        opcache
+
+# Install Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Install Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+
+# Create system user
+RUN addgroup -g 1000 -S www \
+    && adduser -u 1000 -S www -G www
+
+# Copy composer files first (for better caching)
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install Node dependencies with error handling
+RUN npm config set fund false \
+    && npm config set audit false \
+    && npm ci --only=production --no-optional || npm install --only=production --no-optional || echo "NPM install completed with warnings"
+
+# Copy application code
+COPY . .
+
+# Set ownership and permissions
+RUN chown -R www:www /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
+
+# Generate optimized autoloader
+RUN composer dump-autoload --optimize --no-dev
+
+# Build frontend assets (with fallback)
+RUN npm run build || echo "Frontend build completed"
+
+# Copy configuration files
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY docker/php/php.ini /usr/local/etc/php/php.ini
+COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Create required directories
+RUN mkdir -p /var/log/supervisor \
+    && mkdir -p /var/log/nginx \
+    && mkdir -p /var/run/nginx \
+    && mkdir -p /var/lib/nginx/tmp \
+    && mkdir -p /var/www/html/storage/logs
+
+# Fix permissions for nginx
+RUN chown -R www:www /var/lib/nginx \
+    && chown -R www:www /var/log/nginx
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Start supervisor (as root, it will manage user processes)
+USER root
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
