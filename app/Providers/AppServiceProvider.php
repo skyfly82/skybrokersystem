@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Polyfill dla paczek/providera wołających $app->make('files')
+        $this->app->singleton('files', function () {
+            return new Filesystem();
+        });
     }
 
     /**

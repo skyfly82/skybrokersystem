@@ -50,9 +50,9 @@ return [
         // ... existing providers ...
         
         // SkyBrokerSystem Providers
-        App\Providers\CourierServiceProvider::class,
-        App\Providers\PaymentServiceProvider::class,
-        App\Providers\NotificationServiceProvider::class,
-        App\Providers\SmsServiceProvider::class,
+       // App\Providers\CourierServiceProvider::class,
+        //App\Providers\PaymentServiceProvider::class,
+       // App\Providers\NotificationServiceProvider::class,
+       // App\Providers\SmsServiceProvider::class,
     ],
 ];
