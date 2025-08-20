@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SkyBrokerSystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-8" x-data="{ message: 'SkyBrokerSystem gotowy!' }">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-3xl font-bold text-blue-600 mb-4" x-text="message"></h1>
+            <p class="text-gray-600">Serwer skonfigurowany i gotowy do działania!</p>
+            <button @click="message = 'Alpine.js działa!'" 
+                    class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Test Alpine.js
+            </button>
+        </div>
+    </div>
+</body>
+</html>
