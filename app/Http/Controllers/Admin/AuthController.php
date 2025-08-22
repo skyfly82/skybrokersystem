@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,19 +15,26 @@ class AuthController extends Controller
         return view('admin.auth.login');
     }
 
-    public function login(LoginRequest $request)
+    public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         $credentials = $request->only('email', 'password');
         $credentials['is_active'] = true;
 
         if (Auth::guard('system_user')->attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
             
-            // Update last login
-            Auth::guard('system_user')->user()->update([
-                'last_login_at' => now(),
-                'last_login_ip' => $request->ip(),
-            ]);
+            // Update last login if user exists
+            if ($user = Auth::guard('system_user')->user()) {
+                $user->update([
+                    'last_login_at' => now(),
+                    'last_login_ip' => $request->ip(),
+                ]);
+            }
 
             return redirect()->intended(route('admin.dashboard'));
         }

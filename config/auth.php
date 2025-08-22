@@ -25,15 +25,22 @@ return [
             'provider' => 'users',
         ],
         
-        // DODAJ TE GUARDS! 👇
+        // ADMIN GUARD
         'system_user' => [
             'driver' => 'session',
             'provider' => 'system_users',
         ],
         
+        // CUSTOMER GUARD  
         'customer_user' => [
             'driver' => 'session',
             'provider' => 'customer_users',
+        ],
+
+        // API GUARD (Sanctum)
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
         ],
     ],
 
@@ -49,12 +56,13 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
         
-        // DODAJ TYCH PROVIDERÓW! 👇
+        // ADMIN PROVIDER
         'system_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\SystemUser::class,
         ],
         
+        // CUSTOMER PROVIDER
         'customer_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\CustomerUser::class,
@@ -75,7 +83,6 @@ return [
             'throttle' => 60,
         ],
         
-        // DODAJ PASSWORD RESET DLA SYSTEM USERS
         'system_users' => [
             'provider' => 'system_users',
             'table' => 'password_reset_tokens',
@@ -83,7 +90,6 @@ return [
             'throttle' => 60,
         ],
         
-        // DODAJ PASSWORD RESET DLA CUSTOMER USERS
         'customer_users' => [
             'provider' => 'customer_users',
             'table' => 'password_reset_tokens',

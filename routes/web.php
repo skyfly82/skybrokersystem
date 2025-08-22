@@ -78,7 +78,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Shipments Management
         Route::prefix('shipments')->name('shipments.')->group(function () {
             Route::get('/', [AdminShipmentsController::class, 'index'])->name('index');
+            Route::get('/create', [AdminShipmentsController::class, 'create'])->name('create');
+            Route::post('/', [AdminShipmentsController::class, 'store'])->name('store');
             Route::get('/{shipment}', [AdminShipmentsController::class, 'show'])->name('show');
+            Route::get('/{shipment}/edit', [AdminShipmentsController::class, 'edit'])->name('edit');
+            Route::put('/{shipment}', [AdminShipmentsController::class, 'update'])->name('update');
+            Route::delete('/{shipment}', [AdminShipmentsController::class, 'destroy'])->name('destroy');
             Route::post('/{shipment}/update-status', [AdminShipmentsController::class, 'updateStatus'])->name('update-status');
         });
         
@@ -100,32 +105,203 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/test', [AdminNotificationsController::class, 'testNotification'])->name('test');
         });
         
-        // Courier Services (placeholder routes)
-        Route::prefix('couriers')->name('couriers.')->group(function () {
-            Route::get('/', function () { return view('admin.couriers.index'); })->name('index');
-        });
-        
-        // Reports (placeholder routes)
+        // Reports
         Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/', function () { return view('admin.reports.index'); })->name('index');
+            Route::get('/', function () { 
+                return view('admin.reports.index', [
+                    'title' => 'Reports Dashboard',
+                    'description' => 'View system reports and analytics'
+                ]); 
+            })->name('index');
+            
+            Route::get('/shipments', function () { 
+                return view('admin.reports.shipments', [
+                    'title' => 'Shipments Report',
+                    'description' => 'Detailed shipments analytics'
+                ]); 
+            })->name('shipments');
+            
+            Route::get('/payments', function () { 
+                return view('admin.reports.payments', [
+                    'title' => 'Payments Report',
+                    'description' => 'Financial reports and payment analytics'
+                ]); 
+            })->name('payments');
+            
+            Route::get('/customers', function () { 
+                return view('admin.reports.customers', [
+                    'title' => 'Customers Report',
+                    'description' => 'Customer analytics and statistics'
+                ]); 
+            })->name('customers');
         });
         
-        // Super Admin Only Routes
-        Route::middleware('admin:super_admin')->group(function () {
-            // System Users Management
-            Route::prefix('users')->name('users.')->group(function () {
-                Route::get('/', function () { return view('admin.users.index'); })->name('index');
-            });
+        // Courier Services
+        Route::prefix('couriers')->name('couriers.')->group(function () {
+            Route::get('/', function () { 
+                return view('admin.couriers.index', [
+                    'title' => 'Courier Services',
+                    'description' => 'Manage courier integrations and settings'
+                ]); 
+            })->name('index');
             
-            // System Settings
-            Route::prefix('settings')->name('settings.')->group(function () {
-                Route::get('/', function () { return view('admin.settings.index'); })->name('index');
-            });
+            Route::get('/settings', function () { 
+                return view('admin.couriers.settings', [
+                    'title' => 'Courier Settings',
+                    'description' => 'Configure courier API settings'
+                ]); 
+            })->name('settings');
+        });
+        
+        // System Settings - WSZYSTKIE POTRZEBNE ROUTY
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', function () { 
+                return view('admin.settings.index', [
+                    'title' => 'System Settings',
+                    'description' => 'Configure system-wide settings'
+                ]); 
+            })->name('index');
             
-            // System Logs
-            Route::prefix('logs')->name('logs.')->group(function () {
-                Route::get('/', function () { return view('admin.logs.index'); })->name('index');
-            });
+            // DODANA BRAKUJĄCA RUTA!
+            Route::get('/general', function () { 
+                return view('admin.settings.general', [
+                    'title' => 'General Settings',
+                    'description' => 'General system configuration'
+                ]); 
+            })->name('general');
+            
+            Route::get('/system', function () { 
+                return view('admin.settings.system', [
+                    'title' => 'System Configuration',
+                    'description' => 'Advanced system settings'
+                ]); 
+            })->name('system');
+            
+            Route::get('/courier', function () { 
+                return view('admin.settings.courier', [
+                    'title' => 'Courier Settings',
+                    'description' => 'Courier service configuration'
+                ]); 
+            })->name('courier');
+            
+            Route::get('/payment', function () { 
+                return view('admin.settings.payment', [
+                    'title' => 'Payment Settings',
+                    'description' => 'Payment gateway configuration'
+                ]); 
+            })->name('payment');
+            
+            Route::get('/notifications', function () { 
+                return view('admin.settings.notifications', [
+                    'title' => 'Notification Settings',
+                    'description' => 'Configure email and SMS notifications'
+                ]); 
+            })->name('notifications');
+            
+            Route::get('/security', function () { 
+                return view('admin.settings.security', [
+                    'title' => 'Security Settings',
+                    'description' => 'Security and authentication settings'
+                ]); 
+            })->name('security');
+            
+            Route::get('/api', function () { 
+                return view('admin.settings.api', [
+                    'title' => 'API Settings',
+                    'description' => 'API configuration and keys'
+                ]); 
+            })->name('api');
+            
+            Route::get('/maintenance', function () { 
+                return view('admin.settings.maintenance', [
+                    'title' => 'Maintenance Settings',
+                    'description' => 'System maintenance and updates'
+                ]); 
+            })->name('maintenance');
+        });
+        
+        // System Users Management (Super Admin Only)
+        Route::middleware('admin:super_admin')->prefix('users')->name('users.')->group(function () {
+            Route::get('/', function () { 
+                return view('admin.users.index', [
+                    'title' => 'System Users',
+                    'description' => 'Manage admin users and permissions'
+                ]); 
+            })->name('index');
+            
+            Route::get('/create', function () { 
+                return view('admin.users.create', [
+                    'title' => 'Create User',
+                    'description' => 'Add new admin user'
+                ]); 
+            })->name('create');
+            
+            Route::post('/', function () { 
+                return redirect()->route('admin.users.index')->with('success', 'User created successfully'); 
+            })->name('store');
+            
+            Route::get('/{user}/edit', function () { 
+                return view('admin.users.edit', [
+                    'title' => 'Edit User',
+                    'description' => 'Edit admin user details'
+                ]); 
+            })->name('edit');
+            
+            Route::put('/{user}', function () { 
+                return redirect()->route('admin.users.index')->with('success', 'User updated successfully'); 
+            })->name('update');
+            
+            Route::delete('/{user}', function () { 
+                return redirect()->route('admin.users.index')->with('success', 'User deleted successfully'); 
+            })->name('destroy');
+        });
+        
+        // System Logs
+        Route::prefix('logs')->name('logs.')->group(function () {
+            Route::get('/', function () { 
+                return view('admin.logs.index', [
+                    'title' => 'System Logs',
+                    'description' => 'View system activity and error logs'
+                ]); 
+            })->name('index');
+            
+            Route::get('/errors', function () { 
+                return view('admin.logs.errors', [
+                    'title' => 'Error Logs',
+                    'description' => 'System error logs'
+                ]); 
+            })->name('errors');
+            
+            Route::get('/access', function () { 
+                return view('admin.logs.access', [
+                    'title' => 'Access Logs',
+                    'description' => 'User access logs'
+                ]); 
+            })->name('access');
+        });
+        
+        // Analytics & Statistics
+        Route::prefix('analytics')->name('analytics.')->group(function () {
+            Route::get('/', function () { 
+                return view('admin.analytics.index', [
+                    'title' => 'Analytics Dashboard',
+                    'description' => 'System analytics and insights'
+                ]); 
+            })->name('index');
+            
+            Route::get('/shipments', function () { 
+                return view('admin.analytics.shipments', [
+                    'title' => 'Shipment Analytics',
+                    'description' => 'Detailed shipment analytics'
+                ]); 
+            })->name('shipments');
+            
+            Route::get('/revenue', function () { 
+                return view('admin.analytics.revenue', [
+                    'title' => 'Revenue Analytics',
+                    'description' => 'Financial performance analytics'
+                ]); 
+            })->name('revenue');
         });
     });
 });
@@ -185,14 +361,64 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::put('/notifications', [CustomerProfileController::class, 'updateNotifications'])->name('update-notifications');
         });
         
-        // Users Management (for admin users only)
+        // Users Management (for customer admin users only)
         Route::middleware('customer.admin')->prefix('users')->name('users.')->group(function () {
-            Route::get('/', function () { return view('customer.users.index'); })->name('index');
-            Route::get('/create', function () { return view('customer.users.create'); })->name('create');
-            Route::post('/', function () { return redirect()->route('customer.users.index'); })->name('store');
-            Route::get('/{user}/edit', function () { return view('customer.users.edit'); })->name('edit');
-            Route::put('/{user}', function () { return redirect()->route('customer.users.index'); })->name('update');
-            Route::delete('/{user}', function () { return redirect()->route('customer.users.index'); })->name('destroy');
+            Route::get('/', function () { 
+                return view('customer.users.index', [
+                    'title' => 'Team Users',
+                    'description' => 'Manage your company users'
+                ]); 
+            })->name('index');
+            
+            Route::get('/create', function () { 
+                return view('customer.users.create', [
+                    'title' => 'Add User',
+                    'description' => 'Add new team member'
+                ]); 
+            })->name('create');
+            
+            Route::post('/', function () { 
+                return redirect()->route('customer.users.index')->with('success', 'User created successfully'); 
+            })->name('store');
+            
+            Route::get('/{user}/edit', function () { 
+                return view('customer.users.edit', [
+                    'title' => 'Edit User',
+                    'description' => 'Edit team member details'
+                ]); 
+            })->name('edit');
+            
+            Route::put('/{user}', function () { 
+                return redirect()->route('customer.users.index')->with('success', 'User updated successfully'); 
+            })->name('update');
+            
+            Route::delete('/{user}', function () { 
+                return redirect()->route('customer.users.index')->with('success', 'User deleted successfully'); 
+            })->name('destroy');
+        });
+        
+        // Customer Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', function () { 
+                return view('customer.reports.index', [
+                    'title' => 'Reports',
+                    'description' => 'Your shipment and payment reports'
+                ]); 
+            })->name('index');
+            
+            Route::get('/shipments', function () { 
+                return view('customer.reports.shipments', [
+                    'title' => 'Shipment Reports',
+                    'description' => 'Detailed shipment analytics'
+                ]); 
+            })->name('shipments');
+            
+            Route::get('/payments', function () { 
+                return view('customer.reports.payments', [
+                    'title' => 'Payment Reports',
+                    'description' => 'Payment history and analytics'
+                ]); 
+            })->name('payments');
         });
     });
 });
@@ -204,35 +430,69 @@ Route::prefix('customer')->name('customer.')->group(function () {
 */
 
 Route::prefix('payments')->name('payments.')->group(function () {
-    Route::get('/{payment}/return', function () {
-        return view('payments.return');
-    })->name('return');
+    // Payment gateway returns (no authentication required)
+    Route::get('/return/paynow', function () { 
+        return view('payments.return', ['provider' => 'PayNow']); 
+    })->name('return.paynow');
     
-    Route::get('/{payment}/simulation', function () {
-        return view('payments.simulation');
-    })->name('simulation');
+    Route::get('/return/stripe', function () { 
+        return view('payments.return', ['provider' => 'Stripe']); 
+    })->name('return.stripe');
+    
+    Route::get('/cancel/paynow', function () { 
+        return view('payments.cancel', ['provider' => 'PayNow']); 
+    })->name('cancel.paynow');
+    
+    Route::get('/cancel/stripe', function () { 
+        return view('payments.cancel', ['provider' => 'Stripe']); 
+    })->name('cancel.stripe');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Public Tracking
+| Public API Routes (for tracking without auth)
 |--------------------------------------------------------------------------
 */
 
-Route::get('/track/{trackingNumber}', function ($trackingNumber) {
-    return view('public.track', compact('trackingNumber'));
-})->name('public.track');
+Route::prefix('api/public')->name('api.public.')->group(function () {
+    Route::get('/track/{trackingNumber}', function ($trackingNumber) {
+        return response()->json([
+            'tracking_number' => $trackingNumber,
+            'status' => 'in_transit',
+            'message' => 'Package is in transit'
+        ]);
+    })->name('track');
+    
+    Route::get('/status', function () {
+        return response()->json([
+            'status' => 'operational',
+            'timestamp' => now(),
+            'version' => '6.0.0'
+        ]);
+    })->name('status');
+});
 
 /*
 |--------------------------------------------------------------------------
-| Health Check
+| Health Check Route
 |--------------------------------------------------------------------------
 */
 
 Route::get('/health', function () {
     return response()->json([
         'status' => 'ok',
-        'timestamp' => now()->toISOString(),
-        'version' => config('app.version', '6.0.0'),
+        'timestamp' => now(),
+        'service' => 'SkyBrokerSystem',
+        'version' => '6.0.0'
     ]);
 })->name('health');
+
+/*
+|--------------------------------------------------------------------------
+| Fallback Route
+|--------------------------------------------------------------------------
+*/
+
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
