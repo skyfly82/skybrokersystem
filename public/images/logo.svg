@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+  <rect width="200" height="50" fill="#1e40af"/>
+  <text x="10" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">
+    SkyBroker
+  </text>
+  <circle cx="170" cy="25" r="15" fill="#fbbf24"/>
+  <path d="M165 25 L170 20 L175 25 L170 30 Z" fill="#1e40af"/>
+</svg>

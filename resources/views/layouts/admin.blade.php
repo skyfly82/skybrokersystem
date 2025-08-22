@@ -350,20 +350,43 @@
     @stack('scripts')
 
     <!-- Admin JavaScript -->
-    <script>
-        // Admin stats Alpine component
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('adminStats', () => ({
-                stats: {
-                    today_shipments: 0,
-                    pending_shipments: 0,
-                    total_customers: 0
-                },
-                
-                async fetchStats() {
-                    try {
-                        const response = await fetch('{{ route("admin.dashboard.stats") }}');
-                        const data = await response.json();
-                        this.stats = data;
-                    } catch (error) {
-                        console.error('Error fetching admin stats:', error);
+<!-- Admin JavaScript -->
+<script>
+// Admin stats Alpine component
+document.addEventListener('alpine:init', () => {
+    Alpine.data('adminStats', () => ({
+        stats: {
+            today_shipments: 0,
+            pending_shipments: 0,
+            total_customers: 0
+        },
+        
+        async fetchStats() {
+            try {
+                const response = await fetch('{{ route("admin.dashboard.stats") }}');
+                if (response.ok) {
+                    const data = await response.json();
+                    this.stats = data;
+                } else {
+                    console.warn('Failed to fetch admin stats');
+                }
+            } catch (error) {
+                console.error('Error fetching admin stats:', error);
+            }
+        }
+    }));
+    
+    // Admin login form
+    Alpine.data('adminLogin', () => ({
+        email: '{{ old('email') ?? '' }}',
+        password: '',
+        loading: false,
+        showPassword: false,
+        
+        fillCredentials(email, password) {
+            this.email = email;
+            this.password = password;
+        }
+    }));
+});
+</script>
