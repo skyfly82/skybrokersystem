@@ -30,6 +30,12 @@ class CustomerActiveMiddleware
                 return response()->json(['error' => 'Customer account inactive'], 403);
             }
             
+            // If customer exists but is not active (status = pending), show pending page
+            if ($customer && $customer->status === 'pending') {
+                return redirect()->route('customer.pending');
+            }
+            
+            // Otherwise (suspended/banned), redirect to login with error
             return redirect()->route('customer.login')
                 ->withErrors(['error' => 'Konto firmy zostało zawieszone.']);
         }

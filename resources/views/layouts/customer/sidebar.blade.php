@@ -7,14 +7,42 @@
     
     <title>@yield('title', 'Customer Panel') - SkyBrokerSystem</title>
     
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Fonts - Brand Guidelines: Be Vietnam Pro (headings) + Mulish (content) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'heading': ['Be Vietnam Pro', 'sans-serif'],
+                        'body': ['Mulish', 'sans-serif'],
+                        sans: ['Mulish', 'sans-serif'],
+                    },
+                    colors: {
+                        'skywave': '#2F7DFF',
+                        'black-coal': '#0C0212',
+                        'pure-white': '#FFFFFF',
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#2F7DFF',
+                            600: '#1D5FD9',
+                            700: '#1D4ED8',
+                            900: '#0C0212',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     
     @stack('styles')
 </head>
-<body class="h-full" x-data="{ sidebarOpen: false }">
+<body class="h-full font-body antialiased" x-data="{ sidebarOpen: false }">
     <div class="min-h-full">
         <!-- Mobile sidebar -->
         <div x-show="sidebarOpen" class="relative z-50 lg:hidden" x-cloak>

@@ -7,10 +7,10 @@
     
     <title>@yield('title', 'Logowanie') | {{ config('app.name', 'SkyBrokerSystem') }}</title>
     
-    <!-- Fonts -->
+    <!-- Fonts - Brand Guidelines: Be Vietnam Pro (headings) + Mulish (content) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,21 +19,34 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        'heading': ['Be Vietnam Pro', 'sans-serif'],
+                        'body': ['Mulish', 'sans-serif'],
+                        sans: ['Mulish', 'sans-serif'],
                     },
                     colors: {
+                        // Brand colors according to brandbook
+                        'skywave': '#2F7DFF',
+                        'black-coal': '#0C0212',
+                        'pure-white': '#FFFFFF',
+                        // Additional brand colors (max 20% usage)
+                        'bold-yellow': '#FFD700',
+                        'bold-pink': '#FF69B4',
+                        'purple-blue': '#6366F1',
                         primary: {
                             50: '#eff6ff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
+                            500: '#2F7DFF',
+                            600: '#1D5FD9',
+                            700: '#1D4ED8',
+                            900: '#0C0212',
                         }
                     }
                 }
             }
         }
     </script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

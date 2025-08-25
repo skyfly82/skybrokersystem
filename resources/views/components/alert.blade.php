@@ -10,11 +10,11 @@
 @php
     $alertClasses = [
         'info' => [
-            'bg' => 'bg-blue-50',
-            'border' => 'border-blue-200',
-            'text' => 'text-blue-800',
-            'icon' => 'fas fa-info-circle text-blue-400',
-            'title' => 'text-blue-800'
+            'bg' => 'bg-skywave/5',
+            'border' => 'border-skywave/20',
+            'text' => 'text-skywave',
+            'icon' => 'fas fa-info-circle text-skywave/60',
+            'title' => 'text-skywave'
         ],
         'success' => [
             'bg' => 'bg-green-50',
@@ -75,12 +75,12 @@
 
         <div class="{{ $icon ? 'ml-3' : '' }} flex-1">
             @if($title)
-            <h3 class="text-sm font-medium {{ $classes['title'] }}">
+            <h3 class="text-sm font-heading font-medium {{ $classes['title'] }}">
                 {{ $title }}
             </h3>
             @endif
             
-            <div class="{{ $title ? 'mt-2' : '' }} text-sm {{ $classes['text'] }}">
+            <div class="{{ $title ? 'mt-2' : '' }} text-sm font-body {{ $classes['text'] }}">
                 {{ $slot }}
             </div>
         </div>

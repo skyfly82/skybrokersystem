@@ -9,18 +9,26 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Brand colors according to brandbook
+        'skywave': '#2F7DFF',
+        'black-coal': '#0C0212',
+        'pure-white': '#FFFFFF',
+        // Additional brand colors (max 20% usage)
+        'bold-yellow': '#FFD700',
+        'bold-pink': '#FF69B4',
+        'purple-blue': '#6366F1',
         'primary': {
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
           300: '#93c5fd',
           400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
+          500: '#2F7DFF',
+          600: '#1D5FD9',
+          700: '#1D4ED8',
           800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
+          900: '#0C0212',
+          950: '#0C0212',
         },
         'secondary': {
           50: '#f8fafc',
@@ -76,7 +84,9 @@ export default {
         }
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'heading': ['Be Vietnam Pro', 'sans-serif'],
+        'body': ['Mulish', 'sans-serif'],
+        'sans': ['Mulish', 'sans-serif'],
         'mono': ['JetBrains Mono', 'Consolas', 'monospace'],
       },
       spacing: {

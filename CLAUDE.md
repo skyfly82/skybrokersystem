@@ -168,3 +168,4 @@ Key migrations in `database/migrations/`:
 - View, route, and config caching for production
 
 This architecture provides a scalable foundation for courier brokerage operations with clear separation of concerns and extensive integration capabilities.
+- nie wprowadzaj zmian do Dcokera poniewa piszemy od razu na serwerze

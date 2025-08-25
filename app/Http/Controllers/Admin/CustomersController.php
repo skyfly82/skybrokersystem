@@ -104,17 +104,12 @@ class CustomersController extends Controller
 
     public function approve(Customer $customer)
     {
-        $customer->update([
-            'status' => 'active',
-            'verified_at' => now()
-        ]);
-
-        // Send notification to customer
-        if ($customer->primaryUser()) {
-            $customer->primaryUser()->notify(new CustomerApproved($customer));
+        if ($customer->isEmailVerified()) {
+            $customer->update(['status' => 'active']);
+            return back()->with('success', 'Klient został zatwierdzony pomyślnie.');
         }
 
-        return back()->with('success', 'Klient został zatwierdzony.');
+        return back()->with('error', 'Klient musi najpierw zweryfikować swój email.');
     }
 
     public function suspend(Customer $customer)

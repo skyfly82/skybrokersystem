@@ -17,9 +17,12 @@ class InPostService implements CourierServiceInterface
 
     public function __construct()
     {
-        $this->apiUrl = config('couriers.inpost.api_url');
-        $this->token = config('couriers.inpost.token');
-        $this->organizationId = config('couriers.inpost.organization_id');
+        $config = config('couriers.services.inpost');
+        $this->apiUrl = $config['sandbox'] 
+            ? ($config['sandbox_api_url'] ?? $config['api_url']) 
+            : $config['api_url'];
+        $this->token = $config['token'] ?? '';
+        $this->organizationId = $config['organization_id'] ?? '';
     }
 
     public function createShipment(array $data): array
@@ -146,15 +149,16 @@ class InPostService implements CourierServiceInterface
         $points = $response->json()['items'] ?? [];
 
         return collect($points)->map(function ($point) {
+            $address = $point['address'] ?? [];
             return [
-                'id' => $point['name'],
-                'name' => $point['name'],
-                'address' => $point['address']['line1'] . ', ' . $point['address']['line2'],
-                'city' => $point['address']['city'],
-                'postal_code' => $point['address']['post_code'],
+                'id' => $point['name'] ?? '',
+                'name' => $point['name'] ?? '',
+                'address' => ($address['line1'] ?? '') . ', ' . ($address['line2'] ?? ''),
+                'city' => $address['city'] ?? '',
+                'postal_code' => $address['post_code'] ?? '',
                 'coordinates' => [
-                    'lat' => $point['location']['latitude'],
-                    'lng' => $point['location']['longitude']
+                    'lat' => $point['location']['latitude'] ?? 0,
+                    'lng' => $point['location']['longitude'] ?? 0
                 ],
                 'opening_hours' => $point['opening_hours'] ?? '24/7',
                 'functions' => $point['functions'] ?? [],

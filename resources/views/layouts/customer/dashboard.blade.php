@@ -8,16 +8,16 @@
     <div class="bg-white shadow rounded-lg p-6">
         <div class="md:flex md:items-center md:justify-between">
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                <h2 class="text-2xl font-heading font-bold leading-7 text-black-coal sm:text-3xl sm:truncate">
                     Witaj ponownie, {{ auth()->user()->first_name }}!
                 </h2>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm font-body text-gray-500">
                     Firma: {{ auth()->user()->customer->company_name }}
                 </p>
             </div>
             <div class="mt-4 flex md:mt-0 md:ml-4">
                 <a href="{{ route('customer.shipments.create') }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                   class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-md text-sm font-body font-medium inline-flex items-center">
                     <i class="fas fa-plus mr-2"></i>
                     Nowa przesyłka
                 </a>

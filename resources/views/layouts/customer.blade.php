@@ -7,34 +7,58 @@
     
     <title>@yield('title', 'Panel Klienta') | {{ config('app.name', 'SkyBrokerSystem') }}</title>
     
-    <!-- Fonts -->
+    <!-- Fonts - Brand Guidelines: Be Vietnam Pro (headings) + Mulish (content) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS - CDN for development only -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
+        // Suppress CDN warning in development
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        'heading': ['Be Vietnam Pro', 'sans-serif'],
+                        'body': ['Mulish', 'sans-serif'],
+                        sans: ['Mulish', 'sans-serif'],
+                    },
+                    colors: {
+                        // Brand colors according to brandbook
+                        'skywave': '#2F7DFF',
+                        'black-coal': '#0C0212',
+                        'pure-white': '#FFFFFF',
+                        // Additional brand colors (max 20% usage)
+                        'bold-yellow': '#FFD700',
+                        'bold-pink': '#FF69B4',
+                        'purple-blue': '#6366F1',
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#2F7DFF',
+                            600: '#1D5FD9',
+                            700: '#1D4ED8',
+                            900: '#0C0212',
+                        }
                     }
                 }
             }
+        };
         }
     </script>
     
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js loaded conditionally via @stack('scripts') -->
     
     @stack('head')
 </head>
-<body class="h-full" x-data="{ sidebarOpen: false }">
+<body class="h-full font-body antialiased" x-data="{ sidebarOpen: false }">
     <div class="min-h-full">
         <!-- Sidebar -->
         <div class="fixed inset-y-0 z-50 flex w-64 flex-col" x-show="sidebarOpen" x-transition:enter="transition ease-in-out duration-300 transform" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" style="display: none;">
@@ -520,7 +544,7 @@
         
         // Set CSRF token for all AJAX requests
         const token = document.querySelector('meta[name="csrf-token"]');
-        if (token) {
+        if (token && window.axios && window.axios.defaults) {
             window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.getAttribute('content');
         }
     </script>

@@ -48,9 +48,11 @@ class CustomerUser extends Authenticatable
                     'email' => [
                         'shipment_status_update' => true,
                         'payment_receipt' => true,
+                        'system_updates' => false,
                     ],
                     'sms' => [
                         'shipment_delivered' => false,
+                        'urgent_notifications' => true,
                     ]
                 ];
             }
@@ -104,5 +106,17 @@ class CustomerUser extends Authenticatable
     public function routeNotificationForSms(): string
     {
         return $this->phone;
+    }
+
+    public function getNotificationPreference(string $channel, string $type): bool
+    {
+        return $this->notification_preferences[$channel][$type] ?? false;
+    }
+
+    public function updateNotificationPreference(string $channel, string $type, bool $enabled): void
+    {
+        $preferences = $this->notification_preferences ?? [];
+        $preferences[$channel][$type] = $enabled;
+        $this->update(['notification_preferences' => $preferences]);
     }
 }

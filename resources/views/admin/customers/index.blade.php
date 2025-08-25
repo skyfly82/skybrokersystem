@@ -442,11 +442,10 @@
                                       method="POST" 
                                       class="inline">
                                     @csrf
-                                    @method('PATCH')
                                     <button type="submit" 
                                             class="text-green-600 hover:text-green-900 p-1"
-                                            title="Zatwierdź klienta"
-                                            onclick="return confirm('Czy na pewno chcesz zatwierdzić tego klienta?')">
+                                            title="Zatwierdź klienta (tylko po weryfikacji email)"
+                                            onclick="return confirm('Zatwierdź klienta {{ $customer->company_name }}?')">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </form>
@@ -808,6 +807,7 @@ document.addEventListener('change', function(e) {
         customersIndex.showBulkActions = customersIndex.selectedCustomers.length > 0;
     }
 });
+
 </script>
 @endpush
 @endsection

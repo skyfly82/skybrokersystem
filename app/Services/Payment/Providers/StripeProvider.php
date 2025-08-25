@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Services\Payment\Providers;
 
 use App\Models\Payment;
-use Stripe\StripeClient;
-use Stripe\Exception\ApiErrorException;
+use Exception;
 
 class StripeProvider implements PaymentProviderInterface
 {
-    private StripeClient $stripe;
+    private $stripe;
 
     public function __construct()
     {
-        $this->stripe = new StripeClient(config('payments.stripe.secret_key'));
+        if (!class_exists('\Stripe\StripeClient')) {
+            throw new Exception('Stripe PHP SDK is not installed. Run: composer require stripe/stripe-php');
+        }
+        
+        $this->stripe = new \Stripe\StripeClient(config('payments.providers.stripe.secret_key', ''));
     }
 
     public function createPayment(Payment $payment): array

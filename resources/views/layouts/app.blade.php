@@ -7,16 +7,17 @@
     
     <title>@yield('title', 'SkyBrokerSystem v6')</title>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Fonts - Brand Guidelines: Be Vietnam Pro (headings) + Mulish (content) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet" />
     
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     @stack('styles')
 </head>
-<body class="h-full font-sans antialiased">
+<body class="h-full font-body antialiased">
     <div class="min-h-full">
         <!-- Navigation -->
         @include('layouts.navigation')

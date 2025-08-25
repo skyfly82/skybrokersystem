@@ -75,4 +75,5 @@ return [
     // Additional common terms
     'or' => 'lub',
     'go_home' => 'Strona główna',
+    'breadcrumbs' => 'Ścieżka nawigacyjna',
 ];

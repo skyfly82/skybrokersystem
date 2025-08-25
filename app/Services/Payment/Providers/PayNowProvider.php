@@ -15,9 +15,12 @@ class PayNowProvider implements PaymentProviderInterface
 
     public function __construct()
     {
-        $this->apiUrl = config('payments.paynow.api_url');
-        $this->apiKey = config('payments.paynow.api_key');
-        $this->signatureKey = config('payments.paynow.signature_key');
+        $config = config('payments.providers.paynow');
+        $this->apiUrl = $config['sandbox'] 
+            ? ($config['sandbox_api_url'] ?? $config['api_url']) 
+            : $config['api_url'];
+        $this->apiKey = $config['api_key'] ?? '';
+        $this->signatureKey = $config['signature_key'] ?? '';
     }
 
     public function createPayment(Payment $payment): array

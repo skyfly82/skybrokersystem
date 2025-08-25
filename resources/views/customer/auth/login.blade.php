@@ -5,7 +5,7 @@
 @section('description', __('auth.customer_login_subtitle'))
 
 @section('content')
-<form method="POST" action="{{ route('customer.login') }}" class="space-y-6" x-data="customerLogin">
+<form method="POST" action="{{ route('customer.login') }}" class="space-y-6" x-data="customerLogin" @submit="loading = true">
     @csrf
     
     <!-- Email Address -->
@@ -99,10 +99,12 @@
             type="submit" 
             class="flex w-full justify-center rounded-md bg-primary-600 px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             :disabled="loading"
-            @click="loading = true"
-            x-text="loading ? '{{ __('auth.login') }}...' : '{{ __('auth.login') }}'"
         >
-            Zaloguj się
+            <span x-show="!loading">Zaloguj się</span>
+            <span x-show="loading" class="flex items-center">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Logowanie...
+            </span>
         </button>
     </div>
 

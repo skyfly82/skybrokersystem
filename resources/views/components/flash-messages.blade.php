@@ -9,7 +9,7 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-success-800">
+                        <p class="text-sm font-body font-medium text-success-800">
                             {{ session('success') }}
                         </p>
                     </div>
@@ -36,7 +36,7 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-danger-800">
+                        <p class="text-sm font-body font-medium text-danger-800">
                             {{ session('error') }}
                         </p>
                     </div>
@@ -63,7 +63,7 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-warning-800">
+                        <p class="text-sm font-body font-medium text-warning-800">
                             {{ session('warning') }}
                         </p>
                     </div>
@@ -90,7 +90,7 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-primary-800">
+                        <p class="text-sm font-body font-medium text-primary-800">
                             {{ session('info') }}
                         </p>
                     </div>

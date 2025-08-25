@@ -75,4 +75,5 @@ return [
     // Additional common terms
     'or' => 'or',
     'go_home' => 'Home page',
+    'breadcrumbs' => 'Breadcrumbs',
 ];

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\CustomersController as AdminCustomersController;
+use App\Http\Controllers\Admin\SystemSettingsController as AdminSystemSettingsController;
 use App\Http\Controllers\Admin\ShipmentsController as AdminShipmentsController;
 use App\Http\Controllers\Admin\PaymentsController as AdminPaymentsController;
 use App\Http\Controllers\Admin\NotificationsController as AdminNotificationsController;
@@ -187,12 +188,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ]); 
             })->name('general');
             
-            Route::get('/system', function () { 
-                return view('admin.settings.system', [
-                    'title' => 'System Configuration',
-                    'description' => 'Advanced system settings'
-                ]); 
-            })->name('system');
+            Route::get('/system', [AdminSystemSettingsController::class, 'index'])->name('system');
+            Route::post('/system', [AdminSystemSettingsController::class, 'update'])->name('system.update');
+            
+            Route::get('/verification', [AdminSystemSettingsController::class, 'verification'])->name('verification');
+            Route::post('/verification', [AdminSystemSettingsController::class, 'updateVerification'])->name('verification.update');
+            Route::post('/test-email', [AdminSystemSettingsController::class, 'testEmail'])->name('test-email');
             
             Route::get('/courier', function () { 
                 return view('admin.settings.courier', [
@@ -336,9 +337,17 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/login', [CustomerAuthController::class, 'login']);
         Route::get('/register', [CustomerAuthController::class, 'showRegistrationForm'])->name('register');
         Route::post('/register', [CustomerAuthController::class, 'register']);
+        
+        // Verification routes
+        Route::get('/verify/{token}', [CustomerAuthController::class, 'showVerifyForm'])->name('verify');
+        Route::post('/verify/{token}', [CustomerAuthController::class, 'verify']);
+        Route::post('/verify/{token}/resend', [CustomerAuthController::class, 'resendCode'])->name('verify.resend');
     });
     
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+    
+    // Pending approval route (only for authenticated but not active customers)  
+    Route::get('/pending', [CustomerAuthController::class, 'showPendingForm'])->name('pending')->middleware('auth:customer_user');
     
     // Protected Customer Routes
     Route::middleware(['auth:customer_user', 'customer.active'])->group(function () {
@@ -348,17 +357,24 @@ Route::prefix('customer')->name('customer.')->group(function () {
         // Shipments Management
         Route::prefix('shipments')->name('shipments.')->group(function () {
             Route::get('/', [CustomerShipmentsController::class, 'index'])->name('index');
+            Route::get('/cart', [CustomerShipmentsController::class, 'cart'])->name('cart');
+            Route::post('/cart/process', [CustomerShipmentsController::class, 'processCart'])->name('cart.process');
+            Route::get('/address-book', [CustomerShipmentsController::class, 'addressBook'])->name('address-book');
             Route::get('/create', [CustomerShipmentsController::class, 'create'])->name('create');
             Route::post('/', [CustomerShipmentsController::class, 'store'])->name('store');
             Route::get('/{shipment}', [CustomerShipmentsController::class, 'show'])->name('show');
             Route::get('/{shipment}/track', [CustomerShipmentsController::class, 'track'])->name('track');
             Route::get('/{shipment}/label', [CustomerShipmentsController::class, 'label'])->name('label');
             Route::post('/{shipment}/cancel', [CustomerShipmentsController::class, 'cancel'])->name('cancel');
+            Route::post('/export', [CustomerShipmentsController::class, 'export'])->name('export');
             
             // AJAX endpoints for shipment creation
             Route::post('/calculate-price', [CustomerShipmentsController::class, 'calculatePrice'])->name('calculate-price');
             Route::post('/pickup-points', [CustomerShipmentsController::class, 'getPickupPoints'])->name('pickup-points');
         });
+        
+        // API endpoints for courier services (AJAX calls)
+        Route::get('/couriers/{courierCode}/services', [CustomerShipmentsController::class, 'getCourierServices'])->name('customer.courier.services');
         
         // Payments Management
         Route::prefix('payments')->name('payments.')->group(function () {
@@ -366,6 +382,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::get('/{payment}', [CustomerPaymentsController::class, 'show'])->name('show');
             Route::get('/topup/create', [CustomerPaymentsController::class, 'topup'])->name('topup');
             Route::post('/topup', [CustomerPaymentsController::class, 'processTopup'])->name('topup.process');
+            Route::post('/export', [CustomerPaymentsController::class, 'export'])->name('export');
         });
         
         // Profile Management

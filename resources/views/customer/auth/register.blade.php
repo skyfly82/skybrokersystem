@@ -5,7 +5,7 @@
 @section('description', 'Rozpocznij współpracę z SkyBroker już dziś')
 
 @section('content')
-<form method="POST" action="{{ route('customer.register') }}" class="space-y-6" x-data="customerRegister">
+<form method="POST" action="{{ route('customer.register') }}" class="space-y-6" x-data="customerRegister" @submit="loading = true">
     @csrf
     
     <!-- Registration Steps Indicator -->
@@ -403,10 +403,12 @@
             type="submit" 
             class="flex w-full justify-center rounded-md bg-primary-600 px-3 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             :disabled="loading || !canSubmit"
-            @click="loading = true"
-            x-text="loading ? 'Tworzenie konta...' : 'Załóż konto firmowe'"
         >
-            Załóż konto firmowe
+            <span x-show="!loading">Załóż konto firmowe</span>
+            <span x-show="loading" class="flex items-center">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Tworzenie konta...
+            </span>
         </button>
         <p class="mt-2 text-xs text-gray-500 text-center">
             Po rejestracji Twoje konto zostanie poddane weryfikacji (1-2 dni robocze)

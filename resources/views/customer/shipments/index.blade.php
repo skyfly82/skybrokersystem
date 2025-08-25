@@ -8,16 +8,16 @@
     <div class="bg-white shadow rounded-lg p-6">
         <div class="md:flex md:items-center md:justify-between">
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                <h2 class="text-2xl font-heading font-bold leading-7 text-black-coal sm:text-3xl sm:truncate">
                     Przesyłki
                 </h2>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm font-body text-gray-500">
                     Zarządzaj i śledź swoje przesyłki
                 </p>
             </div>
             <div class="mt-4 flex md:mt-0 md:ml-4">
                 <a href="{{ route('customer.shipments.create') }}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium inline-flex items-center">
+                   class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-md text-sm font-medium inline-flex items-center">
                     <i class="fas fa-plus mr-2"></i>
                     Nowa przesyłka
                 </a>
@@ -65,7 +65,7 @@
             <!-- Filter Button -->
             <div class="flex space-x-2">
                 <button type="submit" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-md text-sm font-medium">
                     <i class="fas fa-filter mr-2"></i>
                     Filtruj
                 </button>
@@ -175,7 +175,7 @@
                                         @break
                                     @case('in_transit')
                                     @case('out_for_delivery')
-                                        bg-blue-100 text-blue-800
+                                        bg-skywave/10 text-skywave
                                         @break
                                     @case('cancelled')
                                     @case('returned')
@@ -195,7 +195,7 @@
                                             @break
                                         @case('in_transit')
                                         @case('out_for_delivery')
-                                            bg-blue-400
+                                            bg-skywave
                                             @break
                                         @case('cancelled')
                                         @case('returned')
@@ -233,7 +233,7 @@
                                 <!-- Quick Actions -->
                                 @if($shipment->tracking_number)
                                 <a href="{{ route('customer.shipments.track', $shipment) }}" 
-                                   class="text-blue-600 hover:text-blue-900 p-1"
+                                   class="text-skywave hover:text-skywave/80 p-1"
                                    title="Śledź przesyłkę">
                                     <i class="fas fa-truck"></i>
                                 </a>
@@ -332,13 +332,13 @@
             <div class="mt-6">
                 @if(request()->anyFilled(['search', 'status']))
                 <a href="{{ route('customer.shipments.index') }}" 
-                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-skywave hover:bg-skywave/90">
                     <i class="fas fa-times mr-2"></i>
                     Wyczyść filtry
                 </a>
                 @else
                 <a href="{{ route('customer.shipments.create') }}" 
-                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-skywave hover:bg-skywave/90">
                     <i class="fas fa-plus mr-2"></i>
                     Utwórz przesyłkę
                 </a>

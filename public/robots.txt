@@ -1,2 +1,18 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /customer/dashboard
+Disallow: /customer/shipments
+Disallow: /customer/payments
+Disallow: /customer/profile
+Disallow: /customer/users
+
+# Allow public API endpoints
+Allow: /api/public/
+
+# Sitemaps
+Sitemap: /sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
