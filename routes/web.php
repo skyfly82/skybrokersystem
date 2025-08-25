@@ -42,6 +42,18 @@ Route::get('/dashboard', function () {
     return redirect()->route('home');
 })->name('dashboard.redirect');
 
+// Language switching route
+Route::get('/language/{locale}', function ($locale) {
+    if (!in_array($locale, array_keys(config('app.supported_locales')))) {
+        abort(404);
+    }
+    
+    session()->put('locale', $locale);
+    app()->setLocale($locale);
+    
+    return redirect()->back();
+})->name('language.switch');
+
 /*
 |--------------------------------------------------------------------------
 | Admin Routes

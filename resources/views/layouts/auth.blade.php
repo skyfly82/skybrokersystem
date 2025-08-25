@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl" class="h-full bg-gray-50">
+<html lang="{{ app()->getLocale() }}" class="h-full bg-gray-50">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -58,10 +58,15 @@
                 </div>
             </div>
             
+            <!-- Language Switcher -->
+            <div class="mt-4 flex justify-center">
+                <x-language-switcher />
+            </div>
+            
             <!-- Page Header -->
             <div class="mt-8 text-center">
                 <h2 class="text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                    @yield('header', 'Zaloguj się do systemu')
+                    @yield('header', __('auth.login'))
                 </h2>
                 @hasSection('description')
                 <p class="mt-2 text-sm text-gray-600">
@@ -170,7 +175,7 @@
                         <div class="w-full border-t border-gray-300" />
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="bg-gray-50 px-2 text-gray-500">lub</span>
+                        <span class="bg-gray-50 px-2 text-gray-500">{{ __('common.or') ?: 'lub' }}</span>
                     </div>
                 </div>
 
@@ -187,11 +192,11 @@
                     
                     <!-- Default links -->
                     @if(!View::hasSection('additional-links'))
-                    <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                        Pomoc techniczna
+                    <a href="{{ route('home') }}" class="text-gray-600 hover:text-primary-600 transition-colors duration-200">
+                        {{ __('common.go_home') ?: 'Strona główna' }}
                     </a>
                     <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors duration-200">
-                        Regulamin systemu
+                        {{ __('common.contact') }}
                     </a>
                     @endif
                 </div>

@@ -1,8 +1,8 @@
 @extends('layouts.auth')
 
-@section('title', 'Logowanie Klient')
-@section('header', 'Witaj z powrotem!')
-@section('description', 'Zaloguj się do swojego konta SkyBroker')
+@section('title', __('auth.customer_login'))
+@section('header', __('auth.customer_login'))
+@section('description', __('auth.customer_login_subtitle'))
 
 @section('content')
 <form method="POST" action="{{ route('customer.login') }}" class="space-y-6" x-data="customerLogin">
@@ -11,7 +11,7 @@
     <!-- Email Address -->
     <div>
         <label for="email" class="block text-sm font-medium leading-6 text-gray-900">
-            Adres email
+            {{ __('auth.email') }}
         </label>
         <div class="mt-2 relative">
             <input 
@@ -39,7 +39,7 @@
     <!-- Password -->
     <div>
         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">
-            Hasło
+            {{ __('auth.password') }}
         </label>
         <div class="mt-2 relative">
             <input 
@@ -82,13 +82,13 @@
                 {{ old('remember') ? 'checked' : '' }}
             >
             <label for="remember" class="ml-3 block text-sm leading-6 text-gray-700">
-                Zapamiętaj mnie
+                {{ __('auth.remember_me') }}
             </label>
         </div>
 
         <div class="text-sm leading-6">
             <a href="#" class="font-semibold text-primary-600 hover:text-primary-500 transition-colors duration-200">
-                Zapomniałeś hasła?
+                {{ __('auth.forgot_password') }}
             </a>
         </div>
     </div>
@@ -100,7 +100,7 @@
             class="flex w-full justify-center rounded-md bg-primary-600 px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             :disabled="loading"
             @click="loading = true"
-            x-text="loading ? 'Logowanie...' : 'Zaloguj się'"
+            x-text="loading ? '{{ __('auth.login') }}...' : '{{ __('auth.login') }}'"
         >
             Zaloguj się
         </button>
@@ -176,22 +176,22 @@
 <div class="text-center space-y-4">
     <div>
         <p class="text-sm text-gray-600">
-            Nie masz jeszcze konta?
+            {{ __('auth.dont_have_account') }}
         </p>
         <a href="{{ route('customer.register') }}" class="inline-flex items-center justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 mt-2">
             <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.764z" />
             </svg>
-            Załóż konto firmowe
+            {{ __('auth.create_account') }}
         </a>
     </div>
     
     <div class="border-t border-gray-200 pt-4">
         <p class="text-xs text-gray-500">
-            Jesteś administratorem?
+            {{ __('common.administrator_question') }}
         </p>
         <a href="{{ route('admin.login') }}" class="text-sm text-gray-600 hover:text-primary-600 transition-colors duration-200">
-            Przejdź do panelu administracyjnego
+            {{ __('auth.go_to_admin') }}
         </a>
     </div>
 </div>

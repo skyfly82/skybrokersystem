@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CustomerActiveMiddleware;
 use App\Http\Middleware\ApiKeyMiddleware;
+use App\Http\Middleware\SetLocale;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Global middleware
+        $middleware->web(append: [
+            SetLocale::class,
+        ]);
+
         // Rejestracja middleware aliasów
         $middleware->alias([
             'admin' => AdminMiddleware::class,

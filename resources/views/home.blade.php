@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'SkyBrokerSystem - Professional Courier Services')
+@section('title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.courier') . ' ' . __('common.brokerage_platform'))
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -23,17 +23,20 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Features</a>
-                    <a href="#services" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Services</a>
-                    <a href="#contact" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Contact</a>
+                    <a href="#features" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">{{ __('common.features') }}</a>
+                    <a href="#services" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">{{ __('common.services') }}</a>
+                    <a href="#contact" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">{{ __('common.contact') }}</a>
+                    
+                    <!-- Language Switcher -->
+                    <x-language-switcher />
                     
                     <!-- Auth Buttons -->
                     <div class="flex items-center space-x-3">
                         <a href="{{ route('customer.login') }}" class="text-indigo-600 hover:text-indigo-700 font-medium transition-colors duration-200">
-                            Sign In
+                            {{ __('common.sign_in') }}
                         </a>
                         <a href="{{ route('customer.register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md">
-                            Get Started
+                            {{ __('common.get_started') }}
                         </a>
                     </div>
                 </div>
@@ -50,15 +53,16 @@
         <!-- Mobile Navigation Menu -->
         <div x-data="{ mobileMenuOpen: false }" x-show="mobileMenuOpen" x-cloak class="md:hidden bg-white border-t border-gray-200">
             <div class="px-4 py-3 space-y-3">
-                <a href="#features" class="block text-gray-600 hover:text-indigo-600 font-medium">Features</a>
-                <a href="#services" class="block text-gray-600 hover:text-indigo-600 font-medium">Services</a>
-                <a href="#contact" class="block text-gray-600 hover:text-indigo-600 font-medium">Contact</a>
+                <a href="#features" class="block text-gray-600 hover:text-indigo-600 font-medium">{{ __('common.features') }}</a>
+                <a href="#services" class="block text-gray-600 hover:text-indigo-600 font-medium">{{ __('common.services') }}</a>
+                <a href="#contact" class="block text-gray-600 hover:text-indigo-600 font-medium">{{ __('common.contact') }}</a>
                 <div class="border-t border-gray-200 pt-3">
+                    <x-language-switcher class="mb-3" />
                     <a href="{{ route('customer.login') }}" class="block w-full text-center text-indigo-600 font-medium py-2">
-                        Sign In
+                        {{ __('common.sign_in') }}
                     </a>
                     <a href="{{ route('customer.register') }}" class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium mt-2">
-                        Get Started
+                        {{ __('common.get_started') }}
                     </a>
                 </div>
             </div>
@@ -70,31 +74,30 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
             <div class="text-center fade-in">
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                    Professional <span class="text-indigo-600">Courier</span><br>
-                    Brokerage Platform
+                    {{ __('common.professional_courier') }} <span class="text-indigo-600">{{ __('common.courier') }}</span><br>
+                    {{ __('common.brokerage_platform') }}
                 </h1>
                 <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                    Streamline your shipping operations with our comprehensive courier management system. 
-                    Integrate multiple carriers, manage payments, and track shipments all in one place.
+                    {{ __('common.hero_description') }}
                 </p>
                 
                 <!-- CTA Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <a href="{{ route('customer.register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                         <i class="fas fa-rocket mr-2"></i>
-                        Start Free Trial
+                        {{ __('common.start_free_trial') }}
                     </a>
                     <a href="{{ route('customer.login') }}" class="bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-300 hover:border-indigo-300 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl">
                         <i class="fas fa-sign-in-alt mr-2"></i>
-                        Sign In to Dashboard
+                        {{ __('common.sign_in_to_dashboard') }}
                     </a>
                 </div>
 
                 <!-- Admin Access -->
                 <div class="mt-8 text-sm text-gray-500">
-                    <span>Administrator? </span>
+                    <span>{{ __('common.administrator_question') }} </span>
                     <a href="{{ route('admin.login') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">
-                        Access Admin Panel
+                        {{ __('common.access_admin_panel') }}
                     </a>
                 </div>
             </div>
@@ -114,10 +117,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                    Why Choose SkyBrokerSystem?
+                    {{ __('common.why_choose_title') }}
                 </h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Everything you need to manage your courier operations efficiently
+                    {{ __('common.why_choose_subtitle') }}
                 </p>
             </div>
 
@@ -127,9 +130,9 @@
                     <div class="bg-indigo-600 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-shipping-fast text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Multi-Carrier Integration</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('common.multi_carrier_integration') }}</h3>
                     <p class="text-gray-600">
-                        Connect with multiple courier services including InPost and expand your shipping options seamlessly.
+                        {{ __('common.multi_carrier_description') }}
                     </p>
                 </div>
 
@@ -138,9 +141,9 @@
                     <div class="bg-emerald-600 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-credit-card text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Payment Management</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('common.payment_management') }}</h3>
                     <p class="text-gray-600">
-                        Integrated payment processing with multiple providers including PayNow and Stripe support.
+                        {{ __('common.payment_management_description') }}
                     </p>
                 </div>
 
@@ -149,9 +152,9 @@
                     <div class="bg-violet-600 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-chart-line text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Real-time Analytics</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('common.realtime_analytics') }}</h3>
                     <p class="text-gray-600">
-                        Comprehensive reports and analytics to help you make data-driven decisions for your business.
+                        {{ __('common.realtime_analytics_description') }}
                     </p>
                 </div>
 
@@ -160,9 +163,9 @@
                     <div class="bg-orange-600 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-users text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Team Management</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('common.team_management') }}</h3>
                     <p class="text-gray-600">
-                        Manage your team members with role-based access control and user permission systems.
+                        {{ __('common.team_management_description') }}
                     </p>
                 </div>
 
@@ -171,9 +174,9 @@
                     <div class="bg-cyan-600 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-shield-alt text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Enterprise Security</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('common.enterprise_security') }}</h3>
                     <p class="text-gray-600">
-                        Bank-level security with API key management, webhook validation, and comprehensive audit logs.
+                        {{ __('common.enterprise_security_description') }}
                     </p>
                 </div>
 
@@ -182,9 +185,9 @@
                     <div class="bg-rose-600 w-12 h-12 rounded-lg flex items-center justify-center mb-6">
                         <i class="fas fa-mobile-alt text-white text-xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">API Integration</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('common.api_integration') }}</h3>
                     <p class="text-gray-600">
-                        RESTful API with comprehensive documentation for seamless integration with your existing systems.
+                        {{ __('common.api_integration_description') }}
                     </p>
                 </div>
             </div>
@@ -196,10 +199,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                    Our Services
+                    {{ __('common.our_services') }}
                 </h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Comprehensive courier brokerage solutions for businesses of all sizes
+                    {{ __('common.our_services_subtitle') }}
                 </p>
             </div>
 
@@ -211,22 +214,22 @@
                             <i class="fas fa-box text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-3">Shipment Management</h3>
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ __('common.shipment_management') }}</h3>
                             <p class="text-gray-600 mb-4">
-                                Complete shipment lifecycle management from creation to delivery with real-time tracking and status updates.
+                                {{ __('common.shipment_management_description') }}
                             </p>
                             <ul class="space-y-2 text-gray-600">
                                 <li class="flex items-center">
                                     <i class="fas fa-check text-green-500 mr-2"></i>
-                                    Label generation and printing
+                                    {{ __('common.label_generation') }}
                                 </li>
                                 <li class="flex items-center">
                                     <i class="fas fa-check text-green-500 mr-2"></i>
-                                    Pickup point selection
+                                    {{ __('common.pickup_point_selection') }}
                                 </li>
                                 <li class="flex items-center">
                                     <i class="fas fa-check text-green-500 mr-2"></i>
-                                    Real-time tracking
+                                    {{ __('common.realtime_tracking') }}
                                 </li>
                             </ul>
                         </div>
@@ -240,22 +243,22 @@
                             <i class="fas fa-wallet text-white text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-3">Financial Operations</h3>
+                            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ __('common.financial_operations') }}</h3>
                             <p class="text-gray-600 mb-4">
-                                Automated payment processing, credit management, and comprehensive financial reporting.
+                                {{ __('common.financial_operations_description') }}
                             </p>
                             <ul class="space-y-2 text-gray-600">
                                 <li class="flex items-center">
                                     <i class="fas fa-check text-green-500 mr-2"></i>
-                                    Credit limit management
+                                    {{ __('common.credit_limit_management') }}
                                 </li>
                                 <li class="flex items-center">
                                     <i class="fas fa-check text-green-500 mr-2"></i>
-                                    Automated billing
+                                    {{ __('common.automated_billing') }}
                                 </li>
                                 <li class="flex items-center">
                                     <i class="fas fa-check text-green-500 mr-2"></i>
-                                    Financial reporting
+                                    {{ __('common.financial_reporting') }}
                                 </li>
                             </ul>
                         </div>
@@ -280,20 +283,20 @@
                 <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
                     <div class="flex space-x-6">
                         <a href="{{ route('customer.login') }}" class="text-gray-300 hover:text-white transition-colors duration-200">
-                            Customer Login
+                            {{ __('common.customer_login') }}
                         </a>
                         <a href="{{ route('admin.login') }}" class="text-gray-300 hover:text-white transition-colors duration-200">
-                            Admin Access
+                            {{ __('common.admin_access') }}
                         </a>
                         <a href="{{ route('health') }}" class="text-gray-300 hover:text-white transition-colors duration-200">
-                            System Status
+                            {{ __('common.system_status') }}
                         </a>
                     </div>
                 </div>
             </div>
             
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} SkyBrokerSystem v6. Professional Courier Brokerage Platform.</p>
+                <p>&copy; {{ date('Y') }} SkyBrokerSystem v6. {{ __('common.copyright') }}</p>
             </div>
         </div>
     </footer>
