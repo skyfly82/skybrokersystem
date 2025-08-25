@@ -1,10 +1,10 @@
 @extends('layouts.guest')
 
-@section('title', 'SkyBrokerSystem v6 - ' . __('common.professional_courier') . ' ' . __('common.courier') . ' ' . __('common.brokerage_platform'))
+@section('title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.courier') . ' ' . __('common.brokerage_platform'))
 @section('description', __('common.hero_description'))
 @section('keywords', 'courier brokerage, shipping management, InPost integration, payment processing, logistics platform, przesyłki kurierskie, zarządzanie wysyłką, integracja InPost, płatności online')
 @section('og_type', 'website')
-@section('og_title', 'SkyBrokerSystem v6 - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))
+@section('og_title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))
 @section('robots', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1')
 
 @push('structured-data')
@@ -66,7 +66,7 @@
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "SkyBrokerSystem v6",
+  "name": "SkyBrokerSystem",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web Browser",
   "description": "{{ __('common.hero_description') }}",
@@ -102,7 +102,7 @@
                                 <i class="fas fa-shipping-fast text-white text-xl"></i>
                             </div>
                             <span class="ml-3 text-xl font-heading font-bold text-black-coal">SkyBrokerSystem</span>
-                            <span class="ml-2 px-2 py-1 bg-skywave/10 text-skywave text-xs font-medium rounded-full">v6</span>
+                            <span class="ml-2 px-2 py-1 bg-skywave/10 text-skywave text-xs font-medium rounded-full">V</span>
                         </div>
                     </div>
                 </div>
@@ -363,7 +363,7 @@
                         <i class="fas fa-shipping-fast text-white text-xl" aria-hidden="true"></i>
                     </div>
                     <span class="ml-3 text-xl font-heading font-bold">SkyBrokerSystem</span>
-                    <span class="ml-2 px-2 py-1 bg-skywave text-white text-xs font-medium rounded-full">v6</span>
+                    <span class="ml-2 px-2 py-1 bg-skywave text-white text-xs font-medium rounded-full">v1</span>
                 </div>
                 
                 <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">

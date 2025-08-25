@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <!-- SEO Meta Tags -->
-    <title>@yield('title', 'SkyBrokerSystem v6 - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))</title>
+    <title>@yield('title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))</title>
     <meta name="description" content="@yield('description', __('common.hero_description'))">
     <meta name="keywords" content="@yield('keywords', 'courier, brokerage, shipping, logistics, InPost, payments, tracking, przesyłki, kurierzy, logistyka')">
     <meta name="author" content="SkyBrokerSystem">
@@ -21,7 +21,7 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ request()->url() }}">
-    <meta property="og:title" content="@yield('og_title', 'SkyBrokerSystem v6 - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))">
+    <meta property="og:title" content="@yield('og_title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))">
     <meta property="og:description" content="@yield('og_description', __('common.hero_description'))">
     <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
     <meta property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) }}">
@@ -30,7 +30,7 @@
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ request()->url() }}">
-    <meta property="twitter:title" content="@yield('twitter_title', 'SkyBrokerSystem v6 - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))">
+    <meta property="twitter:title" content="@yield('twitter_title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))">
     <meta property="twitter:description" content="@yield('twitter_description', __('common.hero_description'))">
     <meta property="twitter:image" content="@yield('twitter_image', asset('images/twitter-image.jpg'))">
     
