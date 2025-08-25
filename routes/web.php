@@ -24,8 +24,13 @@ use App\Http\Controllers\Customer\ProfileController as CustomerProfileController
 |
 */
 
-// Main redirect
+// Home page route
 Route::get('/', function () {
+    return view('home');
+})->name('home');
+
+// Dashboard redirect route for authenticated users
+Route::get('/dashboard', function () {
     if (auth()->guard('system_user')->check()) {
         return redirect()->route('admin.dashboard');
     }
@@ -34,8 +39,8 @@ Route::get('/', function () {
         return redirect()->route('customer.dashboard');
     }
     
-    return redirect()->route('customer.login');
-});
+    return redirect()->route('home');
+})->name('dashboard.redirect');
 
 /*
 |--------------------------------------------------------------------------
