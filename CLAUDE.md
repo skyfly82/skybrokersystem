@@ -169,3 +169,4 @@ Key migrations in `database/migrations/`:
 
 This architecture provides a scalable foundation for courier brokerage operations with clear separation of concerns and extensive integration capabilities.
 - nie wprowadzaj zmian do Dcokera poniewa piszemy od razu na serwerze
+- nie uzywaj komend make i docker pracujemy bezposrednio na serwerze
