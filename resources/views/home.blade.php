@@ -118,12 +118,27 @@
                     
                     <!-- Auth Buttons -->
                     <div class="flex items-center space-x-3">
-                        <a href="{{ route('customer.login') }}" class="text-skywave hover:text-skywave/80 font-medium transition-colors duration-200">
-                            {{ __('common.sign_in') }}
-                        </a>
-                        <a href="{{ route('customer.register') }}" class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md">
-                            {{ __('common.get_started') }}
-                        </a>
+                        @auth('system_user')
+                            <!-- Admin Panel Button -->
+                            <a href="{{ route('admin.dashboard') }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center space-x-2">
+                                <i class="fas fa-cogs text-sm"></i>
+                                <span>Panel Admina</span>
+                            </a>
+                        @elseauth('customer_user')
+                            <!-- Customer Panel Button -->
+                            <a href="{{ route('customer.dashboard') }}" class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center space-x-2">
+                                <i class="fas fa-user text-sm"></i>
+                                <span>Panel Klienta</span>
+                            </a>
+                        @else
+                            <!-- Guest Buttons -->
+                            <a href="{{ route('customer.login') }}" class="text-skywave hover:text-skywave/80 font-medium transition-colors duration-200">
+                                {{ __('common.sign_in') }}
+                            </a>
+                            <a href="{{ route('customer.register') }}" class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md">
+                                {{ __('common.get_started') }}
+                            </a>
+                        @endauth
                     </div>
                 </div>
 
@@ -144,12 +159,25 @@
                 <a href="#contact" class="block font-body text-gray-600 hover:text-skywave font-medium">{{ __('common.contact') }}</a>
                 <div class="border-t border-gray-200 pt-3">
                     <x-language-switcher class="mb-3" />
-                    <a href="{{ route('customer.login') }}" class="block w-full text-center text-skywave font-medium py-2">
-                        {{ __('common.sign_in') }}
-                    </a>
-                    <a href="{{ route('customer.register') }}" class="block w-full text-center bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-lg font-medium mt-2">
-                        {{ __('common.get_started') }}
-                    </a>
+                    @auth('system_user')
+                        <!-- Admin Panel Button - Mobile -->
+                        <a href="{{ route('admin.dashboard') }}" class="block w-full text-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
+                            <i class="fas fa-cogs text-sm mr-2"></i>Panel Admina
+                        </a>
+                    @elseauth('customer_user')
+                        <!-- Customer Panel Button - Mobile -->
+                        <a href="{{ route('customer.dashboard') }}" class="block w-full text-center bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-lg font-medium">
+                            <i class="fas fa-user text-sm mr-2"></i>Panel Klienta
+                        </a>
+                    @else
+                        <!-- Guest Buttons - Mobile -->
+                        <a href="{{ route('customer.login') }}" class="block w-full text-center text-skywave font-medium py-2">
+                            {{ __('common.sign_in') }}
+                        </a>
+                        <a href="{{ route('customer.register') }}" class="block w-full text-center bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-lg font-medium mt-2">
+                            {{ __('common.get_started') }}
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
