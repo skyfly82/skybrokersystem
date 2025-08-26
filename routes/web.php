@@ -238,6 +238,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
             })->name('maintenance');
         });
         
+        // Employees Management (Admin and Super Admin)
+        Route::prefix('employees')->name('employees.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\EmployeesController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Admin\EmployeesController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Admin\EmployeesController::class, 'store'])->name('store');
+            Route::get('/{employee}', [App\Http\Controllers\Admin\EmployeesController::class, 'show'])->name('show');
+            Route::get('/{employee}/edit', [App\Http\Controllers\Admin\EmployeesController::class, 'edit'])->name('edit');
+            Route::put('/{employee}', [App\Http\Controllers\Admin\EmployeesController::class, 'update'])->name('update');
+            Route::delete('/{employee}', [App\Http\Controllers\Admin\EmployeesController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Permissions Management (Super Admin Only)
+        Route::middleware('admin:super_admin')->prefix('permissions')->name('permissions.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\PermissionsController::class, 'index'])->name('index');
+            Route::post('/', [App\Http\Controllers\Admin\PermissionsController::class, 'update'])->name('update');
+        });
+        
         // System Users Management (Super Admin Only)
         Route::middleware('admin:super_admin')->prefix('users')->name('users.')->group(function () {
             Route::get('/', function () { 
@@ -396,39 +413,15 @@ Route::prefix('customer')->name('customer.')->group(function () {
         });
         
         // Users Management (for customer admin users only)
-        Route::middleware('customer.admin')->prefix('users')->name('users.')->group(function () {
-            Route::get('/', function () { 
-                return view('customer.users.index', [
-                    'title' => 'Team Users',
-                    'description' => 'Manage your company users'
-                ]); 
-            })->name('index');
-            
-            Route::get('/create', function () { 
-                return view('customer.users.create', [
-                    'title' => 'Add User',
-                    'description' => 'Add new team member'
-                ]); 
-            })->name('create');
-            
-            Route::post('/', function () { 
-                return redirect()->route('customer.users.index')->with('success', 'User created successfully'); 
-            })->name('store');
-            
-            Route::get('/{user}/edit', function () { 
-                return view('customer.users.edit', [
-                    'title' => 'Edit User',
-                    'description' => 'Edit team member details'
-                ]); 
-            })->name('edit');
-            
-            Route::put('/{user}', function () { 
-                return redirect()->route('customer.users.index')->with('success', 'User updated successfully'); 
-            })->name('update');
-            
-            Route::delete('/{user}', function () { 
-                return redirect()->route('customer.users.index')->with('success', 'User deleted successfully'); 
-            })->name('destroy');
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Customer\UsersController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Customer\UsersController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Customer\UsersController::class, 'store'])->name('store');
+            Route::get('/{customerUser}', [App\Http\Controllers\Customer\UsersController::class, 'show'])->name('show');
+            Route::get('/{customerUser}/edit', [App\Http\Controllers\Customer\UsersController::class, 'edit'])->name('edit');
+            Route::put('/{customerUser}', [App\Http\Controllers\Customer\UsersController::class, 'update'])->name('update');
+            Route::delete('/{customerUser}', [App\Http\Controllers\Customer\UsersController::class, 'destroy'])->name('destroy');
+            Route::post('/{customerUser}/transfer-admin', [App\Http\Controllers\Customer\UsersController::class, 'transferAdmin'])->name('transfer-admin');
         });
         
         // Customer Reports

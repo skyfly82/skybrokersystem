@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,12 +14,13 @@ use Illuminate\Support\Str;
 
 class Customer extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Auditable;
 
     protected $fillable = [
         'uuid', 'company_name', 'company_short_name', 'nip', 'regon', 'krs',
         'company_address', 'city', 'postal_code', 'country', 'phone', 'email',
         'website', 'status', 'credit_limit', 'current_balance', 'api_key',
+        'cod_return_account', 'settlement_account', 'address',
         'settings', 'notification_preferences', 'contract_signed_at', 'verified_at',
         'verification_code', 'verification_code_expires_at', 'email_verified',
         'verification_token', 'verification_token_expires_at'

@@ -79,7 +79,7 @@
                 Notifications
             </a>
 
-            @if(auth()->user()->is_primary)
+            @if(auth()->user()->canCreateUsers())
                 <a href="{{ route('customer.users.index') }}" 
                    class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                     <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

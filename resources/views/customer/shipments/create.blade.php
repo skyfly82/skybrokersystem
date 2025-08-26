@@ -220,63 +220,23 @@
             </div>
         </div>
 
-        <!-- Step 2a: Financial Data -->
+        <!-- Step 2a: Financial Data Notice -->
+        @if(!auth('customer_user')->user()->customer->cod_return_account || !auth('customer_user')->user()->customer->settlement_account)
         <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
-                <i class="fas fa-university text-skywave mr-2"></i>
-                Dane finansowe
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="cod_return_account" class="block text-sm font-medium text-gray-700">
-                        Konto bankowe dla zwrotów COD
-                        <span class="text-xs text-gray-500 block mt-1">NRB (IBAN) do zwrotów pobrań</span>
-                    </label>
-                    <input type="text" 
-                           name="cod_return_account" 
-                           id="cod_return_account"
-                           value="{{ old('cod_return_account') }}"
-                           placeholder="PL61 1090 1014 0000 0712 1981 2874"
-                           pattern="^(PL)?[0-9]{26}$"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                    @error('cod_return_account')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="settlement_account" class="block text-sm font-medium text-gray-700">
-                        Konto rozliczeniowe
-                        <span class="text-xs text-gray-500 block mt-1">NRB (IBAN) do rozliczeń za przesyłki</span>
-                    </label>
-                    <input type="text" 
-                           name="settlement_account" 
-                           id="settlement_account"
-                           value="{{ old('settlement_account') }}"
-                           placeholder="PL61 1090 1014 0000 0712 1981 2874"
-                           pattern="^(PL)?[0-9]{26}$"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                    @error('settlement_account')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-            
-            <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div class="flex">
-                    <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-2"></i>
+                    <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5 mr-2"></i>
                     <div class="text-sm">
-                        <p class="text-blue-800 font-medium">Informacje o kontach bankowych:</p>
-                        <ul class="text-blue-700 mt-1 space-y-1 text-xs">
-                            <li>• Konto COD - zwroty pobrań będą przekazywane na to konto</li>
-                            <li>• Konto rozliczeniowe - rozliczenia za usługi kurierskie</li>
-                            <li>• Możesz ustawić te same konta lub różne</li>
-                        </ul>
+                        <p class="text-yellow-800 font-medium">Brakują dane finansowe</p>
+                        <div class="text-yellow-700 mt-1 space-y-1 text-xs">
+                            <p>• Przed wysłaniem przesyłek ustaw konta bankowe w profilu firmy</p>
+                            <p>• Dane finansowe możesz uzupełnić w <a href="{{ route('customer.profile.show') }}" class="underline font-medium">ustawieniach profilu</a></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Step 3: Recipient Data -->
         <div class="bg-white shadow rounded-lg p-6">
