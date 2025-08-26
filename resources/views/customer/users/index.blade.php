@@ -2,30 +2,28 @@
 
 @section('title', 'Zarządzanie użytkownikami')
 
-@section('header')
+@section('content')
+<div class="space-y-6">
+    <!-- Page Header -->
     <div class="flex items-center justify-between">
-        <h2 class="font-heading font-semibold text-xl text-black-coal leading-tight">
-            {{ __('Zarządzanie użytkownikami') }}
-        </h2>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Zarządzanie użytkownikami</h2>
+            <p class="mt-1 text-sm text-gray-600">
+                Zarządzaj użytkownikami mającymi dostęp do konta firmowego.
+            </p>
+        </div>
+        @if(auth('customer_user')->user()->canCreateUsers())
         <a href="{{ route('customer.users.create') }}" 
-           class="inline-flex items-center px-4 py-2 bg-skywave border border-transparent rounded-md font-body text-xs text-white uppercase tracking-widest hover:bg-skywave/90 focus:bg-skywave/90 active:bg-skywave/90 focus:outline-none focus:ring-2 focus:ring-skywave focus:ring-offset-2 transition ease-in-out duration-150">
+           class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
             <i class="fas fa-plus mr-2"></i>
             Dodaj użytkownika
         </a>
+        @endif
     </div>
-@endsection
-
-@section('content')
-<div class="py-6">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                <div class="mb-6">
-                    <h3 class="text-lg font-heading font-medium text-black-coal">Użytkownicy firmy</h3>
-                    <p class="mt-1 font-body text-sm text-gray-600">
-                        Zarządzaj użytkownikami mającymi dostęp do konta firmowego.
-                    </p>
-                </div>
+    
+    <!-- Users Table -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="p-6">
 
                 <!-- Users List -->
                 <div class="overflow-x-auto">
@@ -53,7 +51,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse(auth()->user()->customer->users as $user)
+                            @forelse($users as $user)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
@@ -97,34 +95,18 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-body font-medium 
                                         @switch($user->role)
-                                            @case('admin')
-                                                bg-purple-100 text-purple-800
-                                                @break
-                                            @case('magazynier')
-                                                bg-green-100 text-green-800
-                                                @break
-                                            @case('ksiegowa')
-                                                bg-indigo-100 text-indigo-800
-                                                @break
-                                            @default
-                                                bg-blue-100 text-blue-800
+                                            @case('admin') bg-purple-100 text-purple-800 @break
+                                            @case('accountant') bg-green-100 text-green-800 @break
+                                            @case('warehouse') bg-orange-100 text-orange-800 @break
+                                            @case('viewer') bg-gray-100 text-gray-800 @break
+                                            @default bg-blue-100 text-blue-800
                                         @endswitch">
                                         @switch($user->role)
-                                            @case('admin')
-                                                <i class="fas fa-user-cog mr-1"></i>
-                                                Administrator
-                                                @break
-                                            @case('magazynier')
-                                                <i class="fas fa-boxes mr-1"></i>
-                                                Magazynier
-                                                @break
-                                            @case('ksiegowa')
-                                                <i class="fas fa-calculator mr-1"></i>
-                                                Księgowa
-                                                @break
-                                            @default
-                                                <i class="fas fa-user mr-1"></i>
-                                                Użytkownik
+                                            @case('admin') Administrator @break
+                                            @case('accountant') Księgowy @break
+                                            @case('warehouse') Magazynier @break
+                                            @case('viewer') Tylko odczyt @break
+                                            @default Użytkownik
                                         @endswitch
                                     </span>
                                 </td>
@@ -141,21 +123,35 @@
                                     @if(!$user->is_primary)
                                     <div class="flex items-center space-x-2">
                                         <a href="{{ route('customer.users.edit', $user) }}" 
-                                           class="text-skywave hover:text-skywave/80">
+                                           class="text-skywave hover:text-skywave/80" title="Edytuj">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @if(auth()->user()->is_primary)
+                                        <form method="POST" action="{{ route('customer.users.transfer-admin', $user) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" 
+                                                    onclick="return confirm('Czy na pewno chcesz przenieść uprawnienia administratora na tego użytkownika? Zostaniesz wylogowany.')"
+                                                    class="text-orange-600 hover:text-orange-900" title="Przenieś uprawnienia admina">
+                                                <i class="fas fa-crown"></i>
+                                            </button>
+                                        </form>
+                                        @endif
                                         <form method="POST" action="{{ route('customer.users.destroy', $user) }}" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" 
                                                     onclick="return confirm('Czy na pewno chcesz usunąć tego użytkownika?')"
-                                                    class="text-red-600 hover:text-red-900">
+                                                    class="text-red-600 hover:text-red-900" title="Usuń">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                     </div>
                                     @else
-                                    <span class="text-gray-400 text-xs">Konto główne</span>
+                                    <div class="flex items-center justify-end">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-body font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-crown mr-1"></i>Konto główne
+                                        </span>
+                                    </div>
                                     @endif
                                 </td>
                             </tr>
@@ -191,11 +187,13 @@
                             <h4 class="text-sm font-body font-medium text-blue-800">Informacje o rolach użytkowników</h4>
                             <div class="mt-2 text-sm font-body text-blue-700">
                                 <ul class="list-disc list-inside space-y-1">
-                                    <li><strong>Administrator:</strong> Pełny dostęp - zarządzanie użytkownikami, przesyłkami i płatnościami</li>
-                                    <li><strong>Magazynier:</strong> Dostęp do przesyłek - tworzenie, zarządzanie i śledzenie przesyłek</li>
-                                    <li><strong>Księgowa:</strong> Dostęp finansowy - płatności, faktury i raporty finansowe</li>
-                                    <li><strong>Użytkownik:</strong> Podstawowy dostęp - przeglądanie przesyłek i podstawowe operacje</li>
-                                    <li><strong><i class="fas fa-crown text-amber-500"></i> Konto główne:</strong> Nie można usuwać ani zmieniać roli konta głównego</li>
+                                    <li><strong>Administrator:</strong> Pełny dostęp - może zarządzać użytkownikami, przesyłkami i płatnościami</li>
+                                    <li><strong>Księgowy:</strong> Dostęp do faktur, płatności i raportów finansowych</li>
+                                    <li><strong>Magazynier:</strong> Zarządzanie przesyłkami i stanami magazynowymi</li>
+                                    <li><strong>Użytkownik:</strong> Standardowy dostęp - może tworzyć przesyłki i przeglądać historię</li>
+                                    <li><strong>Tylko odczyt:</strong> Może przeglądać dane bez możliwości edycji</li>
+                                    <li><strong>Konto główne:</strong> Nie można usuwać ani dezaktywować konta głównego</li>
+                                    <li><strong>Przeniesienie uprawnień:</strong> Konto główne może przekazać uprawnienia administratora innemu użytkownikowi (ikona <i class="fas fa-crown text-orange-600"></i>)</li>
                                 </ul>
                             </div>
                         </div>

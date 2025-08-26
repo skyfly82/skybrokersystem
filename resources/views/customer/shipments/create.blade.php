@@ -98,96 +98,286 @@
         </div>
     </div>
 
-    <!-- Form -->
-    <form method="POST" action="{{ route('customer.shipments.store') }}" class="space-y-6" @submit.prevent="submitForm">
-        @csrf
-        
-        <!-- Step 1: Package Details -->
-        <div class="bg-white shadow rounded-lg p-6" x-show="currentStep === 1" x-transition>
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">Szczegóły przesyłki</h3>
-            
-            <!-- Package Type Selection -->
-            <div class="mb-8">
-                <label class="block text-sm font-medium text-gray-700 mb-4">Rodzaj przesyłki</label>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <template x-for="packageType in packageTypes" :key="packageType.id">
-                        <div class="package-type-card border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-gray-300 transition-all"
-                             :class="form.packageType === packageType.id ? 'selected' : ''"
-                             @click="selectPackageType(packageType)">
-                            <div class="text-center">
-                                <div class="text-2xl mb-2" x-text="packageType.icon"></div>
-                                <div class="text-sm font-medium" x-text="packageType.name"></div>
-                                <div class="text-xs text-gray-500" x-text="packageType.dimensions + 'cm'"></div>
-                                <div class="text-xs text-gray-500" x-text="'do ' + packageType.maxWeight + 'kg'"></div>
-                            </div>
+        <!-- Step 2a: Financial Data Notice -->
+        @if(!auth('customer_user')->user()->customer->cod_return_account || !auth('customer_user')->user()->customer->settlement_account)
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5 mr-2"></i>
+                    <div class="text-sm">
+                        <p class="text-yellow-800 font-medium">Brakują dane finansowe</p>
+                        <div class="text-yellow-700 mt-1 space-y-1 text-xs">
+                            <p>• Przed wysłaniem przesyłek ustaw konta bankowe w profilu firmy</p>
+                            <p>• Dane finansowe możesz uzupełnić w <a href="{{ route('customer.profile.show') }}" class="underline font-medium">ustawieniach profilu</a></p>
                         </div>
-                    </template>
-                </div>
-            </div>
-            
-            <!-- Dimensions and Weight -->
-            <div x-show="form.packageType" x-transition class="mb-8">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Wymiary i waga</h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Długość (cm)</label>
-                        <input type="number" 
-                               x-model="form.dimensions.length" 
-                               name="dimensions_length"
-                               @blur="showFieldError('length', form.dimensions.length)"
-                               :class="{
-                                   'border-red-500 focus:ring-red-500': showFieldError('length', form.dimensions.length),
-                                   'border-gray-300 focus:ring-blue-500': !showFieldError('length', form.dimensions.length)
-                               }"
-                               class="w-full p-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors"
-                               placeholder="0"
-                               @input="validateDimensions">
-                        <div x-show="showFieldError('length', form.dimensions.length)" 
-                             class="text-red-500 text-sm mt-1" 
-                             x-text="showFieldError('length', form.dimensions.length)"></div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Szerokość (cm)</label>
-                        <input type="number" 
-                               x-model="form.dimensions.width" 
-                               name="dimensions_width"
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="0"
-                               @input="validateDimensions">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Wysokość (cm)</label>
-                        <input type="number" 
-                               x-model="form.dimensions.height" 
-                               name="dimensions_height"
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="0"
-                               @input="validateDimensions">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Waga (kg)</label>
-                        <input type="number" 
-                               step="0.1"
-                               x-model="form.dimensions.weight" 
-                               name="dimensions_weight"
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="0.0"
-                               @input="validateDimensions">
                     </div>
                 </div>
             </div>
+        </div>
+        @endif
+
+        <!-- Step 3: Recipient Data -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-heading font-medium text-black-coal">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">3</span>
+                    Dane odbiorcy
+                </h3>
+                <div class="flex space-x-3">
+                    <button type="button" 
+                            @click="copySenderToRecipient()"
+                            class="text-xs text-purple-600 hover:text-purple-800 font-medium flex items-center">
+                        <i class="fas fa-copy mr-1"></i>
+                        Kopiuj z nadawcy
+                    </button>
+                    <button type="button" 
+                            @click="showAddressBook('recipient')"
+                            class="text-sm text-skywave hover:text-skywave/80 font-medium flex items-center">
+                        <i class="fas fa-address-book mr-1"></i>
+                        Wybierz z książki adresowej
+                    </button>
+                </div>
+            </div>
             
-            <!-- Route -->
-            <div class="mb-8">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Trasa przesyłki</h4>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Skąd</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="recipient_name" class="block text-sm font-medium text-gray-700">Imię i nazwisko</label>
+                    <input type="text" 
+                           name="recipient[name]" 
+                           id="recipient_name"
+                           value="{{ old('recipient.name') }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           required>
+                    @error('recipient.name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="recipient_phone" class="block text-sm font-medium text-gray-700">Telefon</label>
+                    <input type="tel" 
+                           name="recipient[phone]" 
+                           id="recipient_phone"
+                           value="{{ old('recipient.phone') }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           required>
+                    @error('recipient.phone')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="recipient_email" class="block text-sm font-medium text-gray-700">Email (opcjonalnie)</label>
+                    <input type="email" 
+                           name="recipient[email]" 
+                           id="recipient_email"
+                           value="{{ old('recipient.email') }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
+                    @error('recipient.email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <!-- Pickup Point Selection (for InPost lockers) -->
+                <div x-show="needsPickupPoint" x-transition>
+                    <label for="pickup_point" class="block text-sm font-medium text-gray-700">Paczkomat</label>
+                    <div class="mt-1 relative">
                         <input type="text" 
-                               x-model="form.route.from" 
-                               name="route_from"
-                               placeholder="Miasto, kod pocztowy lub adres"
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                               name="pickup_point" 
+                               id="pickup_point"
+                               x-model="form.pickup_point"
+                               placeholder="Wpisz miasto aby wyszukać paczkomaty"
+                               @input="searchPickupPoints()"
+                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
+                        
+                        <!-- Pickup Points Dropdown -->
+                        <div x-show="pickupPoints.length > 0" 
+                             class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
+                            <template x-for="point in pickupPoints" :key="point.id">
+                                <div @click="selectPickupPoint(point)" 
+                                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-skywave/5">
+                                    <div>
+                                        <span class="font-medium" x-text="point.name"></span>
+                                        <span class="text-gray-500 ml-2" x-text="point.address"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Address for courier delivery -->
+                <div x-show="!needsPickupPoint" x-transition class="md:col-span-2">
+                    <label for="recipient_address" class="block text-sm font-medium text-gray-700">Adres dostawy</label>
+                    <textarea name="recipient[address]" 
+                              id="recipient_address"
+                              rows="2"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                              :required="!needsPickupPoint">{{ old('recipient.address') }}</textarea>
+                    @error('recipient.address')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div x-show="!needsPickupPoint" x-transition>
+                    <label for="recipient_city" class="block text-sm font-medium text-gray-700">Miasto</label>
+                    <input type="text" 
+                           name="recipient[city]" 
+                           id="recipient_city"
+                           value="{{ old('recipient.city') }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           :required="!needsPickupPoint">
+                    @error('recipient.city')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div x-show="!needsPickupPoint" x-transition>
+                    <label for="recipient_postal_code" class="block text-sm font-medium text-gray-700">Kod pocztowy</label>
+                    <input type="text" 
+                           name="recipient[postal_code]" 
+                           id="recipient_postal_code"
+                           value="{{ old('recipient.postal_code') }}"
+                           pattern="[0-9]{2}-[0-9]{3}"
+                           placeholder="00-000"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           :required="!needsPickupPoint">
+                    @error('recipient.postal_code')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <!-- Save to Address Book -->
+                <div class="md:col-span-2 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   x-model="form.save_recipient_to_book"
+                                   class="h-4 w-4 text-skywave focus:ring-skywave border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-600">Zapisz odbiorcę w książce adresowej</span>
+                        </label>
+                        <div x-show="form.save_recipient_to_book" x-transition>
+                            <input type="text" 
+                                   x-model="form.recipient_book_name"
+                                   placeholder="Nazwa w książce adresowej"
+                                   class="text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Package Data -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-heading font-medium text-black-coal">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">4</span>
+                    Dane paczki
+                </h3>
+                <div class="flex space-x-2">
+                    <button type="button" @click="setPackagePreset('small')" 
+                            class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700">
+                        Mała (20×15×10cm, 1kg)
+                    </button>
+                    <button type="button" @click="setPackagePreset('medium')" 
+                            class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700">
+                        Średnia (30×20×15cm, 2kg)
+                    </button>
+                    <button type="button" @click="setPackagePreset('large')" 
+                            class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700">
+                        Duża (40×30×20cm, 5kg)
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                    <label for="package_weight" class="block text-sm font-medium text-gray-700">Waga (kg)</label>
+                    <input type="number" 
+                           name="package[weight]" 
+                           id="package_weight"
+                           value="{{ old('package.weight', '1') }}"
+                           step="0.1"
+                           min="0.1"
+                           max="30"
+                           x-model="form.package.weight"
+                           @input="calculatePrice()"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           required>
+                    @error('package.weight')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="package_length" class="block text-sm font-medium text-gray-700">Długość (cm)</label>
+                    <input type="number" 
+                           name="package[length]" 
+                           id="package_length"
+                           value="{{ old('package.length', '20') }}"
+                           min="1"
+                           max="100"
+                           x-model="form.package.length"
+                           @input="calculatePrice()"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           required>
+                    @error('package.length')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="package_width" class="block text-sm font-medium text-gray-700">Szerokość (cm)</label>
+                    <input type="number" 
+                           name="package[width]" 
+                           id="package_width"
+                           value="{{ old('package.width', '15') }}"
+                           min="1"
+                           max="100"
+                           x-model="form.package.width"
+                           @input="calculatePrice()"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           required>
+                    @error('package.width')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="package_height" class="block text-sm font-medium text-gray-700">Wysokość (cm)</label>
+                    <input type="number" 
+                           name="package[height]" 
+                           id="package_height"
+                           value="{{ old('package.height', '10') }}"
+                           min="1"
+                           max="100"
+                           x-model="form.package.height"
+                           @input="calculatePrice()"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
+                           required>
+                    @error('package.height')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Additional Services -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">5</span>
+                Usługi dodatkowe
+            </h3>
+            
+            <div class="space-y-4">
+                <!-- COD -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input type="checkbox" 
+                               name="cod_enabled" 
+                               id="cod_enabled"
+                               x-model="form.cod_enabled"
+                               class="focus:ring-skywave h-4 w-4 text-skywave border-gray-300 rounded">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Dokąd</label>

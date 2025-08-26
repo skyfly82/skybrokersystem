@@ -125,7 +125,7 @@
                                     Profil
                                 </a>
                                 
-                                @if(auth()->user()->isAdmin())
+                                @if(auth()->user()->canCreateUsers())
                                 <a href="{{ route('customer.users.index') }}" class="group flex items-center rounded-md px-2 py-2 text-sm font-medium {{ request()->routeIs('customer.users.*') ? 'bg-blue-100 text-blue-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                                     Użytkownicy
                                 </a>
@@ -218,7 +218,7 @@
                                     Profil
                                 </a>
                                 
-                                @if(auth()->user()->isAdmin())
+                                @if(auth()->user()->canCreateUsers())
                                 <a href="{{ route('customer.users.index') }}" class="group flex items-center rounded-md px-2 py-2 text-sm font-medium {{ request()->routeIs('customer.users.*') ? 'bg-blue-100 text-blue-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                                     Użytkownicy
                                 </a>

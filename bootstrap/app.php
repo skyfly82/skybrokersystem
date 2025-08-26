@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.active' => CustomerActiveMiddleware::class,
             'customer.admin' => CustomerAdminMiddleware::class,
             'api.key' => ApiKeyMiddleware::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
         // Rate limiting dla API
@@ -39,5 +40,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->unauthenticated(function ($request, $exception) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+
+            // Determine which guard triggered the exception
+            $guards = $exception->guards();
+            
+            if (in_array('system_user', $guards)) {
+                return redirect()->guest(route('admin.login'));
+            }
+            
+            if (in_array('customer_user', $guards)) {
+                return redirect()->guest(route('customer.login'));
+            }
+
+            // Default fallback to admin login for any other guard
+            return redirect()->guest(route('admin.login'));
+        });
     })->create();

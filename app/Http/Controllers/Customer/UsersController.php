@@ -6,135 +6,225 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerUser;
-use App\Http\Requests\Customer\CreateUserRequest;
-use App\Http\Requests\Customer\UpdateUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UsersController extends Controller
 {
     public function index()
     {
-        $customer = auth()->guard('customer_user')->user()->customer;
-        $users = $customer->users()->latest()->get();
+        $user = auth('customer_user')->user();
+        
+        if (!$user->canCreateUsers()) {
+            abort(403, 'Brak uprawnień do zarządzania użytkownikami.');
+        }
+
+        $users = CustomerUser::where('customer_id', $user->customer_id)
+            ->where('id', '!=', $user->id) // Exclude current user
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('customer.users.index', compact('users'));
     }
 
     public function create()
     {
-        return view('customer.users.create');
+        $user = auth('customer_user')->user();
+        
+        if (!$user->canCreateUsers()) {
+            abort(403, 'Brak uprawnień do tworzenia użytkowników.');
+        }
+
+        $roles = [
+            'user' => 'Standardowy użytkownik',
+            'accountant' => 'Księgowy',
+            'warehouse' => 'Magazynier',
+            'viewer' => 'Tylko do odczytu'
+        ];
+
+        return view('customer.users.create', compact('roles'));
     }
 
-    public function store(CreateUserRequest $request)
+    public function store(Request $request)
     {
-        $validated = $request->validated();
-        $validated['customer_id'] = auth()->guard('customer_user')->user()->customer_id;
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['verification_token'] = Str::uuid()->toString();
+        $user = auth('customer_user')->user();
         
-        $user = CustomerUser::create($validated);
-
-        // Send verification email (implement if needed)
-        // $user->sendEmailVerificationNotification();
-
-        return redirect()->route('customer.users.index')
-            ->with('success', 'User created successfully. Verification email sent.');
-    }
-
-    public function show(CustomerUser $user)
-    {
-        // Check if user belongs to the same customer
-        if ($user->customer_id !== auth()->guard('customer_user')->user()->customer_id) {
-            abort(403);
-        }
-        
-        return view('customer.users.show', compact('user'));
-    }
-
-    public function edit(CustomerUser $user)
-    {
-        // Check if user belongs to the same customer
-        if ($user->customer_id !== auth()->guard('customer_user')->user()->customer_id) {
-            abort(403);
-        }
-        
-        return view('customer.users.edit', compact('user'));
-    }
-
-    public function update(UpdateUserRequest $request, CustomerUser $user)
-    {
-        // Check if user belongs to the same customer
-        if ($user->customer_id !== auth()->guard('customer_user')->user()->customer_id) {
-            abort(403);
-        }
-        
-        $validated = $request->validated();
-        
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
+        if (!$user->canCreateUsers()) {
+            abort(403, 'Brak uprawnień do tworzenia użytkowników.');
         }
 
-        $user->update($validated);
-
-        return redirect()->route('customer.users.index')
-            ->with('success', 'User updated successfully');
-    }
-
-    public function destroy(CustomerUser $user)
-    {
-        // Check if user belongs to the same customer
-        if ($user->customer_id !== auth()->guard('customer_user')->user()->customer_id) {
-            abort(403);
-        }
-        
-        // Prevent deleting primary user
-        if ($user->is_primary) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete the primary user account');
-        }
-
-        // Prevent self-deletion
-        if ($user->id === auth()->guard('customer_user')->id()) {
-            return redirect()->back()
-                ->with('error', 'You cannot delete your own account');
-        }
-
-        $user->delete();
-
-        return redirect()->route('customer.users.index')
-            ->with('success', 'User deleted successfully');
-    }
-
-    public function updateStatus(Request $request, CustomerUser $user)
-    {
-        // Check if user belongs to the same customer
-        if ($user->customer_id !== auth()->guard('customer_user')->user()->customer_id) {
-            abort(403);
-        }
-        
         $request->validate([
-            'status' => 'required|boolean'
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('customer_users')->where(function ($query) use ($user) {
+                    return $query->where('customer_id', $user->customer_id);
+                })
+            ],
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|in:user,accountant,warehouse,viewer',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Prevent self-deactivation
-        if ($user->id === auth()->guard('customer_user')->id() && !$request->status) {
-            return response()->json(['error' => 'You cannot deactivate your own account'], 400);
-        }
-
-        // Prevent deactivating primary user
-        if ($user->is_primary && !$request->status) {
-            return response()->json(['error' => 'Cannot deactivate the primary user'], 400);
-        }
-
-        $user->update(['is_active' => $request->status]);
-
-        return response()->json([
-            'success' => true,
-            'message' => $request->status ? 'User activated successfully' : 'User deactivated successfully'
+        $customerUser = CustomerUser::create([
+            'customer_id' => $user->customer_id,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'role' => $request->role,
+            'password' => Hash::make($request->password),
+            'is_active' => true,
+            'is_primary' => false,
         ]);
+
+        return redirect()
+            ->route('customer.users.index')
+            ->with('success', 'Użytkownik został utworzony pomyślnie.');
+    }
+
+    public function show(CustomerUser $customerUser)
+    {
+        $user = auth('customer_user')->user();
+        
+        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+            abort(403, 'Brak uprawnień do przeglądania tego użytkownika.');
+        }
+
+        return view('customer.users.show', compact('customerUser'));
+    }
+
+    public function edit(CustomerUser $customerUser)
+    {
+        $user = auth('customer_user')->user();
+        
+        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+            abort(403, 'Brak uprawnień do edytowania tego użytkownika.');
+        }
+
+        // Prevent editing primary user
+        if ($customerUser->is_primary) {
+            abort(403, 'Nie można edytować głównego użytkownika.');
+        }
+
+        $roles = [
+            'user' => 'Standardowy użytkownik',
+            'accountant' => 'Księgowy',
+            'warehouse' => 'Magazynier',
+            'viewer' => 'Tylko do odczytu'
+        ];
+
+        return view('customer.users.edit', compact('customerUser', 'roles'));
+    }
+
+    public function update(Request $request, CustomerUser $customerUser)
+    {
+        $user = auth('customer_user')->user();
+        
+        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+            abort(403, 'Brak uprawnień do edytowania tego użytkownika.');
+        }
+
+        // Prevent editing primary user
+        if ($customerUser->is_primary) {
+            abort(403, 'Nie można edytować głównego użytkownika.');
+        }
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('customer_users')->where(function ($query) use ($user) {
+                    return $query->where('customer_id', $user->customer_id);
+                })->ignore($customerUser->id)
+            ],
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|in:user,accountant,warehouse,viewer',
+            'is_active' => 'boolean',
+        ]);
+
+        $customerUser->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'role' => $request->role,
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        return redirect()
+            ->route('customer.users.index')
+            ->with('success', 'Użytkownik został zaktualizowany pomyślnie.');
+    }
+
+    public function destroy(CustomerUser $customerUser)
+    {
+        $user = auth('customer_user')->user();
+        
+        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+            abort(403, 'Brak uprawnień do usuwania tego użytkownika.');
+        }
+
+        // Prevent deleting primary user
+        if ($customerUser->is_primary) {
+            abort(403, 'Nie można usunąć głównego użytkownika.');
+        }
+
+        // Prevent deleting self
+        if ($customerUser->id === $user->id) {
+            abort(403, 'Nie można usunąć siebie.');
+        }
+
+        $customerUser->delete();
+
+        return redirect()
+            ->route('customer.users.index')
+            ->with('success', 'Użytkownik został usunięty pomyślnie.');
+    }
+
+    public function transferAdmin(Request $request, CustomerUser $customerUser)
+    {
+        $currentUser = auth('customer_user')->user();
+        
+        if (!$currentUser->canTransferAdminRights()) {
+            abort(403, 'Brak uprawnień do przeniesienia uprawnień administratora.');
+        }
+
+        if ($customerUser->customer_id !== $currentUser->customer_id) {
+            abort(403, 'Nie można przenieść uprawnień na użytkownika z innej firmy.');
+        }
+
+        if ($customerUser->id === $currentUser->id) {
+            return redirect()
+                ->route('customer.users.index')
+                ->withErrors(['error' => 'Nie można przenieść uprawnień na siebie.']);
+        }
+
+        if (!$customerUser->is_active) {
+            return redirect()
+                ->route('customer.users.index')
+                ->withErrors(['error' => 'Nie można przenieść uprawnień na nieaktywnego użytkownika.']);
+        }
+
+        $success = $currentUser->transferAdminRightsTo($customerUser);
+
+        if ($success) {
+            return redirect()
+                ->route('customer.users.index')
+                ->with('success', 'Uprawnienia administratora zostały przeniesione pomyślnie. Zostałeś wylogowany.');
+        }
+
+        return redirect()
+            ->route('customer.users.index')
+            ->withErrors(['error' => 'Nie udało się przenieść uprawnień administratora.']);
     }
 }

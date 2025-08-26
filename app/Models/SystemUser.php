@@ -55,6 +55,11 @@ class SystemUser extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function canCreateEmployees(): bool
+    {
+        return in_array($this->role, ['super_admin', 'admin']);
+    }
+
     public function canManageCustomers(): bool
     {
         return in_array($this->role, ['super_admin', 'admin']);
@@ -63,5 +68,10 @@ class SystemUser extends Authenticatable
     public function canViewReports(): bool
     {
         return $this->isAdmin();
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->role === 'employee';
     }
 }
