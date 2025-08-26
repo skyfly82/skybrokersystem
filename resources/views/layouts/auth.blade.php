@@ -66,7 +66,7 @@
                     </div>
                     <div class="ml-3">
                         <h1 class="text-2xl font-bold text-gray-900">SkyBroker</h1>
-                        <p class="text-sm text-gray-500">System v6.0</p>
+                        <p class="text-sm text-gray-500">System</p>
                     </div>
                 </div>
             </div>

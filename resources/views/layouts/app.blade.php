@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <title>@yield('title', 'SkyBrokerSystem v6')</title>
+    <title>@yield('title', 'SkyBrokerSystem')</title>
     
     <!-- Fonts - Brand Guidelines: Be Vietnam Pro (headings) + Mulish (content) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

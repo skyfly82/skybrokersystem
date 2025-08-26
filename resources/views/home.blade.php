@@ -382,7 +382,7 @@
             </div>
             
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p class="font-body">&copy; {{ date('Y') }} SkyBrokerSystem v6. {{ __('common.copyright') }}</p>
+                <p class="font-body">&copy; {{ date('Y') }} SkyBrokerSystem. {{ __('common.copyright') }}</p>
             </div>
         </div>
     </footer>
