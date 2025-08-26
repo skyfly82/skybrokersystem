@@ -2,18 +2,38 @@
 
 @section('title', 'Nowa przesyłka')
 
+@push('styles')
+<style>
+.package-type-card.selected {
+    @apply border-blue-500 bg-blue-50 ring-2 ring-blue-500;
+}
+.offer-card.selected {
+    @apply border-blue-500 bg-blue-50;
+}
+.step-indicator.active {
+    @apply bg-blue-600 text-white;
+}
+.step-indicator.completed {
+    @apply bg-green-600 text-white;
+}
+.loading-skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+}
+</style>
+@endpush
+
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6" x-data="shipmentForm">
+<div class="max-w-4xl mx-auto space-y-6" x-data="modernShipmentForm">
     <!-- Header -->
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-heading font-bold text-black-coal">Nowa przesyłka</h2>
-                <p class="mt-1 text-sm font-body text-gray-500">Utwórz nową przesyłkę kurierską</p>
+                <h2 class="text-2xl font-bold text-gray-900">Nadaj przesyłkę</h2>
+                <p class="mt-1 text-sm text-gray-600">Wypełnij formularz, aby obliczyć koszty i wybrać najlepszą ofertę</p>
             </div>
             <div class="flex items-center space-x-3">
                 <a href="{{ route('customer.shipments.address-book') }}" 
-                   class="text-skywave hover:text-skywave/80 text-sm font-medium flex items-center">
+                   class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
                     <i class="fas fa-address-book mr-1"></i>
                     Książka adresowa
                 </a>
@@ -26,1687 +46,722 @@
         </div>
     </div>
 
+    <!-- Progress Steps -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center" :class="currentStep >= 1 ? 'text-blue-600' : 'text-gray-400'">
+                <div class="step-indicator w-10 h-10 rounded-full flex items-center justify-center" 
+                     :class="currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm font-medium">Krok 1</div>
+                    <div class="text-xs">Szczegóły przesyłki</div>
+                </div>
+            </div>
+            <div class="flex-1 h-0.5 mx-4" :class="currentStep > 1 ? 'bg-blue-600' : 'bg-gray-200'"></div>
+            
+            <div class="flex items-center" :class="currentStep >= 2 ? 'text-blue-600' : 'text-gray-400'">
+                <div class="step-indicator w-10 h-10 rounded-full flex items-center justify-center" 
+                     :class="currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm font-medium">Krok 2</div>
+                    <div class="text-xs">Adresy</div>
+                </div>
+            </div>
+            <div class="flex-1 h-0.5 mx-4" :class="currentStep > 2 ? 'bg-blue-600' : 'bg-gray-200'"></div>
+            
+            <div class="flex items-center" :class="currentStep >= 3 ? 'text-blue-600' : 'text-gray-400'">
+                <div class="step-indicator w-10 h-10 rounded-full flex items-center justify-center" 
+                     :class="currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm font-medium">Krok 3</div>
+                    <div class="text-xs">Wybór oferty</div>
+                </div>
+            </div>
+            <div class="flex-1 h-0.5 mx-4" :class="currentStep > 3 ? 'bg-blue-600' : 'bg-gray-200'"></div>
+            
+            <div class="flex items-center" :class="currentStep >= 4 ? 'text-blue-600' : 'text-gray-400'">
+                <div class="step-indicator w-10 h-10 rounded-full flex items-center justify-center" 
+                     :class="currentStep >= 4 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm font-medium">Krok 4</div>
+                    <div class="text-xs">Potwierdzenie</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Form -->
-    <form method="POST" action="{{ route('customer.shipments.store') }}" class="space-y-6">
+    <form method="POST" action="{{ route('customer.shipments.store') }}" class="space-y-6" @submit.prevent="submitForm">
         @csrf
         
-        <!-- Step 1: Courier Selection -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">1</span>
-                Wybierz kuriera i usługę
-            </h3>
+        <!-- Step 1: Package Details -->
+        <div class="bg-white shadow rounded-lg p-6" x-show="currentStep === 1" x-transition>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Szczegóły przesyłki</h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach($couriers as $courier)
-                <div class="relative">
-                    <input type="radio" 
-                           name="courier_code" 
-                           value="{{ $courier->code }}"
-                           id="courier_{{ $courier->id }}"
-                           x-model="form.courier_code"
-                           @change="loadCourierServices('{{ $courier->code }}')"
-                           class="sr-only peer"
-                           required>
-                    <label for="courier_{{ $courier->id }}" 
-                           class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-skywave/30 peer-checked:border-skywave peer-checked:bg-skywave/5">
-                        <div class="flex items-center">
-                            @if($courier->logo_url)
-                            <img src="{{ $courier->logo_url }}" 
-                                 alt="{{ $courier->name }}" 
-                                 class="w-12 h-12 object-contain mr-3">
-                            @else
-                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-truck text-gray-400"></i>
+            <!-- Package Type Selection -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-gray-700 mb-4">Rodzaj przesyłki</label>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <template x-for="packageType in packageTypes" :key="packageType.id">
+                        <div class="package-type-card border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-gray-300 transition-all"
+                             :class="form.packageType === packageType.id ? 'selected' : ''"
+                             @click="selectPackageType(packageType)">
+                            <div class="text-center">
+                                <div class="text-2xl mb-2" x-text="packageType.icon"></div>
+                                <div class="text-sm font-medium" x-text="packageType.name"></div>
+                                <div class="text-xs text-gray-500" x-text="packageType.dimensions + 'cm'"></div>
+                                <div class="text-xs text-gray-500" x-text="'do ' + packageType.maxWeight + 'kg'"></div>
                             </div>
-                            @endif
-                            <div>
-                                <h4 class="font-heading font-medium text-black-coal">{{ $courier->name }}</h4>
-                                <p class="text-sm text-gray-500">{{ $courier->description }}</p>
-                            </div>
-                        </div>
-                    </label>
-                </div>
-                @endforeach
-            </div>
-            @error('courier_code')
-                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-
-            <!-- Service Type Selection -->
-            <div x-show="availableServices.length > 0" x-transition class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-3">Typ usługi</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <template x-for="service in availableServices" :key="service.code">
-                        <div>
-                            <input type="radio" 
-                                   name="service_type" 
-                                   :value="service.code"
-                                   :id="'service_' + service.code"
-                                   x-model="form.service_type"
-                                   @change="calculatePrice()"
-                                   class="sr-only peer"
-                                   required>
-                            <label :for="'service_' + service.code" 
-                                   class="block p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-skywave/30 peer-checked:border-skywave peer-checked:bg-skywave/5">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h5 class="font-heading font-medium text-black-coal" x-text="service.name"></h5>
-                                        <p class="text-sm text-gray-500" x-text="service.description"></p>
-                                    </div>
-                                    <span class="text-sm font-medium text-skywave" x-text="service.estimated_price"></span>
-                                </div>
-                            </label>
                         </div>
                     </template>
                 </div>
             </div>
-        </div>
-
-        <!-- Step 2: Sender Data -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-heading font-medium text-black-coal">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">2</span>
-                    Dane nadawcy
-                </h3>
-                <button type="button" 
-                        @click="showAddressBook('sender')"
-                        class="text-sm text-skywave hover:text-skywave/80 font-medium flex items-center">
-                    <i class="fas fa-address-book mr-1"></i>
-                    Wybierz z książki adresowej
-                </button>
-            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="sender_name" class="block text-sm font-medium text-gray-700">Nazwa firmy/Imię i nazwisko</label>
-                    <input type="text" 
-                           name="sender[name]" 
-                           id="sender_name"
-                           value="{{ old('sender.name', auth()->user()->customer->company_name) }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           :class="validateFormField('sender_name') ? 'border-green-300' : 'border-gray-300'"
-                           @input="$nextTick(() => $el.dispatchEvent(new Event('validate')))"
-                           required>
-                    @error('sender.name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="sender_phone" class="block text-sm font-medium text-gray-700">Telefon</label>
-                    <input type="tel" 
-                           name="sender[phone]" 
-                           id="sender_phone"
-                           value="{{ old('sender.phone', auth()->user()->customer->phone) }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('sender.phone')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="sender_email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" 
-                           name="sender[email]" 
-                           id="sender_email"
-                           value="{{ old('sender.email', auth()->user()->customer->email) }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('sender.email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div class="md:col-span-2">
-                    <label for="sender_address" class="block text-sm font-medium text-gray-700">Adres</label>
-                    <textarea name="sender[address]" 
-                              id="sender_address"
-                              rows="2"
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                              required>{{ old('sender.address', auth()->user()->customer->company_address) }}</textarea>
-                    @error('sender.address')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="sender_city" class="block text-sm font-medium text-gray-700">Miasto</label>
-                    <input type="text" 
-                           name="sender[city]" 
-                           id="sender_city"
-                           value="{{ old('sender.city', auth()->user()->customer->city) }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('sender.city')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="sender_postal_code" class="block text-sm font-medium text-gray-700">Kod pocztowy</label>
-                    <input type="text" 
-                           name="sender[postal_code]" 
-                           id="sender_postal_code"
-                           value="{{ old('sender.postal_code', auth()->user()->customer->postal_code) }}"
-                           pattern="[0-9]{2}-[0-9]{3}"
-                           placeholder="00-000"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('sender.postal_code')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <!-- Save to Address Book -->
-                <div class="md:col-span-2 pt-4 border-t border-gray-100">
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center">
-                            <input type="checkbox" 
-                                   x-model="form.save_sender_to_book"
-                                   class="h-4 w-4 text-skywave focus:ring-skywave border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-600">Zapisz nadawcę w książce adresowej</span>
-                        </label>
-                        <div x-show="form.save_sender_to_book" x-transition>
-                            <input type="text" 
-                                   x-model="form.sender_book_name"
-                                   placeholder="Nazwa w książce adresowej"
-                                   class="text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
+            <!-- Dimensions and Weight -->
+            <div x-show="form.packageType" x-transition class="mb-8">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">Wymiary i waga</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Długość (cm)</label>
+                        <input type="number" 
+                               x-model="form.dimensions.length" 
+                               name="dimensions_length"
+                               @blur="showFieldError('length', form.dimensions.length)"
+                               :class="{
+                                   'border-red-500 focus:ring-red-500': showFieldError('length', form.dimensions.length),
+                                   'border-gray-300 focus:ring-blue-500': !showFieldError('length', form.dimensions.length)
+                               }"
+                               class="w-full p-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors"
+                               placeholder="0"
+                               @input="validateDimensions">
+                        <div x-show="showFieldError('length', form.dimensions.length)" 
+                             class="text-red-500 text-sm mt-1" 
+                             x-text="showFieldError('length', form.dimensions.length)"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Szerokość (cm)</label>
+                        <input type="number" 
+                               x-model="form.dimensions.width" 
+                               name="dimensions_width"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="0"
+                               @input="validateDimensions">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Wysokość (cm)</label>
+                        <input type="number" 
+                               x-model="form.dimensions.height" 
+                               name="dimensions_height"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="0"
+                               @input="validateDimensions">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Waga (kg)</label>
+                        <input type="number" 
+                               step="0.1"
+                               x-model="form.dimensions.weight" 
+                               name="dimensions_weight"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="0.0"
+                               @input="validateDimensions">
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Step 2a: Financial Data -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
-                <i class="fas fa-university text-skywave mr-2"></i>
-                Dane finansowe
-            </h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="cod_return_account" class="block text-sm font-medium text-gray-700">
-                        Konto bankowe dla zwrotów COD
-                        <span class="text-xs text-gray-500 block mt-1">NRB (IBAN) do zwrotów pobrań</span>
-                    </label>
-                    <input type="text" 
-                           name="cod_return_account" 
-                           id="cod_return_account"
-                           value="{{ old('cod_return_account') }}"
-                           placeholder="PL61 1090 1014 0000 0712 1981 2874"
-                           pattern="^(PL)?[0-9]{26}$"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                    @error('cod_return_account')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="settlement_account" class="block text-sm font-medium text-gray-700">
-                        Konto rozliczeniowe
-                        <span class="text-xs text-gray-500 block mt-1">NRB (IBAN) do rozliczeń za przesyłki</span>
-                    </label>
-                    <input type="text" 
-                           name="settlement_account" 
-                           id="settlement_account"
-                           value="{{ old('settlement_account') }}"
-                           placeholder="PL61 1090 1014 0000 0712 1981 2874"
-                           pattern="^(PL)?[0-9]{26}$"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                    @error('settlement_account')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-            
-            <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div class="flex">
-                    <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-2"></i>
-                    <div class="text-sm">
-                        <p class="text-blue-800 font-medium">Informacje o kontach bankowych:</p>
-                        <ul class="text-blue-700 mt-1 space-y-1 text-xs">
-                            <li>• Konto COD - zwroty pobrań będą przekazywane na to konto</li>
-                            <li>• Konto rozliczeniowe - rozliczenia za usługi kurierskie</li>
-                            <li>• Możesz ustawić te same konta lub różne</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 3: Recipient Data -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-heading font-medium text-black-coal">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">3</span>
-                    Dane odbiorcy
-                </h3>
-                <div class="flex space-x-3">
-                    <button type="button" 
-                            @click="copySenderToRecipient()"
-                            class="text-xs text-purple-600 hover:text-purple-800 font-medium flex items-center">
-                        <i class="fas fa-copy mr-1"></i>
-                        Kopiuj z nadawcy
-                    </button>
-                    <button type="button" 
-                            @click="showAddressBook('recipient')"
-                            class="text-sm text-skywave hover:text-skywave/80 font-medium flex items-center">
-                        <i class="fas fa-address-book mr-1"></i>
-                        Wybierz z książki adresowej
-                    </button>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="recipient_name" class="block text-sm font-medium text-gray-700">Imię i nazwisko</label>
-                    <input type="text" 
-                           name="recipient[name]" 
-                           id="recipient_name"
-                           value="{{ old('recipient.name') }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('recipient.name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="recipient_phone" class="block text-sm font-medium text-gray-700">Telefon</label>
-                    <input type="tel" 
-                           name="recipient[phone]" 
-                           id="recipient_phone"
-                           value="{{ old('recipient.phone') }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('recipient.phone')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="recipient_email" class="block text-sm font-medium text-gray-700">Email (opcjonalnie)</label>
-                    <input type="email" 
-                           name="recipient[email]" 
-                           id="recipient_email"
-                           value="{{ old('recipient.email') }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                    @error('recipient.email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <!-- Pickup Point Selection (for InPost lockers) -->
-                <div x-show="needsPickupPoint" x-transition>
-                    <label for="pickup_point" class="block text-sm font-medium text-gray-700">Paczkomat</label>
-                    <div class="mt-1 relative">
+            <!-- Route -->
+            <div class="mb-8">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">Trasa przesyłki</h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Skąd</label>
                         <input type="text" 
-                               name="pickup_point" 
-                               id="pickup_point"
-                               x-model="form.pickup_point"
-                               placeholder="Wpisz miasto aby wyszukać paczkomaty"
-                               @input="searchPickupPoints()"
-                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                        
-                        <!-- Pickup Points Dropdown -->
-                        <div x-show="pickupPoints.length > 0" 
-                             class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
-                            <template x-for="point in pickupPoints" :key="point.id">
-                                <div @click="selectPickupPoint(point)" 
-                                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-skywave/5">
-                                    <div>
-                                        <span class="font-medium" x-text="point.name"></span>
-                                        <span class="text-gray-500 ml-2" x-text="point.address"></span>
+                               x-model="form.route.from" 
+                               name="route_from"
+                               placeholder="Miasto, kod pocztowy lub adres"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dokąd</label>
+                        <input type="text" 
+                               x-model="form.route.to" 
+                               name="route_to"
+                               placeholder="Miasto, kod pocztowy lub adres"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Address Data -->
+        <div class="bg-white shadow rounded-lg p-6" x-show="currentStep === 2" x-transition>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Dane nadawcy i odbiorcy</h3>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Sender Data -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Dane nadawcy</h4>
+                    <div class="space-y-4">
+                        <input type="text" 
+                               x-model="form.sender.name"
+                               name="sender_name"
+                               placeholder="Imię i nazwisko"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="text" 
+                               x-model="form.sender.company"
+                               name="sender_company"
+                               placeholder="Firma (opcjonalnie)"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="text" 
+                               x-model="form.sender.address"
+                               name="sender_address"
+                               placeholder="Ulica i numer"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" 
+                                   x-model="form.sender.postal_code"
+                                   name="sender_postal_code"
+                                   placeholder="Kod pocztowy"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="text" 
+                                   x-model="form.sender.city"
+                                   name="sender_city"
+                                   placeholder="Miasto"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <input type="tel" 
+                               x-model="form.sender.phone"
+                               name="sender_phone"
+                               placeholder="Telefon"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="email" 
+                               x-model="form.sender.email"
+                               name="sender_email"
+                               placeholder="E-mail"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                
+                <!-- Recipient Data -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Dane odbiorcy</h4>
+                    <div class="space-y-4">
+                        <input type="text" 
+                               x-model="form.recipient.name"
+                               name="recipient_name"
+                               placeholder="Imię i nazwisko"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="text" 
+                               x-model="form.recipient.company"
+                               name="recipient_company"
+                               placeholder="Firma (opcjonalnie)"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="text" 
+                               x-model="form.recipient.address"
+                               name="recipient_address"
+                               placeholder="Ulica i numer"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" 
+                                   x-model="form.recipient.postal_code"
+                                   name="recipient_postal_code"
+                                   placeholder="Kod pocztowy"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="text" 
+                                   x-model="form.recipient.city"
+                                   name="recipient_city"
+                                   placeholder="Miasto"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <input type="tel" 
+                               x-model="form.recipient.phone"
+                               name="recipient_phone"
+                               placeholder="Telefon"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="email" 
+                               x-model="form.recipient.email"
+                               name="recipient_email"
+                               placeholder="E-mail"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Offers -->
+        <div class="bg-white shadow rounded-lg p-6" x-show="currentStep === 3" x-transition>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Wybierz najlepszą ofertę</h3>
+            
+            <div x-show="isLoadingOffers" class="space-y-4">
+                <div class="loading-skeleton h-24"></div>
+                <div class="loading-skeleton h-24"></div>
+                <div class="loading-skeleton h-24"></div>
+            </div>
+            
+            <div x-show="!isLoadingOffers && offers.length > 0" class="space-y-4">
+                <template x-for="offer in offers" :key="offer.id">
+                    <div class="offer-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:shadow-md transition-all"
+                         :class="form.selectedOffer && form.selectedOffer.id === offer.id ? 'selected' : ''"
+                         @click="selectOffer(offer)">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <div class="px-3 py-1 rounded text-white text-sm font-medium mr-3"
+                                         :class="'bg-' + offer.color + '-500'"
+                                         x-text="offer.courier"></div>
+                                    <div class="flex items-center">
+                                        <span class="text-yellow-400">★</span>
+                                        <span class="text-sm text-gray-600 ml-1" x-text="offer.rating"></span>
                                     </div>
                                 </div>
-                            </template>
+                                
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-2xl font-bold text-gray-900" x-text="offer.price + ' zł'"></div>
+                                        <div class="text-sm text-gray-500 flex items-center">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            <span x-text="offer.time"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="space-y-1">
+                                        <template x-for="feature in offer.features" :key="feature">
+                                            <div class="text-sm text-gray-600 flex items-center">
+                                                <i class="fas fa-check-circle mr-2 text-green-500"></i>
+                                                <span x-text="feature"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Address for courier delivery -->
-                <div x-show="!needsPickupPoint" x-transition class="md:col-span-2">
-                    <label for="recipient_address" class="block text-sm font-medium text-gray-700">Adres dostawy</label>
-                    <textarea name="recipient[address]" 
-                              id="recipient_address"
-                              rows="2"
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                              :required="!needsPickupPoint">{{ old('recipient.address') }}</textarea>
-                    @error('recipient.address')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div x-show="!needsPickupPoint" x-transition>
-                    <label for="recipient_city" class="block text-sm font-medium text-gray-700">Miasto</label>
-                    <input type="text" 
-                           name="recipient[city]" 
-                           id="recipient_city"
-                           value="{{ old('recipient.city') }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           :required="!needsPickupPoint">
-                    @error('recipient.city')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div x-show="!needsPickupPoint" x-transition>
-                    <label for="recipient_postal_code" class="block text-sm font-medium text-gray-700">Kod pocztowy</label>
-                    <input type="text" 
-                           name="recipient[postal_code]" 
-                           id="recipient_postal_code"
-                           value="{{ old('recipient.postal_code') }}"
-                           pattern="[0-9]{2}-[0-9]{3}"
-                           placeholder="00-000"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           :required="!needsPickupPoint">
-                    @error('recipient.postal_code')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <!-- Save to Address Book -->
-                <div class="md:col-span-2 pt-4 border-t border-gray-100">
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center">
-                            <input type="checkbox" 
-                                   x-model="form.save_recipient_to_book"
-                                   class="h-4 w-4 text-skywave focus:ring-skywave border-gray-300 rounded">
-                            <span class="ml-2 text-sm text-gray-600">Zapisz odbiorcę w książce adresowej</span>
-                        </label>
-                        <div x-show="form.save_recipient_to_book" x-transition>
-                            <input type="text" 
-                                   x-model="form.recipient_book_name"
-                                   placeholder="Nazwa w książce adresowej"
-                                   class="text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                    </div>
-                </div>
+                </template>
             </div>
         </div>
 
-        <!-- Step 4: Package Data -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-heading font-medium text-black-coal">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">4</span>
-                    Dane paczki
-                </h3>
-                <div class="flex space-x-2">
-                    <button type="button" @click="setPackagePreset('small')" 
-                            class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700">
-                        Mała (20×15×10cm, 1kg)
-                    </button>
-                    <button type="button" @click="setPackagePreset('medium')" 
-                            class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700">
-                        Średnia (30×20×15cm, 2kg)
-                    </button>
-                    <button type="button" @click="setPackagePreset('large')" 
-                            class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700">
-                        Duża (40×30×20cm, 5kg)
-                    </button>
-                </div>
-            </div>
+        <!-- Step 4: Confirmation -->
+        <div class="bg-white shadow rounded-lg p-6" x-show="currentStep === 4" x-transition>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Podsumowanie zamówienia</h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                    <label for="package_weight" class="block text-sm font-medium text-gray-700">Waga (kg)</label>
-                    <input type="number" 
-                           name="package[weight]" 
-                           id="package_weight"
-                           value="{{ old('package.weight', '1') }}"
-                           step="0.1"
-                           min="0.1"
-                           max="30"
-                           x-model="form.package.weight"
-                           @input="calculatePrice()"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('package.weight')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+            <div x-show="form.selectedOffer" class="bg-gray-50 rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="text-lg font-semibold" x-text="form.selectedOffer ? form.selectedOffer.courier : ''"></div>
+                    <div class="text-2xl font-bold" x-text="form.selectedOffer ? form.selectedOffer.price + ' zł' : ''"></div>
                 </div>
                 
-                <div>
-                    <label for="package_length" class="block text-sm font-medium text-gray-700">Długość (cm)</label>
-                    <input type="number" 
-                           name="package[length]" 
-                           id="package_length"
-                           value="{{ old('package.length', '20') }}"
-                           min="1"
-                           max="100"
-                           x-model="form.package.length"
-                           @input="calculatePrice()"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('package.length')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="package_width" class="block text-sm font-medium text-gray-700">Szerokość (cm)</label>
-                    <input type="number" 
-                           name="package[width]" 
-                           id="package_width"
-                           value="{{ old('package.width', '15') }}"
-                           min="1"
-                           max="100"
-                           x-model="form.package.width"
-                           @input="calculatePrice()"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('package.width')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                
-                <div>
-                    <label for="package_height" class="block text-sm font-medium text-gray-700">Wysokość (cm)</label>
-                    <input type="number" 
-                           name="package[height]" 
-                           id="package_height"
-                           value="{{ old('package.height', '10') }}"
-                           min="1"
-                           max="100"
-                           x-model="form.package.height"
-                           @input="calculatePrice()"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave"
-                           required>
-                    @error('package.height')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 5: Additional Services -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-skywave text-white text-sm font-medium mr-3">5</span>
-                Usługi dodatkowe
-            </h3>
-            
-            <div class="space-y-4">
-                <!-- COD -->
-                <div class="flex items-start">
-                    <div class="flex items-center h-5">
-                        <input type="checkbox" 
-                               name="cod_enabled" 
-                               id="cod_enabled"
-                               x-model="form.cod_enabled"
-                               class="focus:ring-skywave h-4 w-4 text-skywave border-gray-300 rounded">
+                <div class="grid md:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <div class="font-medium mb-2">Przesyłka:</div>
+                        <div x-text="'Wymiary: ' + form.dimensions.length + '×' + form.dimensions.width + '×' + form.dimensions.height + 'cm'"></div>
+                        <div x-text="'Waga: ' + form.dimensions.weight + 'kg'"></div>
                     </div>
-                    <div class="ml-3 text-sm">
-                        <label for="cod_enabled" class="font-medium text-gray-700">Pobranie (COD)</label>
-                        <p class="text-gray-500">Pobierz płatność od odbiorcy</p>
-                    </div>
-                </div>
-                
-                <div x-show="form.cod_enabled" x-transition class="ml-7">
-                    <label for="cod_amount" class="block text-sm font-medium text-gray-700">Kwota pobrania (PLN)</label>
-                    <input type="number" 
-                           name="cod_amount" 
-                           id="cod_amount"
-                           step="0.01"
-                           min="0"
-                           x-model="form.cod_amount"
-                           class="mt-1 block w-full max-w-xs border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                </div>
-
-                <!-- Insurance -->
-                <div class="flex items-start">
-                    <div class="flex items-center h-5">
-                        <input type="checkbox" 
-                               name="insurance_enabled" 
-                               id="insurance_enabled"
-                               x-model="form.insurance_enabled"
-                               class="focus:ring-skywave h-4 w-4 text-skywave border-gray-300 rounded">
-                    </div>
-                    <div class="ml-3 text-sm">
-                        <label for="insurance_enabled" class="font-medium text-gray-700">Ubezpieczenie</label>
-                        <p class="text-gray-500">Ubezpiecz przesyłkę na wyższą kwotę</p>
-                    </div>
-                </div>
-                
-                <div x-show="form.insurance_enabled" x-transition class="ml-7">
-                    <label for="insurance_amount" class="block text-sm font-medium text-gray-700">Wartość ubezpieczenia (PLN)</label>
-                    <input type="number" 
-                           name="insurance_amount" 
-                           id="insurance_amount"
-                           step="0.01"
-                           min="0"
-                           x-model="form.insurance_amount"
-                           class="mt-1 block w-full max-w-xs border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                </div>
-            </div>
-
-            <!-- Reference Number -->
-            <div class="mt-6">
-                <label for="reference_number" class="block text-sm font-medium text-gray-700">Numer referencyjny (opcjonalnie)</label>
-                <input type="text" 
-                       name="reference_number" 
-                       id="reference_number"
-                       value="{{ old('reference_number') }}"
-                       placeholder="Twój wewnętrzny numer przesyłki"
-                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">
-                @error('reference_number')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Notes -->
-            <div class="mt-6">
-                <label for="notes" class="block text-sm font-medium text-gray-700">Uwagi (opcjonalnie)</label>
-                <textarea name="notes" 
-                          id="notes"
-                          rows="3"
-                          placeholder="Dodatkowe informacje o przesyłce..."
-                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-skywave focus:border-skywave">{{ old('notes') }}</textarea>
-                @error('notes')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
-
-        <!-- Price Summary -->
-        <div x-show="estimatedPrice" x-transition class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-heading font-medium text-black-coal mb-4">Podsumowanie kosztów</h3>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Koszt przesyłki:</span>
-                    <span class="font-medium" x-text="estimatedPrice"></span>
-                </div>
-                <div x-show="form.cod_enabled && form.cod_amount" class="flex justify-between items-center mt-2">
-                    <span class="text-sm text-gray-600">Opłata za pobranie:</span>
-                    <span class="font-medium">3.00 PLN</span>
-                </div>
-                <div x-show="form.insurance_enabled && form.insurance_amount" class="flex justify-between items-center mt-2">
-                    <span class="text-sm text-gray-600">Opłata za ubezpieczenie:</span>
-                    <span class="font-medium" x-text="insuranceFee"></span>
-                </div>
-                <hr class="my-3">
-                <div class="flex justify-between items-center text-lg font-semibold">
-                    <span>Razem:</span>
-                    <span x-text="totalPrice"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress & Validation Status -->
-        <div class="bg-white shadow rounded-lg p-4 mb-6" x-show="form.courier_code">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="font-heading font-medium text-black-coal">Postęp wypełniania formularza</h4>
-                <div class="flex items-center space-x-2">
-                    <span class="text-sm font-medium text-skywave" x-text="getFormProgress() + '%'"></span>
-                    <div class="relative">
-                        <i class="fas fa-info-circle text-gray-400 hover:text-gray-600 cursor-help" 
-                           @mouseenter="showProgressHelp = true" 
-                           @mouseleave="showProgressHelp = false"></i>
-                        <div x-show="showProgressHelp" 
-                             x-transition
-                             class="absolute right-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
-                            Postęp kalkulowany na podstawie wypełnionych sekcji: kurier (30%), dane (50%), wymiary (10%), wycena (10%)
-                        </div>
+                    <div>
+                        <div class="font-medium mb-2">Trasa:</div>
+                        <div x-text="form.route.from"></div>
+                        <div x-text="'→ ' + form.route.to"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Enhanced Progress Bar -->
-            <div class="relative w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-r from-skywave via-blue-400 to-green-400 h-full rounded-full transition-all duration-500 ease-out" 
-                     :style="'width: ' + getFormProgress() + '%'"></div>
-                <div class="absolute inset-0 bg-white bg-opacity-20 h-full rounded-full animate-pulse"
-                     x-show="getFormProgress() > 0 && getFormProgress() < 100"></div>
-            </div>
-            
-            <!-- Enhanced Step Indicators -->
-            <div class="flex justify-between mt-4 text-xs">
-                <div class="flex flex-col items-center space-y-1" :class="form.courier_code ? 'text-green-600' : 'text-gray-400'">
-                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center" 
-                         :class="form.courier_code ? 'border-green-600 bg-green-100' : 'border-gray-300'">
-                        <i class="fas fa-check text-xs" x-show="form.courier_code"></i>
-                        <span class="text-xs font-bold" x-show="!form.courier_code">1</span>
-                    </div>
-                    <span>Kurier</span>
-                </div>
-                <div class="flex flex-col items-center space-y-1" :class="isFormValid ? 'text-green-600' : 'text-gray-400'">
-                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center" 
-                         :class="isFormValid ? 'border-green-600 bg-green-100' : 'border-gray-300'">
-                        <i class="fas fa-check text-xs" x-show="isFormValid"></i>
-                        <span class="text-xs font-bold" x-show="!isFormValid">2</span>
-                    </div>
-                    <span>Dane</span>
-                </div>
-                <div class="flex flex-col items-center space-y-1" :class="form.package.weight && form.package.length ? 'text-green-600' : 'text-gray-400'">
-                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center" 
-                         :class="form.package.weight && form.package.length ? 'border-green-600 bg-green-100' : 'border-gray-300'">
-                        <i class="fas fa-check text-xs" x-show="form.package.weight && form.package.length"></i>
-                        <span class="text-xs font-bold" x-show="!form.package.weight || !form.package.length">3</span>
-                    </div>
-                    <span>Wymiary</span>
-                </div>
-                <div class="flex flex-col items-center space-y-1" :class="estimatedPrice ? 'text-green-600' : 'text-gray-400'">
-                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center" 
-                         :class="estimatedPrice ? 'border-green-600 bg-green-100' : 'border-gray-300'">
-                        <i class="fas fa-check text-xs" x-show="estimatedPrice"></i>
-                        <span class="text-xs font-bold" x-show="!estimatedPrice">4</span>
-                    </div>
-                    <span>Wycena</span>
+            <div>
+                <h4 class="font-medium mb-4">Wybierz metodę płatności</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="payment_method" value="card" x-model="form.paymentMethod" class="mr-3">
+                        <i class="fas fa-credit-card mr-3"></i>
+                        Płatność kartą online
+                    </label>
+                    <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="payment_method" value="blik" x-model="form.paymentMethod" class="mr-3">
+                        <i class="fas fa-mobile-alt mr-3"></i>
+                        BLIK
+                    </label>
+                    <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="payment_method" value="transfer" x-model="form.paymentMethod" class="mr-3">
+                        <i class="fas fa-university mr-3"></i>
+                        Przelew bankowy
+                    </label>
                 </div>
             </div>
         </div>
 
-        <!-- Submit Buttons -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <div class="flex items-center justify-between">
-                <a href="{{ route('customer.shipments.index') }}" 
-                   class="bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    Anuluj
-                </a>
+        <!-- Navigation -->
+        <div class="flex justify-between bg-white shadow rounded-lg p-6">
+            <button type="button" 
+                    @click="prevStep()" 
+                    x-show="currentStep > 1"
+                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                Wstecz
+            </button>
+            
+            <div class="ml-auto">
+                <button type="button" 
+                        @click="nextStep()" 
+                        x-show="currentStep < 4"
+                        :disabled="!canProceedToNext()"
+                        :class="canProceedToNext() ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                        class="px-6 py-3 rounded-lg font-medium transition-colors">
+                    <span x-show="currentStep === 1">Oblicz ceny</span>
+                    <span x-show="currentStep > 1">Dalej</span>
+                </button>
                 
-                <div class="flex space-x-3">
-                    <button type="button"
-                            @click="showBulkRecipients()"
-                            :disabled="!form.courier_code || !form.service_type"
-                            class="bg-purple-100 hover:bg-purple-200 disabled:bg-gray-300 text-purple-700 px-4 py-2 rounded-md text-sm font-body font-medium border border-purple-200 relative group"
-                            :class="{ 'opacity-50 cursor-not-allowed': !form.courier_code || !form.service_type }"
-                            :title="!form.courier_code || !form.service_type ? 'Najpierw wybierz kuriera i usługę' : 'Dodaj wielu odbiorców dla tej samej przesyłki'">
-                        <i class="fas fa-users mr-2"></i>
-                        Wielu odbiorców
-                        
-                        <!-- Tooltip -->
-                        <div x-show="!form.courier_code || !form.service_type"
-                             class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            Najpierw wybierz kuriera i usługę
-                        </div>
-                    </button>
-                    <button type="button"
-                            @click="addToCart()"
-                            :disabled="!canSubmit"
-                            class="bg-gray-100 hover:bg-gray-200 disabled:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-body font-medium border border-gray-300"
-                            :class="{ 'opacity-50 cursor-not-allowed': !canSubmit }">
-                        <i class="fas fa-cart-plus mr-2"></i>
-                        Dodaj do koszyka
-                    </button>
-                    <button type="submit" 
-                            name="save_draft"
-                            value="1"
-                            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-body font-medium">
-                        Zapisz szkic
-                    </button>
-                    <button type="submit" 
-                            :disabled="!canSubmit"
-                            class="bg-skywave hover:bg-skywave/90 disabled:bg-gray-300 text-white px-4 py-2 rounded-md text-sm font-body font-medium"
-                            :class="{ 'opacity-50 cursor-not-allowed': !canSubmit }">
-                        Utwórz i opłać teraz
-                    </button>
-                </div>
+                <button type="submit" 
+                        x-show="currentStep === 4"
+                        :disabled="!canSubmit()"
+                        :class="canSubmit() ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                        class="px-8 py-3 rounded-lg font-medium transition-colors">
+                    Złóż zamówienie
+                </button>
             </div>
         </div>
     </form>
-
-    <!-- Bulk Recipients Modal -->
-    <div x-show="showBulkModal" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50"
-         @click.outside="closeBulkModal()">
-        
-        <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-heading font-medium text-black-coal">Dodaj wielu odbiorców</h3>
-                        <p class="text-sm text-gray-500 mt-1">Użyj tych samych parametrów przesyłki dla różnych odbiorców</p>
-                    </div>
-                    <button @click="closeBulkModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="p-6">
-                <!-- Current Settings Summary -->
-                <div class="bg-skywave/5 rounded-lg p-4 mb-6 border border-skywave/20">
-                    <h4 class="font-medium text-black-coal mb-2">Ustawienia przesyłki:</h4>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span class="text-gray-600">Kurier:</span>
-                            <span class="font-medium ml-2" x-text="getSelectedCourierName()"></span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Usługa:</span>
-                            <span class="font-medium ml-2" x-text="getSelectedServiceName()"></span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Wymiary:</span>
-                            <span class="font-medium ml-2" x-text="`${form.package.length}×${form.package.width}×${form.package.height}cm`"></span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Waga:</span>
-                            <span class="font-medium ml-2" x-text="`${form.package.weight}kg`"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recipients List -->
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h4 class="font-medium text-black-coal">Lista odbiorców:</h4>
-                        <button @click="addBulkRecipient()" 
-                                class="bg-skywave hover:bg-skywave/90 text-white px-3 py-1 rounded text-sm">
-                            <i class="fas fa-plus mr-1"></i>
-                            Dodaj odbiorcę
-                        </button>
-                    </div>
-                    
-                    <template x-for="(recipient, index) in bulkRecipients" :key="'recipient-' + index">
-                        <div class="border border-gray-200 rounded-lg p-4 space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h5 class="font-medium text-gray-700" x-text="`Odbiorca ${index + 1}`"></h5>
-                                <button @click="removeBulkRecipient(index)" 
-                                        class="text-red-600 hover:text-red-800 text-sm">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Imię i nazwisko</label>
-                                    <input type="text" 
-                                           x-model="recipient.name"
-                                           class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave"
-                                           required>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Telefon</label>
-                                    <input type="tel" 
-                                           x-model="recipient.phone"
-                                           class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave"
-                                           required>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
-                                    <input type="email" 
-                                           x-model="recipient.email"
-                                           class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                                </div>
-                                
-                                <!-- Address fields (conditional based on service type) -->
-                                <template x-if="!needsPickupPoint">
-                                    <div class="md:col-span-2">
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Adres</label>
-                                        <input type="text" 
-                                               x-model="recipient.address"
-                                               class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave"
-                                               required>
-                                    </div>
-                                </template>
-                                <template x-if="!needsPickupPoint">
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Miasto</label>
-                                        <input type="text" 
-                                               x-model="recipient.city"
-                                               class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave"
-                                               required>
-                                    </div>
-                                </template>
-                                <template x-if="!needsPickupPoint">
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Kod pocztowy</label>
-                                        <input type="text" 
-                                               x-model="recipient.postal_code"
-                                               pattern="[0-9]{2}-[0-9]{3}"
-                                               placeholder="00-000"
-                                               class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave"
-                                               required>
-                                    </div>
-                                </template>
-                                
-                                <!-- Pickup point for locker services -->
-                                <template x-if="needsPickupPoint">
-                                    <div class="md:col-span-3">
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Paczkomat</label>
-                                        <input type="text" 
-                                               x-model="recipient.pickup_point"
-                                               placeholder="Nazwa paczkomatu"
-                                               class="w-full text-sm border-gray-300 rounded-md focus:ring-skywave focus:border-skywave"
-                                               required>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                    
-                    <!-- Add more recipients button -->
-                    <div x-show="bulkRecipients.length === 0" class="text-center py-8">
-                        <div class="text-gray-400">
-                            <i class="fas fa-users text-3xl mb-2"></i>
-                            <p class="text-sm">Brak odbiorców. Kliknij "Dodaj odbiorcę" aby rozpocząć.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                <div class="text-sm text-gray-600">
-                    <span x-text="bulkRecipients.length"></span> odbiorców 
-                    • Szacowany koszt: <span class="font-medium" x-text="getBulkTotalPrice()"></span>
-                </div>
-                <div class="flex space-x-3">
-                    <button @click="closeBulkModal()" 
-                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-body font-medium">
-                        Anuluj
-                    </button>
-                    <button @click="addBulkToCart()" 
-                            :disabled="bulkRecipients.length === 0"
-                            class="bg-skywave hover:bg-skywave/90 disabled:bg-gray-300 text-white px-4 py-2 rounded-md text-sm font-body font-medium">
-                        <i class="fas fa-cart-plus mr-2"></i>
-                        Dodaj wszystkie do koszyka
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Address Book Modal -->
-    <div x-show="showAddressBookModal" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50"
-         @click.outside="closeAddressBook()">
-        
-        <div class="bg-white rounded-lg shadow-lg max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-heading font-medium text-black-coal">
-                            Książka adresowa - <span x-text="addressBookType === 'sender' ? 'Nadawcy' : 'Odbiorcy'"></span>
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">Wybierz adres z zapisanych lub dodaj nowy</p>
-                    </div>
-                    <button @click="closeAddressBook()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="p-6">
-                <!-- Search -->
-                <div class="mb-6">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        <input type="text" 
-                               x-model="addressBookSearch"
-                               placeholder="Szukaj w książce adresowej..."
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-skywave focus:border-skywave">
-                    </div>
-                </div>
-
-                <!-- Address List -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <template x-for="address in filteredAddresses" :key="address.id">
-                        <div class="border border-gray-200 rounded-lg p-4 hover:border-skywave cursor-pointer transition-colors"
-                             @click="selectAddress(address)">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <h4 class="font-medium text-black-coal" x-text="address.name"></h4>
-                                    <p class="text-sm text-gray-600 mt-1" x-text="address.company"></p>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        <span x-text="address.address"></span><br>
-                                        <span x-text="address.postal_code + ' ' + address.city"></span>
-                                    </p>
-                                    <p class="text-xs text-gray-400 mt-2">
-                                        Tel: <span x-text="address.phone"></span>
-                                        <span x-show="address.email"> | Email: <span x-text="address.email"></span></span>
-                                    </p>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button @click.stop="editAddress(address)" 
-                                            class="text-gray-400 hover:text-gray-600 text-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button @click.stop="deleteAddress(address.id)" 
-                                            class="text-red-400 hover:text-red-600 text-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <!-- Empty State -->
-                <div x-show="filteredAddresses.length === 0" class="text-center py-12">
-                    <div class="text-gray-400">
-                        <i class="fas fa-address-book text-4xl mb-4"></i>
-                        <h4 class="text-lg font-medium text-gray-600 mb-2">Brak adresów</h4>
-                        <p class="text-sm">Dodaj pierwszy adres do książki adresowej</p>
-                    </div>
-                </div>
-
-                <!-- Add New Address Form -->
-                <div x-show="showNewAddressForm" x-transition class="border-t border-gray-200 pt-6 mt-6">
-                    <h4 class="font-medium text-black-coal mb-4">Dodaj nowy adres</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nazwa</label>
-                            <input type="text" x-model="newAddress.name" 
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Firma</label>
-                            <input type="text" x-model="newAddress.company" 
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                            <input type="tel" x-model="newAddress.phone" 
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" x-model="newAddress.email" 
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Adres</label>
-                            <input type="text" x-model="newAddress.address" 
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Miasto</label>
-                            <input type="text" x-model="newAddress.city" 
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Kod pocztowy</label>
-                            <input type="text" x-model="newAddress.postal_code" 
-                                   pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000"
-                                   class="w-full border-gray-300 rounded-md focus:ring-skywave focus:border-skywave">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                <div class="flex space-x-3">
-                    <button @click="toggleNewAddressForm()" 
-                            class="text-sm text-skywave hover:text-skywave/80 font-medium">
-                        <i class="fas fa-plus mr-1"></i>
-                        <span x-show="!showNewAddressForm">Dodaj nowy adres</span>
-                        <span x-show="showNewAddressForm">Anuluj dodawanie</span>
-                    </button>
-                </div>
-                <div class="flex space-x-3">
-                    <button @click="closeAddressBook()" 
-                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-body font-medium">
-                        Anuluj
-                    </button>
-                    <button x-show="showNewAddressForm" @click="saveNewAddress()" 
-                            class="bg-skywave hover:bg-skywave/90 text-white px-4 py-2 rounded-md text-sm font-body font-medium">
-                        <i class="fas fa-save mr-2"></i>
-                        Zapisz adres
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Cart Indicator -->
-    <div x-show="getCartItemCount() > 0" 
-         x-transition
-         class="fixed bottom-6 right-6 z-40">
-        <a href="{{ route('customer.shipments.cart') }}" 
-           class="bg-skywave hover:bg-skywave/90 text-white rounded-full px-4 py-3 shadow-lg flex items-center space-x-2 transition-all duration-300">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="font-medium" x-text="getCartItemCount()"></span>
-            <span class="text-sm">w koszyku</span>
-        </a>
-    </div>
 </div>
 
 @push('scripts')
 <script>
-// Debug info
-console.log('Shipment form initializing...');
 document.addEventListener('alpine:init', () => {
-    console.log('Alpine.js initializing shipmentForm...');
-    Alpine.data('shipmentForm', () => ({
+    Alpine.data('modernShipmentForm', () => ({
+        currentStep: 1,
+        isLoadingOffers: false,
+        offers: [],
+        
+        packageTypes: [
+            { id: 'envelope', name: 'Koperta', icon: '📄', dimensions: '35x25x2', maxWeight: '0.5' },
+            { id: 'small', name: 'Mała paczka', icon: '📦', dimensions: '25x20x15', maxWeight: '5' },
+            { id: 'medium', name: 'Średnia paczka', icon: '📦', dimensions: '40x30x20', maxWeight: '15' },
+            { id: 'large', name: 'Duża paczka', icon: '📦', dimensions: '60x40x30', maxWeight: '30' },
+            { id: 'custom', name: 'Niestandardowy', icon: '📏', dimensions: 'Custom', maxWeight: 'Custom' }
+        ],
+        
         form: {
-            courier_code: '',
-            service_type: '',
-            pickup_point: '',
-            package: {
-                weight: 1,
-                length: 20,
-                width: 15,
-                height: 10
+            packageType: '',
+            dimensions: { length: '', width: '', height: '', weight: '' },
+            route: { from: '', to: '' },
+            sender: {
+                name: '', address: '', building_number: '', city: '', 
+                postal_code: '', country: 'PL', phone: '', email: ''
             },
-            cod_enabled: false,
-            cod_amount: 0,
-            insurance_enabled: false,
-            insurance_amount: 0,
-            save_sender_to_book: false,
-            sender_book_name: '',
-            save_recipient_to_book: false,
-            recipient_book_name: ''
-        },
-        availableServices: [],
-        pickupPoints: [],
-        estimatedPrice: '',
-        totalPrice: '',
-        insuranceFee: '0.00 PLN',
-        showBulkModal: false,
-        bulkRecipients: [],
-        showAddressBookModal: false,
-        showProgressHelp: false,
-        addressBookType: 'sender',
-        addressBookSearch: '',
-        showNewAddressForm: false,
-        addresses: [],
-        newAddress: {
-            name: '',
-            company: '',
-            phone: '',
-            email: '',
-            address: '',
-            city: '',
-            postal_code: ''
+            recipient: {
+                name: '', address: '', building_number: '', city: '', 
+                postal_code: '', country: 'PL', phone: '', email: ''
+            },
+            selectedOffer: null,
+            paymentMethod: ''
         },
         
-        get needsPickupPoint() {
-            return this.form.service_type && this.form.service_type.includes('locker');
+        formErrors: {
+            step1: {},
+            step2: {},
+            general: null
         },
 
-        get filteredAddresses() {
-            if (!this.addressBookSearch) return this.addresses;
+        init() {
+            // Load saved form data if exists
+            this.loadSavedData();
+        },
+
+        selectPackageType(type) {
+            this.form.packageType = type.id;
             
-            const search = this.addressBookSearch.toLowerCase();
-            return this.addresses.filter(address => 
-                address.name.toLowerCase().includes(search) ||
-                address.company.toLowerCase().includes(search) ||
-                address.city.toLowerCase().includes(search) ||
-                address.address.toLowerCase().includes(search)
-            );
-        },
-        
-        get canSubmit() {
-            return this.form.courier_code && this.form.service_type && 
-                   (!this.needsPickupPoint || this.form.pickup_point) &&
-                   this.isFormValid;
+            if (type.id !== 'custom') {
+                const [l, w, h] = type.dimensions.split('x');
+                this.form.dimensions = {
+                    length: l,
+                    width: w, 
+                    height: h,
+                    weight: type.maxWeight
+                };
+            }
+            this.saveFormData();
         },
 
-        get isFormValid() {
-            // Check required sender fields
-            const senderValid = this.validateFormField('sender_name') &&
-                               this.validateFormField('sender_phone') &&
-                               this.validateFormField('sender_email') &&
-                               this.validateFormField('sender_address') &&
-                               this.validateFormField('sender_city') &&
-                               this.validateFormField('sender_postal_code');
+        validateDimensions() {
+            // Basic validation
+            return this.form.dimensions.length > 0 && 
+                   this.form.dimensions.width > 0 && 
+                   this.form.dimensions.height > 0 && 
+                   this.form.dimensions.weight > 0;
+        },
 
-            // Check required recipient fields
-            const recipientValid = this.validateFormField('recipient_name') &&
-                                 this.validateFormField('recipient_phone') &&
-                                 (!this.needsPickupPoint ? (
-                                     this.validateFormField('recipient_address') &&
-                                     this.validateFormField('recipient_city') &&
-                                     this.validateFormField('recipient_postal_code')
-                                 ) : this.form.pickup_point);
+        canProceedToNext() {
+            switch (this.currentStep) {
+                case 1:
+                    return this.form.packageType && this.validateDimensions();
+                case 2:
+                    return this.validateSenderRecipient();
+                case 3:
+                    return this.form.selectedOffer;
+                case 4:
+                    return this.form.paymentMethod;
+                default:
+                    return true;
+            }
+        },
 
+        validateSenderRecipient() {
+            const senderValid = this.form.sender.name && 
+                               this.form.sender.address && 
+                               this.form.sender.city && 
+                               this.form.sender.postal_code && 
+                               this.form.sender.phone && 
+                               this.form.sender.email;
+                               
+            const recipientValid = this.form.recipient.name && 
+                                  this.form.recipient.address && 
+                                  this.form.recipient.city && 
+                                  this.form.recipient.postal_code && 
+                                  this.form.recipient.phone && 
+                                  this.form.recipient.email;
+                                  
             return senderValid && recipientValid;
         },
 
-        validateFormField(fieldName) {
-            const field = document.querySelector(`[name="${fieldName}"], [name="sender[${fieldName.replace('sender_', '')}]"], [name="recipient[${fieldName.replace('recipient_', '')}]"]`);
-            return field && field.value.trim().length > 0;
-        },
-
-        getFormProgress() {
-            let progress = 0;
-            
-            // Step 1: Courier & Service (30%)
-            if (this.form.courier_code) progress += 15;
-            if (this.form.service_type) progress += 15;
-            
-            // Step 2: Form Data (50%)
-            if (this.isFormValid) progress += 50;
-            
-            // Step 3: Package dimensions (10%)
-            if (this.form.package.weight && this.form.package.length && 
-                this.form.package.width && this.form.package.height) progress += 10;
-            
-            // Step 4: Price calculated (10%)
-            if (this.estimatedPrice) progress += 10;
-            
-            return Math.min(100, progress);
-        },
-
-        getCartItemCount() {
-            try {
-                const cart = JSON.parse(localStorage.getItem('shipment_cart') || '[]');
-                return cart.length;
-            } catch (error) {
-                return 0;
+        validateField(field, value) {
+            switch (field) {
+                case 'weight':
+                    const weight = parseFloat(value);
+                    if (!weight || weight <= 0) return 'Waga jest wymagana';
+                    if (weight > 70) return 'Maksymalna waga to 70 kg';
+                    break;
+                case 'length':
+                case 'width':
+                case 'height':
+                    const dimension = parseInt(value);
+                    if (!dimension || dimension <= 0) return `${field} jest wymagane`;
+                    if (dimension > 200) return `Maksymalna ${field} to 200 cm`;
+                    break;
+                case 'postal_code':
+                    if (!/^\d{2}-\d{3}$/.test(value)) return 'Format: XX-XXX';
+                    break;
+                case 'email':
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Niepoprawny email';
+                    break;
+                case 'phone':
+                    if (!/^[\d\s\-\+\(\)]{9,15}$/.test(value)) return 'Niepoprawny numer telefonu';
+                    break;
             }
+            return null;
         },
 
-        // Address Book Methods
-        init() {
-            // Load addresses from localStorage
-            this.loadAddresses();
-            
-            // Check if we have a selected address from URL
-            this.checkSelectedAddress();
+        showFieldError(field, value) {
+            return this.validateField(field, value);
         },
 
-        checkSelectedAddress() {
-            try {
-                const selectedAddress = localStorage.getItem('selected_address');
-                const urlParams = new URLSearchParams(window.location.search);
-                const addressType = urlParams.get('address_type');
-                
-                if (selectedAddress && addressType) {
-                    const address = JSON.parse(selectedAddress);
-                    this.selectAddressFromStorage(address, addressType);
-                    
-                    // Clear the stored address
-                    localStorage.removeItem('selected_address');
-                    
-                    // Remove URL parameter
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
-                }
-            } catch (error) {
-                console.error('Error checking selected address:', error);
-            }
+        canSubmit() {
+            return this.form.selectedOffer && this.form.paymentMethod;
         },
 
-        selectAddressFromStorage(address, type) {
-            if (type === 'sender') {
-                document.getElementById('sender_name').value = address.name;
-                document.getElementById('sender_phone').value = address.phone;
-                document.getElementById('sender_email').value = address.email;
-                document.getElementById('sender_address').value = address.address;
-                document.getElementById('sender_city').value = address.city;
-                document.getElementById('sender_postal_code').value = address.postal_code;
-            } else if (type === 'recipient') {
-                document.getElementById('recipient_name').value = address.name;
-                document.getElementById('recipient_phone').value = address.phone;
-                document.getElementById('recipient_email').value = address.email || '';
-                if (!this.needsPickupPoint) {
-                    document.getElementById('recipient_address').value = address.address;
-                    document.getElementById('recipient_city').value = address.city;
-                    document.getElementById('recipient_postal_code').value = address.postal_code;
-                }
-            }
-        },
+        async nextStep() {
+            if (!this.canProceedToNext()) return;
 
-        loadAddresses() {
-            try {
-                const savedAddresses = localStorage.getItem('address_book');
-                if (savedAddresses) {
-                    this.addresses = JSON.parse(savedAddresses);
-                }
-            } catch (error) {
-                console.error('Error loading address book:', error);
-                this.addresses = [];
-            }
-        },
-
-        saveAddresses() {
-            localStorage.setItem('address_book', JSON.stringify(this.addresses));
-        },
-
-        showAddressBook(type) {
-            this.addressBookType = type;
-            this.showAddressBookModal = true;
-            this.addressBookSearch = '';
-            this.showNewAddressForm = false;
-        },
-
-        closeAddressBook() {
-            this.showAddressBookModal = false;
-            this.resetNewAddress();
-        },
-
-        selectAddress(address) {
-            if (this.addressBookType === 'sender') {
-                // Fill sender fields
-                document.getElementById('sender_name').value = address.name;
-                document.getElementById('sender_phone').value = address.phone;
-                document.getElementById('sender_email').value = address.email;
-                document.getElementById('sender_address').value = address.address;
-                document.getElementById('sender_city').value = address.city;
-                document.getElementById('sender_postal_code').value = address.postal_code;
-            } else {
-                // Fill recipient fields
-                document.getElementById('recipient_name').value = address.name;
-                document.getElementById('recipient_phone').value = address.phone;
-                document.getElementById('recipient_email').value = address.email || '';
-                if (!this.needsPickupPoint) {
-                    document.getElementById('recipient_address').value = address.address;
-                    document.getElementById('recipient_city').value = address.city;
-                    document.getElementById('recipient_postal_code').value = address.postal_code;
-                }
-            }
-            this.closeAddressBook();
-        },
-
-        toggleNewAddressForm() {
-            this.showNewAddressForm = !this.showNewAddressForm;
-            if (!this.showNewAddressForm) {
-                this.resetNewAddress();
-            }
-        },
-
-        resetNewAddress() {
-            this.newAddress = {
-                name: '',
-                company: '',
-                phone: '',
-                email: '',
-                address: '',
-                city: '',
-                postal_code: ''
-            };
-        },
-
-        saveNewAddress() {
-            if (!this.newAddress.name || !this.newAddress.phone || !this.newAddress.address) {
-                alert('Proszę wypełnić wymagane pola: Nazwa, Telefon, Adres');
-                return;
+            if (this.currentStep === 1) {
+                await this.calculateOffers();
             }
 
-            const newAddr = {
-                id: Date.now(),
-                type: this.addressBookType,
-                ...this.newAddress
-            };
-
-            this.addresses.push(newAddr);
-            this.saveAddresses();
-            
-            // Auto-select the new address
-            this.selectAddress(newAddr);
-            
-            this.resetNewAddress();
-            this.showNewAddressForm = false;
+            this.currentStep = Math.min(this.currentStep + 1, 4);
+            this.saveFormData();
         },
 
-        editAddress(address) {
-            this.newAddress = { ...address };
-            this.showNewAddressForm = true;
+        prevStep() {
+            this.currentStep = Math.max(this.currentStep - 1, 1);
         },
 
-        deleteAddress(addressId) {
-            if (confirm('Czy na pewno chcesz usunąć ten adres?')) {
-                this.addresses = this.addresses.filter(addr => addr.id !== addressId);
-                this.saveAddresses();
-            }
-        },
-
-        // Package Preset Methods
-        setPackagePreset(size) {
-            const presets = {
-                small: { weight: 1, length: 20, width: 15, height: 10 },
-                medium: { weight: 2, length: 30, width: 20, height: 15 },
-                large: { weight: 5, length: 40, width: 30, height: 20 }
-            };
-            
-            const preset = presets[size];
-            if (preset) {
-                this.form.package = { ...preset };
-                
-                // Update form inputs
-                document.getElementById('package_weight').value = preset.weight;
-                document.getElementById('package_length').value = preset.length;
-                document.getElementById('package_width').value = preset.width;
-                document.getElementById('package_height').value = preset.height;
-                
-                // Trigger price calculation
-                this.calculatePrice();
-            }
-        },
-
-        // Smart Copy Methods
-        copySenderToRecipient() {
-            const senderName = document.getElementById('sender_name').value;
-            const senderPhone = document.getElementById('sender_phone').value;
-            const senderEmail = document.getElementById('sender_email').value;
-            const senderAddress = document.getElementById('sender_address').value;
-            const senderCity = document.getElementById('sender_city').value;
-            const senderPostalCode = document.getElementById('sender_postal_code').value;
-
-            if (!senderName) {
-                alert('Najpierw wypełnij dane nadawcy');
-                return;
-            }
-
-            // Fill recipient fields
-            document.getElementById('recipient_name').value = senderName;
-            document.getElementById('recipient_phone').value = senderPhone;
-            document.getElementById('recipient_email').value = senderEmail;
-            
-            if (!this.needsPickupPoint) {
-                document.getElementById('recipient_address').value = senderAddress;
-                document.getElementById('recipient_city').value = senderCity;
-                document.getElementById('recipient_postal_code').value = senderPostalCode;
-            }
-        },
-        
-        addToCart() {
-            if (!this.canSubmit) {
-                alert('Proszę wypełnić wszystkie wymagane pola.');
-                return;
-            }
-            
-            // Collect form data
-            const cartItem = {
-                id: Date.now(),
-                courier_code: this.form.courier_code,
-                service_type: this.form.service_type,
-                sender: this.getSenderData(),
-                recipient: this.getRecipientData(),
-                package: this.form.package,
-                options: this.getOptionsData(),
-                estimated_price: this.totalPrice,
-                created_at: new Date().toISOString()
-            };
-            
-            // Save to localStorage
-            let cart = JSON.parse(localStorage.getItem('shipment_cart') || '[]');
-            cart.push(cartItem);
-            localStorage.setItem('shipment_cart', JSON.stringify(cart));
-            
-            // Show success message
-            this.$dispatch('show-toast', {
-                message: 'Przesyłka została dodana do koszyka!',
-                type: 'success'
-            });
-            
-            // Ask user what to do next
-            if (confirm('Przesyłka dodana do koszyka! Czy chcesz:\n\n✓ Dodać kolejną przesyłkę (OK)\n✓ Przejść do koszyka (Anuluj)')) {
-                // Reset form for next shipment
-                this.resetForm();
-            } else {
-                // Go to cart
-                window.location.href = '{{ route("customer.shipments.cart") }}';
-            }
-        },
-        
-        getSenderData() {
-            const form = document.querySelector('form');
-            const formData = new FormData(form);
-            return {
-                name: formData.get('sender[name]'),
-                phone: formData.get('sender[phone]'),
-                email: formData.get('sender[email]'),
-                address: formData.get('sender[address]'),
-                city: formData.get('sender[city]'),
-                postal_code: formData.get('sender[postal_code]')
-            };
-        },
-        
-        getRecipientData() {
-            const form = document.querySelector('form');
-            const formData = new FormData(form);
-            return {
-                name: formData.get('recipient[name]'),
-                phone: formData.get('recipient[phone]'),
-                email: formData.get('recipient[email]'),
-                address: formData.get('recipient[address]'),
-                city: formData.get('recipient[city]'),
-                postal_code: formData.get('recipient[postal_code]')
-            };
-        },
-        
-        getOptionsData() {
-            return {
-                cod_enabled: this.form.cod_enabled,
-                cod_amount: this.form.cod_amount,
-                insurance_enabled: this.form.insurance_enabled,
-                insurance_amount: this.form.insurance_amount,
-                reference_number: document.querySelector('[name="reference_number"]')?.value || '',
-                notes: document.querySelector('[name="notes"]')?.value || ''
-            };
-        },
-        
-        resetForm() {
-            this.form = {
-                courier_code: '',
-                service_type: '',
-                pickup_point: '',
-                package: {
-                    weight: 1,
-                    length: 20,
-                    width: 15,
-                    height: 10
-                },
-                cod_enabled: false,
-                cod_amount: 0,
-                insurance_enabled: false,
-                insurance_amount: 0
-            };
-            this.availableServices = [];
-            this.pickupPoints = [];
-            this.estimatedPrice = '';
-            this.totalPrice = '';
-            
-            // Reset form fields
-            document.querySelector('form').reset();
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        },
-
-        // Bulk Recipients Methods
-        showBulkRecipients() {
-            if (!this.form.courier_code || !this.form.service_type) {
-                alert('Proszę najpierw wybrać kuriera i usługę.');
-                return;
-            }
-            this.showBulkModal = true;
-            if (this.bulkRecipients.length === 0) {
-                this.addBulkRecipient();
-            }
-        },
-
-        closeBulkModal() {
-            this.showBulkModal = false;
-        },
-
-        addBulkRecipient() {
-            this.bulkRecipients.push({
-                name: '',
-                phone: '',
-                email: '',
-                address: '',
-                city: '',
-                postal_code: '',
-                pickup_point: ''
-            });
-        },
-
-        removeBulkRecipient(index) {
-            if (confirm('Czy na pewno chcesz usunąć tego odbiorcę?')) {
-                this.bulkRecipients.splice(index, 1);
-            }
-        },
-
-        getSelectedCourierName() {
-            const courierElement = document.querySelector(`input[name="courier_code"]:checked`);
-            return courierElement ? courierElement.closest('label').querySelector('h4').textContent : '';
-        },
-
-        getSelectedServiceName() {
-            const service = this.availableServices.find(s => s.code === this.form.service_type);
-            return service ? service.name : '';
-        },
-
-        getBulkTotalPrice() {
-            if (!this.estimatedPrice || this.bulkRecipients.length === 0) {
-                return '0.00 PLN';
-            }
-            const basePrice = parseFloat(this.estimatedPrice.replace(' PLN', ''));
-            const total = basePrice * this.bulkRecipients.length;
-            return `${total.toFixed(2)} PLN`;
-        },
-
-        addBulkToCart() {
-            if (this.bulkRecipients.length === 0) {
-                alert('Dodaj co najmniej jednego odbiorcę.');
-                return;
-            }
-
-            const invalidRecipients = this.bulkRecipients.filter(recipient => {
-                if (!recipient.name || !recipient.phone) return true;
-                if (this.needsPickupPoint && !recipient.pickup_point) return true;
-                if (!this.needsPickupPoint && (!recipient.address || !recipient.city || !recipient.postal_code)) return true;
-                return false;
-            });
-
-            if (invalidRecipients.length > 0) {
-                alert('Proszę wypełnić wszystkie wymagane pola dla wszystkich odbiorców.');
-                return;
-            }
-
-            const senderData = this.getSenderData();
-            const optionsData = this.getOptionsData();
-            let addedCount = 0;
-
-            this.bulkRecipients.forEach((recipient, index) => {
-                const cartItem = {
-                    id: Date.now() + index,
-                    courier_code: this.form.courier_code,
-                    service_type: this.form.service_type,
-                    sender: senderData,
-                    recipient: {
-                        name: recipient.name,
-                        phone: recipient.phone,
-                        email: recipient.email,
-                        address: this.needsPickupPoint ? recipient.pickup_point : recipient.address,
-                        city: recipient.city,
-                        postal_code: recipient.postal_code,
-                        pickup_point: this.needsPickupPoint ? recipient.pickup_point : null
-                    },
-                    package: { ...this.form.package },
-                    options: optionsData,
-                    estimated_price: this.totalPrice,
-                    created_at: new Date().toISOString()
-                };
-
-                let cart = JSON.parse(localStorage.getItem('shipment_cart') || '[]');
-                cart.push(cartItem);
-                localStorage.setItem('shipment_cart', JSON.stringify(cart));
-                addedCount++;
-            });
-
-            this.$dispatch('show-toast', {
-                message: `${addedCount} przesyłek zostało dodanych do koszyka!`,
-                type: 'success'
-            });
-
-            this.closeBulkModal();
-            this.bulkRecipients = [];
-
-            if (confirm(`Dodano ${addedCount} przesyłek do koszyka!\n\nCzy chcesz przejść do koszyka?`)) {
-                window.location.href = '{{ route("customer.shipments.cart") }}';
-            }
-        },
-        
-        async loadCourierServices(courierCode) {
-            try {
-                const response = await fetch(`/customer/couriers/${courierCode}/services`);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                const data = await response.json();
-                this.availableServices = data.data || data.services || [];
-                console.log('Loaded services:', this.availableServices);
-            } catch (error) {
-                console.error('Failed to load services:', error);
-                this.availableServices = [];
-            }
-        },
-        
-        async searchPickupPoints() {
-            if (!this.form.pickup_point || this.form.pickup_point.length < 3) {
-                this.pickupPoints = [];
-                return;
-            }
+        async calculateOffers() {
+            this.isLoadingOffers = true;
             
             try {
-                const response = await fetch(`/api/couriers/${this.form.courier_code}/pickup-points?city=${encodeURIComponent(this.form.pickup_point)}`);
-                const data = await response.json();
-                this.pickupPoints = data.data || [];
-            } catch (error) {
-                console.error('Failed to search pickup points:', error);
-            }
-        },
-        
-        selectPickupPoint(point) {
-            this.form.pickup_point = point.name;
-            this.pickupPoints = [];
-        },
-        
-        async calculatePrice() {
-            if (!this.form.courier_code || !this.form.service_type) return;
-            
-            try {
-                const response = await fetch(`/api/couriers/${this.form.courier_code}/calculate-price`, {
+                const response = await fetch('{{ route("customer.shipments.calculate-price") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        service_type: this.form.service_type,
-                        package: this.form.package
+                        courier_code: 'inpost',
+                        package: {
+                            weight: parseFloat(this.form.dimensions.weight) || 1,
+                            length: parseFloat(this.form.dimensions.length) || 20,
+                            width: parseFloat(this.form.dimensions.width) || 15,
+                            height: parseFloat(this.form.dimensions.height) || 10,
+                            value: 100
+                        },
+                        sender: this.form.sender || {},
+                        recipient: this.form.recipient || {}
                     })
                 });
-                
+
                 const data = await response.json();
-                if (data.success) {
-                    const price = data.data.find(p => p.service_type === this.form.service_type);
-                    if (price) {
-                        this.estimatedPrice = `${price.price_gross} PLN`;
-                        this.calculateTotal(price.price_gross);
-                    }
+                
+                if (data.success && data.prices) {
+                    // Convert InPost service response to our format
+                    this.offers = data.prices.map(price => ({
+                        id: price.service_type,
+                        courier: 'InPost',
+                        service_name: price.service_name,
+                        price: price.price_gross,
+                        price_net: price.price_net,
+                        time: this.getEstimatedTime(price.service_type),
+                        rating: 4.5,
+                        features: this.getServiceFeatures(price.service_type),
+                        color: 'blue'
+                    }));
+                } else {
+                    // Fallback to mock data if API fails
+                    this.offers = [
+                        {
+                            id: 'inpost_locker_standard',
+                            courier: 'InPost',
+                            service_name: 'Paczkomat Standard',
+                            price: 12.99,
+                            time: '1-2 dni robocze',
+                            rating: 4.8,
+                            features: ['Ubezpieczenie do 500zł', 'SMS powiadomienia', 'Śledzenie online'],
+                            color: 'blue'
+                        },
+                        {
+                            id: 'inpost',
+                            courier: 'InPost',
+                            price: 19.31,
+                            time: '1 dzień roboczy',
+                            rating: 4.6,
+                            features: ['Paczkomaty 24/7', 'Aplikacja mobilna', 'Eko dostawa'],
+                            color: 'yellow'
+                        },
+                        {
+                            id: 'ups',
+                            courier: 'UPS',
+                            price: 42.65,
+                            time: 'Następny dzień roboczy',
+                            rating: 4.9,
+                            features: ['Express delivery', 'Ubezpieczenie premium', 'Potwierdzenie dostawy'],
+                            color: 'amber'
+                        }
+                    ];
                 }
             } catch (error) {
-                console.error('Failed to calculate price:', error);
+                console.error('Calculate offers failed:', error);
+                alert('Nie udało się obliczyć cen. Spróbuj ponownie.');
+            } finally {
+                this.isLoadingOffers = false;
             }
         },
-        
-        calculateTotal(basePrice) {
-            let total = parseFloat(basePrice);
-            
-            if (this.form.cod_enabled && this.form.cod_amount > 0) {
-                total += 3.00; // COD fee
+
+        getEstimatedTime(serviceType) {
+            const times = {
+                'inpost_locker_standard': '1-2 dni robocze',
+                'inpost_locker_express': '24 godziny',
+                'inpost_courier_standard': '1-2 dni robocze',
+                'inpost_courier_express': '24 godziny',
+                'inpost_courier_to_locker': '1-2 dni robocze',
+                'inpost_locker_to_courier': '1-2 dni robocze'
+            };
+            return times[serviceType] || '1-2 dni robocze';
+        },
+
+        getServiceFeatures(serviceType) {
+            const features = {
+                'inpost_locker_standard': ['Paczkomat 24/7', 'SMS powiadomienia', 'Śledzenie online'],
+                'inpost_locker_express': ['Paczkomat 24/7', 'Express 24h', 'SMS powiadomienia', 'Śledzenie online'],
+                'inpost_courier_standard': ['Odbiór kurierem', 'Doręczenie kurierem', 'SMS powiadomienia'],
+                'inpost_courier_express': ['Odbiór kurierem', 'Express 24h', 'SMS powiadomienia'],
+                'inpost_courier_to_locker': ['Odbiór kurierem', 'Doręczenie do paczkomatu', 'SMS powiadomienia'],
+                'inpost_locker_to_courier': ['Nadanie z paczkomatu', 'Doręczenie kurierem', 'SMS powiadomienia']
+            };
+            return features[serviceType] || ['SMS powiadomienia', 'Śledzenie online'];
+        },
+
+        selectOffer(offer) {
+            this.form.selectedOffer = offer;
+            this.saveFormData();
+        },
+
+        async submitForm() {
+            if (!this.canSubmit()) return;
+
+            try {
+                const formData = new FormData();
+                
+                // Add CSRF token
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+                
+                // Courier and service selection
+                formData.append('courier_code', this.form.selectedOffer.id.includes('inpost') ? 'inpost' : 'inpost');
+                formData.append('service_type', this.form.selectedOffer.id);
+                
+                // Package data
+                formData.append('package[weight]', this.form.dimensions.weight);
+                formData.append('package[length]', this.form.dimensions.length);
+                formData.append('package[width]', this.form.dimensions.width);
+                formData.append('package[height]', this.form.dimensions.height);
+                formData.append('package[description]', 'Przesyłka standardowa');
+                
+                // Sender data (use logged in user's customer data)
+                Object.entries(this.form.sender).forEach(([key, value]) => {
+                    if (value) formData.append(`sender[${key}]`, value);
+                });
+                
+                // Recipient data
+                Object.entries(this.form.recipient).forEach(([key, value]) => {
+                    if (value) formData.append(`recipient[${key}]`, value);
+                });
+
+                const response = await fetch('{{ route("customer.shipments.store") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear saved data
+                    localStorage.removeItem('shipment_form_data');
+                    
+                    // Redirect to success page or payment
+                    window.location.href = data.redirect_url || '{{ route("customer.shipments.index") }}';
+                } else {
+                    throw new Error(data.message || 'Błąd podczas tworzenia przesyłki');
+                }
+            } catch (error) {
+                console.error('Submit form failed:', error);
+                alert('Nie udało się utworzyć przesyłki. Spróbuj ponownie.');
             }
-            
-            if (this.form.insurance_enabled && this.form.insurance_amount > 0) {
-                const insuranceCost = Math.max(2.00, this.form.insurance_amount * 0.01);
-                this.insuranceFee = `${insuranceCost.toFixed(2)} PLN`;
-                total += insuranceCost;
+        },
+
+        saveFormData() {
+            localStorage.setItem('shipment_form_data', JSON.stringify({
+                form: this.form,
+                currentStep: this.currentStep,
+                timestamp: Date.now()
+            }));
+        },
+
+        loadSavedData() {
+            const saved = localStorage.getItem('shipment_form_data');
+            if (!saved) return;
+
+            try {
+                const { form, currentStep, timestamp } = JSON.parse(saved);
+                
+                // Only restore if saved within last 24 hours
+                if (Date.now() - timestamp > 24 * 60 * 60 * 1000) {
+                    localStorage.removeItem('shipment_form_data');
+                    return;
+                }
+
+                this.form = { ...this.form, ...form };
+                this.currentStep = currentStep || 1;
+            } catch (error) {
+                console.warn('Failed to load saved form data:', error);
             }
-            
-            this.totalPrice = `${total.toFixed(2)} PLN`;
         }
     }));
 });

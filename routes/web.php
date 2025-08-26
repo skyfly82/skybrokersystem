@@ -8,11 +8,13 @@ use App\Http\Controllers\Admin\SystemSettingsController as AdminSystemSettingsCo
 use App\Http\Controllers\Admin\ShipmentsController as AdminShipmentsController;
 use App\Http\Controllers\Admin\PaymentsController as AdminPaymentsController;
 use App\Http\Controllers\Admin\NotificationsController as AdminNotificationsController;
+use App\Http\Controllers\Admin\UsersController as AdminUsersController;
 use App\Http\Controllers\Customer\AuthController as CustomerAuthController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ShipmentsController as CustomerShipmentsController;
 use App\Http\Controllers\Customer\PaymentsController as CustomerPaymentsController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
+use App\Http\Controllers\Customer\UsersController as CustomerUsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -240,38 +242,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // System Users Management (Super Admin Only)
         Route::middleware('admin:super_admin')->prefix('users')->name('users.')->group(function () {
-            Route::get('/', function () { 
-                return view('admin.users.index', [
-                    'title' => 'System Users',
-                    'description' => 'Manage admin users and permissions'
-                ]); 
-            })->name('index');
-            
-            Route::get('/create', function () { 
-                return view('admin.users.create', [
-                    'title' => 'Create User',
-                    'description' => 'Add new admin user'
-                ]); 
-            })->name('create');
-            
-            Route::post('/', function () { 
-                return redirect()->route('admin.users.index')->with('success', 'User created successfully'); 
-            })->name('store');
-            
-            Route::get('/{user}/edit', function () { 
-                return view('admin.users.edit', [
-                    'title' => 'Edit User',
-                    'description' => 'Edit admin user details'
-                ]); 
-            })->name('edit');
-            
-            Route::put('/{user}', function () { 
-                return redirect()->route('admin.users.index')->with('success', 'User updated successfully'); 
-            })->name('update');
-            
-            Route::delete('/{user}', function () { 
-                return redirect()->route('admin.users.index')->with('success', 'User deleted successfully'); 
-            })->name('destroy');
+            Route::get('/', [AdminUsersController::class, 'index'])->name('index');
+            Route::get('/create', [AdminUsersController::class, 'create'])->name('create');
+            Route::post('/', [AdminUsersController::class, 'store'])->name('store');
+            Route::get('/{user}', [AdminUsersController::class, 'show'])->name('show');
+            Route::get('/{user}/edit', [AdminUsersController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [AdminUsersController::class, 'update'])->name('update');
+            Route::delete('/{user}', [AdminUsersController::class, 'destroy'])->name('destroy');
+            Route::patch('/{user}/status', [AdminUsersController::class, 'updateStatus'])->name('update-status');
         });
         
         // System Logs
@@ -397,38 +375,14 @@ Route::prefix('customer')->name('customer.')->group(function () {
         
         // Users Management (for customer admin users only)
         Route::middleware('customer.admin')->prefix('users')->name('users.')->group(function () {
-            Route::get('/', function () { 
-                return view('customer.users.index', [
-                    'title' => 'Team Users',
-                    'description' => 'Manage your company users'
-                ]); 
-            })->name('index');
-            
-            Route::get('/create', function () { 
-                return view('customer.users.create', [
-                    'title' => 'Add User',
-                    'description' => 'Add new team member'
-                ]); 
-            })->name('create');
-            
-            Route::post('/', function () { 
-                return redirect()->route('customer.users.index')->with('success', 'User created successfully'); 
-            })->name('store');
-            
-            Route::get('/{user}/edit', function () { 
-                return view('customer.users.edit', [
-                    'title' => 'Edit User',
-                    'description' => 'Edit team member details'
-                ]); 
-            })->name('edit');
-            
-            Route::put('/{user}', function () { 
-                return redirect()->route('customer.users.index')->with('success', 'User updated successfully'); 
-            })->name('update');
-            
-            Route::delete('/{user}', function () { 
-                return redirect()->route('customer.users.index')->with('success', 'User deleted successfully'); 
-            })->name('destroy');
+            Route::get('/', [CustomerUsersController::class, 'index'])->name('index');
+            Route::get('/create', [CustomerUsersController::class, 'create'])->name('create');
+            Route::post('/', [CustomerUsersController::class, 'store'])->name('store');
+            Route::get('/{user}', [CustomerUsersController::class, 'show'])->name('show');
+            Route::get('/{user}/edit', [CustomerUsersController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [CustomerUsersController::class, 'update'])->name('update');
+            Route::delete('/{user}', [CustomerUsersController::class, 'destroy'])->name('destroy');
+            Route::patch('/{user}/status', [CustomerUsersController::class, 'updateStatus'])->name('update-status');
         });
         
         // Customer Reports

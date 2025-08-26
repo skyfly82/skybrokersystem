@@ -53,7 +53,7 @@
     
     @stack('head')
 </head>
-<body class="h-full" x-data="{ showPassword: false }">
+<body class="h-full">
     <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <!-- Logo -->

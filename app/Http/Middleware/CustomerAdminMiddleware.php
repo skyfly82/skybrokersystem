@@ -12,10 +12,13 @@ class CustomerAdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $user = $request->user('customer_user');
 
         // Check if user is authenticated and is a customer user
         if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Unauthenticated'], 401);
+            }
             return redirect()->route('customer.login')
                 ->withErrors(['error' => 'Musisz być zalogowany aby uzyskać dostęp.']);
         }

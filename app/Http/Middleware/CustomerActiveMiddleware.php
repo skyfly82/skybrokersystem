@@ -12,7 +12,7 @@ class CustomerActiveMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $user = $request->user('customer_user');
 
         if (!$user || !$user->is_active) {
             if ($request->expectsJson()) {

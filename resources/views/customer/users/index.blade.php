@@ -68,8 +68,9 @@
                                             <div class="text-sm font-body font-medium text-gray-900">
                                                 {{ $user->first_name }} {{ $user->last_name }}
                                                 @if($user->is_primary)
-                                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-body font-medium bg-green-100 text-green-800">
-                                                        Główne
+                                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-body font-medium bg-amber-100 text-amber-800">
+                                                        <i class="fas fa-crown mr-1"></i>
+                                                        Konto główne
                                                     </span>
                                                 @endif
                                             </div>
@@ -95,8 +96,36 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-body font-medium 
-                                        {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                        {{ $user->role === 'admin' ? 'Administrator' : 'Użytkownik' }}
+                                        @switch($user->role)
+                                            @case('admin')
+                                                bg-purple-100 text-purple-800
+                                                @break
+                                            @case('magazynier')
+                                                bg-green-100 text-green-800
+                                                @break
+                                            @case('ksiegowa')
+                                                bg-indigo-100 text-indigo-800
+                                                @break
+                                            @default
+                                                bg-blue-100 text-blue-800
+                                        @endswitch">
+                                        @switch($user->role)
+                                            @case('admin')
+                                                <i class="fas fa-user-cog mr-1"></i>
+                                                Administrator
+                                                @break
+                                            @case('magazynier')
+                                                <i class="fas fa-boxes mr-1"></i>
+                                                Magazynier
+                                                @break
+                                            @case('ksiegowa')
+                                                <i class="fas fa-calculator mr-1"></i>
+                                                Księgowa
+                                                @break
+                                            @default
+                                                <i class="fas fa-user mr-1"></i>
+                                                Użytkownik
+                                        @endswitch
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -162,9 +191,11 @@
                             <h4 class="text-sm font-body font-medium text-blue-800">Informacje o rolach użytkowników</h4>
                             <div class="mt-2 text-sm font-body text-blue-700">
                                 <ul class="list-disc list-inside space-y-1">
-                                    <li><strong>Administrator:</strong> Pełny dostęp - może zarządzać użytkownikami, przesyłkami i płatnościami</li>
-                                    <li><strong>Użytkownik:</strong> Ograniczony dostęp - może tworzyć przesyłki i przeglądać raporty</li>
-                                    <li><strong>Konto główne:</strong> Nie można usuwać ani dezaktywować konta głównego</li>
+                                    <li><strong>Administrator:</strong> Pełny dostęp - zarządzanie użytkownikami, przesyłkami i płatnościami</li>
+                                    <li><strong>Magazynier:</strong> Dostęp do przesyłek - tworzenie, zarządzanie i śledzenie przesyłek</li>
+                                    <li><strong>Księgowa:</strong> Dostęp finansowy - płatności, faktury i raporty finansowe</li>
+                                    <li><strong>Użytkownik:</strong> Podstawowy dostęp - przeglądanie przesyłek i podstawowe operacje</li>
+                                    <li><strong><i class="fas fa-crown text-amber-500"></i> Konto główne:</strong> Nie można usuwać ani zmieniać roli konta głównego</li>
                                 </ul>
                             </div>
                         </div>
