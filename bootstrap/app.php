@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.active' => CustomerActiveMiddleware::class,
             'customer.admin' => CustomerAdminMiddleware::class,
             'api.key' => ApiKeyMiddleware::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
         // Rate limiting dla API
