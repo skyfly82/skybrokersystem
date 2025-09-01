@@ -8,6 +8,7 @@ use App\Http\Middleware\CustomerActiveMiddleware;
 use App\Http\Middleware\CustomerAdminMiddleware;
 use App\Http\Middleware\MarketingMiddleware;
 use App\Http\Middleware\ApiKeyMiddleware;
+use App\Http\Middleware\CheckApiKey;
 use App\Http\Middleware\SetLocale;
 use App\Exceptions\Handler;
 
@@ -31,16 +32,19 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer.admin' => CustomerAdminMiddleware::class,
             'marketing' => MarketingMiddleware::class,
             'api.key' => ApiKeyMiddleware::class,
+            'check.apikey' => CheckApiKey::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
         // Rate limiting dla API
         $middleware->throttleApi();
         
-        // CORS dla API
-        $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
+        // CORS dla API (Sanctum) - tylko jeśli pakiet jest obecny
+        if (class_exists(\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class)) {
+            $middleware->api(prepend: [
+                \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            ]);
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Custom exception handling is handled in App\Exceptions\Handler

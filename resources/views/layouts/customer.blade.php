@@ -114,6 +114,14 @@
                             Płatności
                         </a>
                         
+                        
+                        <!-- Complaints -->
+                        <a href="{{ route('customer.complaints.index') }}" class="group flex items-center rounded-md px-2 py-2 text-sm font-medium {{ request()->routeIs('customer.complaints.*') ? 'bg-blue-100 text-blue-900' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <svg class="mr-3 h-6 w-6 {{ request()->routeIs('customer.complaints.*') ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                            Reklamacje
+                        </a>
                         <!-- Submenu dla zarządzania -->
                         <div x-data="{ open: {{ request()->routeIs('customer.profile.*') || request()->routeIs('customer.users.*') || request()->routeIs('customer.finances.*') || request()->routeIs('customer.logs.*') ? 'true' : 'false' }} }">
                             <button @click="open = !open" class="group flex w-full items-center rounded-md px-2 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
@@ -147,6 +155,14 @@
                                 @endif
                             </div>
                         </div>
+                        
+                        <!-- Complaints -->
+                        <a href="{{ route('customer.complaints.index') }}" class="group flex items-center rounded-md px-2 py-2 text-sm font-medium {{ request()->routeIs('customer.complaints.*') ? 'bg-blue-100 text-blue-900' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <svg class="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                            Reklamacje
+                        </a>
                         
                         <!-- API Documentation -->
                         <a href="#" class="group flex items-center rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
@@ -222,6 +238,14 @@
                             Płatności
                         </a>
                         
+                        
+                        <!-- Complaints -->
+                        <a href="{{ route('customer.complaints.index') }}" class="group flex items-center rounded-md px-2 py-2 text-sm font-medium {{ request()->routeIs('customer.complaints.*') ? 'bg-blue-100 text-blue-900' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <svg class="mr-3 h-6 w-6 {{ request()->routeIs('customer.complaints.*') ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                            Reklamacje
+                        </a>
                         <!-- Submenu dla zarządzania -->
                         <div x-data="{ open: {{ request()->routeIs('customer.profile.*') || request()->routeIs('customer.users.*') || request()->routeIs('customer.finances.*') || request()->routeIs('customer.logs.*') ? 'true' : 'false' }} }">
                             <button @click="open = !open" class="group flex w-full items-center rounded-md px-2 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">

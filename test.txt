@@ -1,0 +1,8 @@
+curl -H "X-API-Key: map_mTFRgQI7iZ7uvyd6Vuv5Qsbz4lp3CNwiHgxU7Sx7ÓJ_KLUCZ" "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&format=geojson"
+curl -H "X-API-Key: MAmap_mTFRgQI7iZ7uvyd6Vuv5Qsbz4lp3CNwiHgxU7Sx7" "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&format=geojson"
+curl "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&format=geojson&api_key=map_mTFRgQI7iZ7uvyd6Vuv5Qsbz4lp3CNwiHgxU7Sx7"
+
+sudo chown -R www-data /var/www/skybrokersystem/storage /var/www/skybrokersystem/bootstrap/cache
+find /var/www/skybrokersystem/storage -type d -exec chmod 775 {} +
+find /var/www/skybrokersystem/storage -type f -exec chmod 664 {} +
+chmod -R ug+rwx /var/www/skybrokersystem/bootstrap/cache

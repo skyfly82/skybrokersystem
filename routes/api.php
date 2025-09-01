@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\PaymentsController;
 use App\Http\Controllers\Api\CouriersController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\WebhooksController;
+use App\Http\Controllers\Api\MapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +138,17 @@ Route::prefix('v1')->group(function () {
             });
         });
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Map API Routes (API Keys)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('map')->name('api.map.')->middleware(['check.apikey:map.read','throttle:api'])->group(function () {
+    Route::get('/points', [MapController::class, 'points'])->name('points');
+    Route::get('/points/{idOrCode}', [MapController::class, 'show'])->name('points.show');
 });
 
 /*

@@ -231,11 +231,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             })->name('security');
             
             Route::get('/api', function () { 
-                return view('admin.settings.api', [
-                    'title' => 'API Settings',
-                    'description' => 'API configuration and keys'
-                ]); 
+                return app(\App\Http\Controllers\Admin\ApiKeysController::class)->index();
             })->name('api');
+
+            Route::post('/api/generate-key', [\App\Http\Controllers\Admin\ApiKeysController::class, 'generate'])->name('api.generate');
+            Route::patch('/api/keys/{apiKey}/revoke', [\App\Http\Controllers\Admin\ApiKeysController::class, 'revoke'])->name('api.keys.revoke');
             
             Route::get('/maintenance', function () { 
                 return view('admin.settings.maintenance', [
@@ -296,6 +296,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
                     'description' => 'User access logs'
                 ]); 
             })->name('access');
+        });
+
+        // Courier Points Management
+        Route::prefix('courier-points')->name('courier-points.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\CourierPointsController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Admin\CourierPointsController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Admin\CourierPointsController::class, 'store'])->name('store');
+            Route::get('/{courierPoint}/edit', [App\Http\Controllers\Admin\CourierPointsController::class, 'edit'])->name('edit');
+            Route::put('/{courierPoint}', [App\Http\Controllers\Admin\CourierPointsController::class, 'update'])->name('update');
+            Route::delete('/{courierPoint}', [App\Http\Controllers\Admin\CourierPointsController::class, 'destroy'])->name('destroy');
+            Route::post('/import', [App\Http\Controllers\Admin\CourierPointsController::class, 'import'])->name('import');
         });
         
         // Analytics & Statistics
@@ -363,6 +374,50 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::prefix('ai')->name('ai.')->group(function () {
                 Route::post('/generate-seo', [App\Http\Controllers\Admin\AiContentController::class, 'generateSeoContent'])->name('generate-seo');
                 Route::post('/generate-banner', [App\Http\Controllers\Admin\AiContentController::class, 'generateBannerContent'])->name('generate-banner');
+            });
+        });
+        
+        // Customer Service Management (Admin + Super Admin)
+        Route::middleware('admin')->prefix('customer-service')->name('customer-service.')->group(function () {
+            // Dashboard
+            Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'dashboard'])->name('dashboard');
+            
+            // Complaints Management
+            Route::prefix('complaints')->name('complaints.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'complaints'])->name('index');
+                Route::get('/{complaint}', [App\Http\Controllers\Admin\CustomerServiceController::class, 'showComplaint'])->name('show');
+                Route::post('/{complaint}/assign', [App\Http\Controllers\Admin\CustomerServiceController::class, 'assignComplaint'])->name('assign');
+                Route::post('/{complaint}/messages', [App\Http\Controllers\Admin\CustomerServiceController::class, 'addMessage'])->name('add-message');
+                Route::post('/{complaint}/resolve', [App\Http\Controllers\Admin\CustomerServiceController::class, 'resolveComplaint'])->name('resolve');
+                Route::post('/{complaint}/reopen', [App\Http\Controllers\Admin\CustomerServiceController::class, 'reopenComplaint'])->name('reopen');
+                Route::patch('/{complaint}/status', [App\Http\Controllers\Admin\CustomerServiceController::class, 'updateStatus'])->name('update-status');
+            });
+            
+            // Complaint Topics Management (Super Admin only)
+            Route::middleware('admin:super_admin')->prefix('topics')->name('topics.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'index'])->name('index');
+                Route::get('/create', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'store'])->name('store');
+                Route::get('/{topic}', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'show'])->name('show');
+                Route::get('/{topic}/edit', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'edit'])->name('edit');
+                Route::put('/{topic}', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'update'])->name('update');
+                Route::delete('/{topic}', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'destroy'])->name('destroy');
+                Route::post('/reorder', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'reorder'])->name('reorder');
+            });
+            
+            // Integrations Management
+            Route::prefix('integrations')->name('integrations.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'integrations'])->name('index');
+                Route::post('/freshdesk/configure', [App\Http\Controllers\Admin\CustomerServiceController::class, 'configureFreshdesk'])->name('freshdesk.configure');
+                Route::post('/freshcaller/configure', [App\Http\Controllers\Admin\CustomerServiceController::class, 'configureFreshcaller'])->name('freshcaller.configure');
+                Route::post('/{service}/test', [App\Http\Controllers\Admin\CustomerServiceController::class, 'testIntegration'])->name('test');
+                Route::post('/{service}/sync', [App\Http\Controllers\Admin\CustomerServiceController::class, 'syncIntegration'])->name('sync');
+            });
+            
+            // Webhooks (admin interface)
+            Route::prefix('webhooks')->name('webhooks.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'webhooks'])->name('index');
+                Route::post('/regenerate/{service}', [App\Http\Controllers\Admin\CustomerServiceController::class, 'regenerateWebhookSecret'])->name('regenerate');
             });
         });
     });
@@ -442,6 +497,16 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::get('/topup/create', [CustomerPaymentsController::class, 'topup'])->name('topup');
             Route::post('/topup', [CustomerPaymentsController::class, 'processTopup'])->name('topup.process');
             Route::post('/export', [CustomerPaymentsController::class, 'export'])->name('export');
+        });
+        
+        // Complaints Management
+        Route::prefix('complaints')->name('complaints.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Customer\ComplaintController::class, 'index'])->name('index');
+            Route::get('/create', [App\Http\Controllers\Customer\ComplaintController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\Customer\ComplaintController::class, 'store'])->name('store');
+            Route::get('/{complaint}', [App\Http\Controllers\Customer\ComplaintController::class, 'show'])->name('show');
+            Route::post('/{complaint}/messages', [App\Http\Controllers\Customer\ComplaintController::class, 'addMessage'])->name('add-message');
+            Route::post('/{complaint}/files', [App\Http\Controllers\Customer\ComplaintController::class, 'uploadFile'])->name('upload-file');
         });
         
         // Profile Management
@@ -573,6 +638,11 @@ Route::get('/health', function () {
     ]);
 })->name('health');
 
+// Public Map View (requires front-end to provide API key for data calls)
+Route::get('/map', function () {
+    return view('map.index');
+})->name('map.index');
+
 /*
 |--------------------------------------------------------------------------
 | Fallback Route
@@ -581,4 +651,9 @@ Route::get('/health', function () {
 
 Route::fallback(function () {
     return response()->view('errors.404', [], 404);
+});
+// Public webhook endpoints (no authentication)
+Route::prefix("webhooks")->name("webhooks.")->group(function () {
+    Route::post("/freshdesk", [\App\Http\Controllers\WebhookController::class, "freshdeskWebhook"])->name("freshdesk");
+    Route::post("/freshcaller", [\App\Http\Controllers\WebhookController::class, "freshcallerWebhook"])->name("freshcaller");
 });

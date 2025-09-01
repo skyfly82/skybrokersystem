@@ -58,6 +58,50 @@ Zaawansowana platforma brokerska do zarządzania przesyłkami kurierskimi, zbudo
 * **Serwer:** Nginx (zalecany)
 * **Narzędzia:** Composer, Vite, NPM
 
+### Moduł Map (OSM)
+
+Nowy mikroserwis Mapy udostępnia API punktów kurierskich oraz panel admina do zarządzania:
+
+- Endpoints: `GET /api/map/points`, `GET /api/map/points/{id|code}` (wymaga nagłówka `X-API-Key`)
+- Import punktów z CSV: `php artisan points:import path/to.csv --courier=inpost --type=parcel_locker --delimiter=; --header`
+- Admin: `Admin -> Courier Points` (CRUD)
+- Konfiguracja: `config/map.php` (tiles OSM, rate limits, cache)
+
+#### Szybki start (migracje + seed)
+
+1) Uruchom migracje i seedy:
+
+```
+php artisan migrate
+php artisan db:seed --class=CourierPointsSeeder
+```
+
+2) Wygeneruj klucz API z zakresem `map.read` (np. w Tinker):
+
+```
+php artisan tinker
+>>> $k = new App\\Models\\ApiKey(['key' => 'map_demo_key', 'scopes' => ['map.read'], 'status' => 'active']);
+>>> $k->save();
+```
+
+3) Wywołania API (curl):
+
+```
+# Lista punktów w bbox (Warszawa), tylko InPost, paczkomaty
+curl -H "X-API-Key: map_demo_key" \
+  "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&courier_codes[]=inpost&types[]=parcel_locker&limit=100"
+
+# Format GeoJSON
+curl -H "X-API-Key: map_demo_key" \
+  "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&format=geojson"
+
+# Szczegóły punktu po kodzie
+curl -H "X-API-Key: map_demo_key" \
+  "http://185.213.25.106/api/map/points/WAW01234"
+```
+
+4) Panel admina: `admin/courier-points` (CRUD + import CSV).
+
 ---
 
 ### Instalacja i Uruchomienie
