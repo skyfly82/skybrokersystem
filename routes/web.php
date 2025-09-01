@@ -321,6 +321,50 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ]); 
             })->name('revenue');
         });
+        
+        // CMS Management (Marketing + Admin)
+        Route::middleware('marketing')->prefix('cms')->name('cms.')->group(function () {
+            // Marketing Dashboard
+            Route::get('/', [App\Http\Controllers\Admin\MarketingDashboardController::class, 'index'])->name('dashboard');
+            // Pages Management
+            Route::prefix('pages')->name('pages.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\CmsPageController::class, 'index'])->name('index');
+                Route::get('/create', [App\Http\Controllers\Admin\CmsPageController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\Admin\CmsPageController::class, 'store'])->name('store');
+                Route::get('/{page}', [App\Http\Controllers\Admin\CmsPageController::class, 'show'])->name('show');
+                Route::get('/{page}/edit', [App\Http\Controllers\Admin\CmsPageController::class, 'edit'])->name('edit');
+                Route::put('/{page}', [App\Http\Controllers\Admin\CmsPageController::class, 'update'])->name('update');
+                Route::delete('/{page}', [App\Http\Controllers\Admin\CmsPageController::class, 'destroy'])->name('destroy');
+                Route::post('/{page}/publish', [App\Http\Controllers\Admin\CmsPageController::class, 'publish'])->name('publish');
+                Route::post('/{page}/unpublish', [App\Http\Controllers\Admin\CmsPageController::class, 'unpublish'])->name('unpublish');
+            });
+            
+            // Media Management
+            Route::prefix('media')->name('media.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\CmsMediaController::class, 'index'])->name('index');
+                Route::post('/upload', [App\Http\Controllers\Admin\CmsMediaController::class, 'upload'])->name('upload');
+                Route::delete('/{media}', [App\Http\Controllers\Admin\CmsMediaController::class, 'destroy'])->name('destroy');
+                Route::put('/{media}', [App\Http\Controllers\Admin\CmsMediaController::class, 'update'])->name('update');
+            });
+            
+            // Notification Banners
+            Route::prefix('banners')->name('banners.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'index'])->name('index');
+                Route::get('/create', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'store'])->name('store');
+                Route::get('/{banner}', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'show'])->name('show');
+                Route::get('/{banner}/edit', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'edit'])->name('edit');
+                Route::put('/{banner}', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'update'])->name('update');
+                Route::delete('/{banner}', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'destroy'])->name('destroy');
+                Route::post('/{banner}/toggle', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'toggle'])->name('toggle');
+            });
+            
+            // AI Content Generation
+            Route::prefix('ai')->name('ai.')->group(function () {
+                Route::post('/generate-seo', [App\Http\Controllers\Admin\AiContentController::class, 'generateSeoContent'])->name('generate-seo');
+                Route::post('/generate-banner', [App\Http\Controllers\Admin\AiContentController::class, 'generateBannerContent'])->name('generate-banner');
+            });
+        });
     });
 });
 

@@ -20,7 +20,7 @@ class CreateUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:system_users'],
-            'role' => ['required', 'string', 'in:admin,super_admin'],
+            'role' => ['required', 'string', 'in:admin,super_admin,marketing'],
             'is_active' => ['boolean'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];

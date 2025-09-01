@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CustomerActiveMiddleware;
 use App\Http\Middleware\CustomerAdminMiddleware;
+use App\Http\Middleware\MarketingMiddleware;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\SetLocale;
 use App\Exceptions\Handler;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'customer.active' => CustomerActiveMiddleware::class,
             'customer.admin' => CustomerAdminMiddleware::class,
+            'marketing' => MarketingMiddleware::class,
             'api.key' => ApiKeyMiddleware::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);

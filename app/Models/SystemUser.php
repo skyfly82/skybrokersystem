@@ -74,4 +74,14 @@ class SystemUser extends Authenticatable
     {
         return $this->role === 'employee';
     }
+
+    public function isMarketing(): bool
+    {
+        return $this->role === 'marketing';
+    }
+
+    public function canManageContent(): bool
+    {
+        return in_array($this->role, ['super_admin', 'admin', 'marketing']);
+    }
 }

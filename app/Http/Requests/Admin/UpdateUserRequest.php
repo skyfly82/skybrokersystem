@@ -23,7 +23,7 @@ class UpdateUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('system_users')->ignore($userId)],
-            'role' => ['required', 'string', 'in:admin,super_admin'],
+            'role' => ['required', 'string', 'in:admin,super_admin,marketing'],
             'is_active' => ['boolean'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
