@@ -59,11 +59,7 @@
             <!-- Logo -->
             <div class="flex justify-center">
                 <div class="flex items-center">
-                    <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg">
-                        <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                        </svg>
-                    </div>
+                    <img class="h-12 w-auto" src="{{ asset('images/logo_1.png') }}" alt="SkyBrokerSystem">
                     <div class="ml-3">
                         <h1 class="text-2xl font-bold text-gray-900">SkyBroker</h1>
                         <p class="text-sm text-gray-500">System</p>

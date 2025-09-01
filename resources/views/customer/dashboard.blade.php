@@ -10,6 +10,10 @@
             <div>
                 <h2 class="text-2xl font-bold">Witaj ponownie!</h2>
                 <p class="text-blue-100 mt-1">{{ auth()->user()->customer->company_name }}</p>
+                <p class="text-blue-200 text-sm mt-2">
+                    <i class="fas fa-id-card mr-1"></i>
+                    Twój numer klienta: <span class="font-mono font-medium">{{ auth()->user()->customer->id }}</span>
+                </p>
             </div>
             <div class="text-right">
                 <p class="text-sm text-blue-100">Twoje saldo</p>

@@ -70,7 +70,7 @@
                     </div>
                     <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                         <div class="flex h-16 shrink-0 items-center">
-                            <img class="h-8 w-auto" src="{{ asset('images/logo.svg') }}" alt="{{ config('app.name') }}">
+                            <img class="h-8 w-auto" src="{{ asset('images/logo_1.png') }}" alt="{{ config('app.name') }}">
                             <span class="ml-2 text-xl font-bold text-gray-900">SkyBroker</span>
                             <span class="ml-2 inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Admin</span>
                         </div>
@@ -87,7 +87,7 @@
         <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
             <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
                 <div class="flex h-16 shrink-0 items-center">
-                    <img class="h-8 w-auto" src="{{ asset('images/logo.svg') }}" alt="{{ config('app.name') }}">
+                    <img class="h-8 w-auto" src="{{ asset('images/logo_1.png') }}" alt="{{ config('app.name') }}">
                     <span class="ml-2 text-xl font-bold text-gray-900">SkyBroker</span>
                     <span class="ml-2 inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Admin</span>
                 </div>

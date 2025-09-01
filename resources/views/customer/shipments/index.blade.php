@@ -239,7 +239,7 @@
                                 </a>
                                 @endif
 
-                                @if($shipment->label_url || $shipment->tracking_number)
+                                @if($shipment->label_url || $shipment->tracking_number || $shipment->external_id)
                                 <a href="{{ route('customer.shipments.label', $shipment) }}" 
                                    class="text-green-600 hover:text-green-900 p-1"
                                    title="Pobierz etykietę"
@@ -293,6 +293,7 @@
                                                 Edytuj
                                             </a>
                                             @endif
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -436,6 +437,14 @@ document.addEventListener('alpine:init', () => {
 document.getElementById('status')?.addEventListener('change', function() {
     this.form.submit();
 });
+
+// Clear cart if instructed by server
+@if(session('clear_cart'))
+document.addEventListener('DOMContentLoaded', function() {
+    localStorage.removeItem('shipment_cart');
+    console.log('Cart cleared after successful order processing');
+});
+@endif
 </script>
 @endpush
 @endsection

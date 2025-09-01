@@ -14,7 +14,7 @@
   "@type": "Organization",
   "name": "SkyBrokerSystem",
   "url": "{{ url('/') }}",
-  "logo": "{{ asset('images/logo.png') }}",
+  "logo": "{{ asset('images/logo_1.png') }}",
   "description": "{{ __('common.hero_description') }}",
   "founder": {
     "@type": "Organization",
@@ -90,6 +90,47 @@
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-sky-50 via-pure-white to-skywave/5">
+    <!-- Flash Messages -->
+    @if(session('info'))
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 fixed top-4 right-4 z-50 max-w-sm shadow-lg rounded-md" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        {{ session('info') }}
+                    </p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button @click="show = false" class="text-blue-400 hover:text-blue-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 fixed top-4 right-4 z-50 max-w-sm shadow-lg rounded-md" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700">
+                        {{ session('success') }}
+                    </p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button @click="show = false" class="text-green-400 hover:text-green-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,9 +139,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <div class="flex items-center">
-                            <div class="bg-skywave p-2 rounded-lg">
-                                <i class="fas fa-shipping-fast text-white text-xl"></i>
-                            </div>
+                            <img class="h-8 w-auto" src="{{ asset('images/logo_1.png') }}" alt="SkyBrokerSystem">
                             <span class="ml-3 text-xl font-heading font-bold text-black-coal">SkyBrokerSystem</span>
                             <span class="ml-2 px-2 py-1 bg-skywave/10 text-skywave text-xs font-medium rounded-full">V</span>
                         </div>

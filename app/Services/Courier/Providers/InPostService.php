@@ -29,6 +29,9 @@ class InPostService implements CourierServiceInterface
     {
         $payload = $this->buildShipmentPayload($data);
         
+        // Debug: log the payload (commented out for production)
+        // \Log::info('InPost API Payload:', $payload);
+        
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
             'Content-Type' => 'application/json'
@@ -39,14 +42,44 @@ class InPostService implements CourierServiceInterface
         }
 
         $responseData = $response->json();
+        
+        // Debug: log the response (commented out for production)  
+        // \Log::info('InPost API Response:', $responseData);
+
+        // Calculate additional services fees
+        $additionalServices = $data['additional_services'] ?? [];
+        $saturdayFee = isset($additionalServices['saturday']) && $additionalServices['saturday'] ? 9.99 : 0;
+        $codFee = isset($additionalServices['cod']) && $additionalServices['cod'] ? 3.50 : 0;
+        $smsFee = isset($additionalServices['sms']) && $additionalServices['sms'] ? 0.50 : 0;
+        $insuranceFee = isset($additionalServices['insurance']) && $additionalServices['insurance'] ? 2.00 : 0;
+        
+        // InPost doesn't provide calculated_charge_amount immediately, so we estimate
+        $estimatedBasePrice = $this->calculateBasePrice([
+            'package' => [
+                'weight' => $responseData['parcels'][0]['weight']['amount'] ?? 2,
+                'length' => $responseData['parcels'][0]['dimensions']['length'] ?? 20,
+                'width' => $responseData['parcels'][0]['dimensions']['width'] ?? 15,
+                'height' => $responseData['parcels'][0]['dimensions']['height'] ?? 10
+            ]
+        ]);
+        
+        $totalAdditionalFees = $saturdayFee + $codFee + $smsFee + $insuranceFee;
+        $totalNet = $estimatedBasePrice + $totalAdditionalFees;
+        $totalGross = $totalNet * 1.23;
 
         return [
-            'tracking_number' => $responseData['tracking_number'],
-            'external_id' => $responseData['id'],
+            'tracking_number' => $responseData['tracking_number'] ?? $responseData['parcels'][0]['tracking_number'] ?? null,
+            'external_id' => (string) $responseData['id'],
             'cost' => [
-                'net' => $responseData['calculated_charge_amount'] / 100,
-                'gross' => ($responseData['calculated_charge_amount'] / 100) * 1.23,
-                'currency' => 'PLN'
+                'base_price' => $estimatedBasePrice,
+                'saturday_fee' => $saturdayFee,
+                'cod_fee' => $codFee,
+                'sms_fee' => $smsFee,
+                'insurance_fee' => $insuranceFee,
+                'net' => round($totalNet, 2),
+                'gross' => round($totalGross, 2),
+                'currency' => 'PLN',
+                'vat_rate' => 23
             ],
             'label_url' => $responseData['label_url'] ?? null
         ];
@@ -76,13 +109,30 @@ class InPostService implements CourierServiceInterface
         return $response->successful();
     }
 
-    public function getLabel(string $trackingNumber): string
+    public function getLabel(string $identifier, ?string $format = null, ?string $size = null): string
     {
-        $shipmentDetails = $this->getShipmentByTrackingNumber($trackingNumber);
+        // If identifier is numeric, it's likely an external_id, otherwise it's tracking_number
+        $shipmentDetails = is_numeric($identifier) 
+            ? $this->getShipmentById($identifier)
+            : $this->getShipmentByTrackingNumber($identifier);
+        
+        // Get format and size from configuration if not provided
+        $format = $format ?? config('skybrokersystem.couriers.label_format', 'pdf');
+        $size = $size ?? config('skybrokersystem.couriers.label_size', 'A4');
+        
+        // Build query parameters for label format - try minimal params first
+        $queryParams = [];
+        
+        $url = $this->apiUrl . '/v1/organizations/' . $this->organizationId . '/shipments/' . $shipmentDetails['id'] . '/label';
+        
+        // Add query parameters if any
+        if (!empty($queryParams)) {
+            $url .= '?' . http_build_query($queryParams);
+        }
         
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->token
-        ])->get($this->apiUrl . '/v1/organizations/' . $this->organizationId . '/shipments/' . $shipmentDetails['id'] . '/label');
+        ])->get($url);
 
         if (!$response->successful()) {
             throw new CourierServiceException('InPost label retrieval error: ' . $response->body());
@@ -96,7 +146,14 @@ class InPostService implements CourierServiceInterface
         $services = $this->getAvailableServices();
         $basePrice = $this->calculateBasePrice($data);
         
-        return collect($services)->map(function ($serviceName, $serviceCode) use ($basePrice) {
+        // Additional services pricing
+        $additionalServices = $data['additional_services'] ?? [];
+        $saturdayFee = isset($additionalServices['saturday']) && $additionalServices['saturday'] ? 9.99 : 0;
+        $codFee = isset($additionalServices['cod']) && $additionalServices['cod'] ? 3.50 : 0;
+        $smsFee = isset($additionalServices['sms']) && $additionalServices['sms'] ? 0.50 : 0;
+        $insuranceFee = isset($additionalServices['insurance']) && $additionalServices['insurance'] ? 2.00 : 0;
+        
+        return collect($services)->map(function ($serviceName, $serviceCode) use ($basePrice, $saturdayFee, $codFee, $smsFee, $insuranceFee) {
             $multiplier = match($serviceCode) {
                 'inpost_locker_standard' => 1.0,
                 'inpost_locker_express' => 1.5,
@@ -105,18 +162,25 @@ class InPostService implements CourierServiceInterface
                 default => 1.0,
             };
             
-            $price = $basePrice * $multiplier;
+            $baseServicePrice = $basePrice * $multiplier;
+            $totalPrice = $baseServicePrice + $saturdayFee + $codFee + $smsFee + $insuranceFee;
             
             return [
                 'service_type' => $serviceCode,
                 'service_name' => $serviceName,
-                'price_net' => round($price, 2),
-                'price_gross' => round($price * 1.23, 2),
+                'price_net' => round($totalPrice / 1.23, 2),
+                'price_gross' => round($totalPrice, 2),
                 'currency' => 'PLN',
                 'delivery_time' => match($serviceCode) {
                     'inpost_locker_express', 'inpost_courier_express' => '24h',
                     default => '48h',
                 },
+                'additional_fees' => [
+                    'saturday' => $saturdayFee,
+                    'cod' => $codFee,
+                    'sms' => $smsFee,
+                    'insurance' => $insuranceFee,
+                ],
             ];
         })->values()->toArray();
     }
@@ -184,10 +248,16 @@ class InPostService implements CourierServiceInterface
 
     private function buildShipmentPayload(array $data): array
     {
+        // Split name into first_name and last_name
+        $fullName = $data['recipient']['name'] ?? '';
+        $nameParts = explode(' ', $fullName, 2);
+        $firstName = $nameParts[0] ?? 'Unknown';
+        $lastName = $nameParts[1] ?? '';
+
         $payload = [
             'receiver' => [
-                'first_name' => $data['recipient']['first_name'] ?? $data['recipient']['name'],
-                'last_name' => $data['recipient']['last_name'] ?? '',
+                'first_name' => $firstName,
+                'last_name' => $lastName,
                 'email' => $data['recipient']['email'],
                 'phone' => $data['recipient']['phone']
             ],
@@ -204,24 +274,47 @@ class InPostService implements CourierServiceInterface
                     ]
                 ]
             ],
-            'service' => $data['service_type'],
+            'service' => $this->mapServiceType($data['service_type']),
             'reference' => $data['reference_number'] ?? null,
             'comments' => $data['notes'] ?? null,
         ];
 
         // Dodawanie adresu dla usług kurierskich
-        if (str_contains($data['service_type'], 'courier')) {
+        if (str_contains($data['service_type'], 'courier') || str_contains($data['service_type'], 'kurier')) {
+            // Parse address - if we have separate fields use them, otherwise parse combined address
+            if (isset($data['recipient']['street']) && isset($data['recipient']['building_number'])) {
+                $street = $data['recipient']['street'];
+                $buildingNumber = $data['recipient']['building_number'];
+                $apartmentNumber = $data['recipient']['apartment_number'] ?? null;
+            } else {
+                // Parse combined address like "ul. Kwiatowa 15/2"
+                $fullAddress = $data['recipient']['address'] ?? '';
+                $addressParts = explode(' ', $fullAddress);
+                $buildingNumber = array_pop($addressParts);
+                $street = implode(' ', $addressParts);
+                $apartmentNumber = null;
+                
+                // Handle apartment numbers in format "15/2"
+                if (strpos($buildingNumber, '/') !== false) {
+                    [$buildingNumber, $apartmentNumber] = explode('/', $buildingNumber, 2);
+                }
+            }
+
             $payload['receiver']['address'] = [
-                'street' => $data['recipient']['address'],
-                'building_number' => $data['recipient']['building_number'] ?? '1',
+                'street' => $street,
+                'building_number' => $buildingNumber ?: '1',
                 'city' => $data['recipient']['city'],
                 'post_code' => $data['recipient']['postal_code'],
                 'country_code' => $data['recipient']['country'] ?? 'PL'
             ];
+            
+            if ($apartmentNumber) {
+                $payload['receiver']['address']['apartment_number'] = $apartmentNumber;
+            }
         } else {
             // Dla paczkomatów
             $payload['receiver']['address'] = [
-                'point' => $data['recipient']['pickup_point'] ?? $data['pickup_point']
+                'point' => $data['recipient']['pickup_point'] ?? $data['pickup_point'] ?? 'KRA010'
             ];
         }
 
@@ -241,7 +334,37 @@ class InPostService implements CourierServiceInterface
             ];
         }
 
+        // Dodatkowe usługi
+        $additionalServices = $data['additional_services'] ?? [];
+        
+        // Weekend delivery
+        if (isset($additionalServices['saturday']) && $additionalServices['saturday']) {
+            $payload['only_choice_of_offer_service'] = true;
+            $payload['additional_services'][] = 'weekend_delivery';
+        }
+        
+        // SMS notification
+        if (isset($additionalServices['sms']) && $additionalServices['sms']) {
+            $payload['additional_services'][] = 'sms';
+        }
+        
+        // Fragile package
+        if (isset($additionalServices['fragile']) && $additionalServices['fragile']) {
+            $payload['additional_services'][] = 'fragile';
+        }
+
         return $payload;
+    }
+
+    private function mapServiceType(string $serviceType): string
+    {
+        return match($serviceType) {
+            'inpost_locker_standard' => 'inpost_locker_standard',
+            'inpost_locker_express' => 'inpost_locker_express', 
+            'inpost_courier_standard', 'inpost_kurier_standard' => 'inpost_courier_standard',
+            'inpost_courier_express', 'inpost_kurier_express' => 'inpost_courier_express',
+            default => 'inpost_locker_standard',
+        };
     }
 
     private function transformTrackingData(array $data): array
@@ -293,6 +416,20 @@ class InPostService implements CourierServiceInterface
         }
 
         return $shipments[0];
+    }
+
+    private function getShipmentById(string $shipmentId): array
+    {
+        // Try direct shipment endpoint first
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->token
+        ])->get($this->apiUrl . '/v1/shipments/' . $shipmentId);
+
+        if (!$response->successful()) {
+            throw new CourierServiceException('InPost shipment details error: ' . $response->body());
+        }
+
+        return $response->json();
     }
 
     private function calculateBasePrice(array $data): float

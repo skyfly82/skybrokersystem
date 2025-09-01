@@ -142,6 +142,16 @@
         </div>
     </div>
 
+    <!-- Order Notes -->
+    <div x-show="cartItems.length > 0" class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-heading font-medium text-black-coal mb-4">Uwagi do zamówienia:</h3>
+        <textarea 
+            x-model="orderNotes" 
+            placeholder="Dodatkowe informacje do zamówienia (opcjonalne)..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-skywave focus:border-transparent resize-none"
+            rows="3"></textarea>
+    </div>
+
     <!-- Summary & Actions -->
     <div x-show="cartItems.length > 0" class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between">
@@ -152,14 +162,20 @@
                 <p class="text-2xl font-heading font-bold text-black-coal" x-text="totalPrice"></p>
             </div>
             <div class="flex space-x-3">
+                <button @click="clearCart()" 
+                        :disabled="cartItems.length === 0"
+                        class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg font-body font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-trash mr-1"></i>
+                    Wyczyść
+                </button>
                 <button @click="saveForLater()" 
                         class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-body font-medium transition">
                     Zapisz na później
                 </button>
-                <button @click="proceedToPayment()" 
+                <button @click="createOrder()" 
                         x-bind:disabled="selectedItems.length === 0"
                         class="bg-skywave hover:bg-skywave/90 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-body font-medium transition">
-                    Przejdź do płatności
+                    Utwórz zamówienie
                 </button>
             </div>
         </div>
@@ -172,6 +188,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('shipmentCart', () => ({
         cartItems: [],
         selectedItems: [],
+        orderNotes: '',
         
         init() {
             // Load cart items from localStorage
@@ -238,9 +255,9 @@ document.addEventListener('alpine:init', () => {
             alert('Koszyk został zapisany. Możesz wrócić do niego później.');
         },
         
-        async proceedToPayment() {
+        async createOrder() {
             if (this.selectedItems.length === 0) {
-                alert('Wybierz co najmniej jedną przesyłkę do opłacenia.');
+                alert('Wybierz co najmniej jedną przesyłkę do zamówienia.');
                 return;
             }
             
@@ -249,11 +266,11 @@ document.addEventListener('alpine:init', () => {
                 this.selectedItems.includes(item.id)
             );
             
-            // Prepare data for backend processing
-            const cartData = {
+            // Prepare data for order creation
+            const orderData = {
                 items: selectedCartItems.map(item => ({
                     courier_code: item.courier_code || 'inpost',
-                    service_type: item.service_type || 'inpost_locker_standard',
+                    service_type: item.service_type || 'inpost_kurier_standard',
                     sender: {
                         name: item.sender_name || 'Default Sender',
                         phone: '123456789',
@@ -280,11 +297,12 @@ document.addEventListener('alpine:init', () => {
                         reference_number: item.reference_number || '',
                         notes: item.notes || ''
                     }
-                }))
+                })),
+                notes: this.orderNotes
             };
             
             try {
-                // Submit to backend
+                // First create shipments, then create order
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '{{ route("customer.shipments.cart.process") }}';
@@ -300,23 +318,48 @@ document.addEventListener('alpine:init', () => {
                 const cartInput = document.createElement('input');
                 cartInput.type = 'hidden';
                 cartInput.name = 'items';
-                cartInput.value = JSON.stringify(cartData.items);
+                cartInput.value = JSON.stringify(orderData.items);
                 form.appendChild(cartInput);
+                
+                // Add create_order flag
+                const createOrderInput = document.createElement('input');
+                createOrderInput.type = 'hidden';
+                createOrderInput.name = 'create_order';
+                createOrderInput.value = 'true';
+                form.appendChild(createOrderInput);
+                
+                // Add notes
+                const notesInput = document.createElement('input');
+                notesInput.type = 'hidden';
+                notesInput.name = 'notes';
+                notesInput.value = this.orderNotes || '';
+                form.appendChild(notesInput);
                 
                 document.body.appendChild(form);
                 form.submit();
                 
-                // Remove selected items from cart after successful submission
-                this.cartItems = this.cartItems.filter(item => 
-                    !this.selectedItems.includes(item.id)
-                );
-                this.selectedItems = [];
-                localStorage.setItem('shipment_cart', JSON.stringify(this.cartItems));
+                // Cart will be cleared after successful order creation
                 
             } catch (error) {
-                console.error('Error processing cart:', error);
-                alert('Wystąpił błąd podczas przetwarzania koszyka. Spróbuj ponownie.');
+                console.error('Error creating order:', error);
+                alert('Wystąpił błąd podczas tworzenia zamówienia. Spróbuj ponownie.');
             }
+        },
+        
+        clearCart() {
+            if (confirm('Czy na pewno chcesz wyczyścić cały koszyk? Ta akcja jest nieodwracalna.')) {
+                this.cartItems = [];
+                this.selectedItems = [];
+                localStorage.setItem('shipment_cart', JSON.stringify(this.cartItems));
+                alert('Koszyk został wyczyszczony.');
+            }
+        },
+        
+        getSelectedTotal() {
+            return this.cartItems
+                .filter(item => this.selectedItems.includes(item.id))
+                .reduce((total, item) => total + (parseFloat(item.finalPrice) || parseFloat(item.price) || 0), 0)
+                .toFixed(2);
         }
     }));
 });

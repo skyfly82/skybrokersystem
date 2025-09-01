@@ -70,8 +70,9 @@ class ProfileController extends Controller
                 'company_email' => 'required|email|max:255',
                 'company_phone' => 'nullable|string|max:20',
                 'company_address' => 'nullable|string',
-                'cod_return_account' => 'nullable|string|regex:/^(PL)?[0-9]{26}$/',
-                'settlement_account' => 'nullable|string|regex:/^(PL)?[0-9]{26}$/',
+                'settings.label_format' => 'nullable|string|in:pdf_a4,pdf_a6,zpl,epl',
+                'settings.auto_print' => 'nullable|boolean',
+                'settings.include_return_label' => 'nullable|boolean',
             ]);
         }
 
@@ -102,11 +103,12 @@ class ProfileController extends Controller
             if ($request->has('company_address')) {
                 $customerData['address'] = $request->company_address;
             }
-            if ($request->has('cod_return_account')) {
-                $customerData['cod_return_account'] = $request->cod_return_account;
-            }
-            if ($request->has('settlement_account')) {
-                $customerData['settlement_account'] = $request->settlement_account;
+
+            // Handle settings update
+            if ($request->has('settings')) {
+                $currentSettings = $customer->settings ?? [];
+                $newSettings = array_merge($currentSettings, $request->settings);
+                $customerData['settings'] = $newSettings;
             }
 
             if (!empty($customerData)) {
@@ -157,5 +159,59 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Preferencje powiadomień zostały zaktualizowane.');
+    }
+
+    public function finances()
+    {
+        $user = auth('customer_user')->user();
+        $customer = $user->customer;
+
+        return view('customer.finances.index', compact('user', 'customer'));
+    }
+
+    public function updateFinances(Request $request)
+    {
+        $user = auth('customer_user')->user();
+        $customer = $user->customer;
+
+        // Check permissions
+        if (!$user->canCreateUsers() && !$user->is_primary) {
+            abort(403, 'Brak uprawnień do edycji danych finansowych.');
+        }
+
+        // Validation rules
+        $rules = [
+            'cod_return_account' => 'nullable|string|regex:/^(PL)?[0-9]{26}$/',
+            'settlement_account' => 'nullable|string|regex:/^(PL)?[0-9]{26}$/',
+        ];
+
+        $validated = $request->validate($rules);
+
+        // Update financial data
+        $customer->update($validated);
+
+        return redirect()->route('customer.finances.index')
+            ->with('success', 'Dane finansowe zostały zaktualizowane pomyślnie.');
+    }
+
+    public function logs()
+    {
+        $user = auth('customer_user')->user();
+        $customer = $user->customer;
+
+        // Get detailed audit logs for the customer and its users
+        $logs = AuditLog::where(function($query) use ($customer) {
+                $query->where(function($q) use ($customer) {
+                    $q->where('auditable_type', 'App\\Models\\Customer')
+                      ->where('auditable_id', $customer->id);
+                })->orWhere(function($q) use ($customer) {
+                    $q->where('auditable_type', 'App\\Models\\CustomerUser')
+                      ->whereIn('auditable_id', $customer->users->pluck('id'));
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('customer.logs.index', compact('logs', 'user', 'customer'));
     }
 }

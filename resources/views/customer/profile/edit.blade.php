@@ -187,68 +187,22 @@
             </div>
         </div>
 
-        <!-- Financial Information -->
+        <!-- Financial Information Link -->
         <div class="bg-white shadow rounded-lg">
             <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Dane finansowe</h3>
-                    <div class="text-xs text-gray-500">
-                        <i class="fas fa-shield-alt mr-1"></i>
-                        Zmiany wymagają weryfikacji
-                    </div>
-                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-university text-blue-500 mr-2"></i>
+                    Dane finansowe
+                </h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- COD Return Account -->
-                    <div>
-                        <label for="cod_return_account" class="block text-sm font-medium text-gray-700">
-                            Konto zwrotów COD
-                            <span class="text-xs text-gray-500 block mt-1">NRB (IBAN) do zwrotów pobrań</span>
-                        </label>
-                        <input type="text" 
-                               id="cod_return_account" 
-                               name="cod_return_account" 
-                               value="{{ old('cod_return_account', $customer->cod_return_account) }}"
-                               placeholder="PL61 1090 1014 0000 0712 1981 2874"
-                               pattern="^(PL)?[0-9]{26}$"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('cod_return_account') border-red-300 @enderror">
-                        @error('cod_return_account')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Settlement Account -->
-                    <div>
-                        <label for="settlement_account" class="block text-sm font-medium text-gray-700">
-                            Konto rozliczeniowe
-                            <span class="text-xs text-gray-500 block mt-1">NRB (IBAN) do rozliczeń za przesyłki</span>
-                        </label>
-                        <input type="text" 
-                               id="settlement_account" 
-                               name="settlement_account" 
-                               value="{{ old('settlement_account', $customer->settlement_account) }}"
-                               placeholder="PL61 1090 1014 0000 0712 1981 2874"
-                               pattern="^(PL)?[0-9]{26}$"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('settlement_account') border-red-300 @enderror">
-                        @error('settlement_account')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-                
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <div class="flex">
-                        <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-2"></i>
-                        <div class="text-sm">
-                            <p class="text-blue-800 font-medium">Informacje o kontach bankowych:</p>
-                            <ul class="text-blue-700 mt-1 space-y-1 text-xs">
-                                <li>• Konto COD - zwroty pobrań będą przekazywane na to konto</li>
-                                <li>• Konto rozliczeniowe - rozliczenia za usługi kurierskie</li>
-                                <li>• Wszystkie zmiany danych finansowych są audytowane</li>
-                                <li>• W przypadku problemów skontaktuj się z obsługą klienta</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="text-center py-6">
+                    <i class="fas fa-coins text-gray-300 text-4xl mb-4"></i>
+                    <p class="text-gray-600 mb-4">Dane finansowe zostały przeniesione do dedykowanej sekcji</p>
+                    <a href="{{ route('customer.finances.index') }}" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Zarządzaj danymi finansowymi
+                    </a>
                 </div>
             </div>
         </div>
@@ -272,6 +226,73 @@
             </div>
         </div>
         @endif
+
+        <!-- Label Preferences -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-tag text-green-500 mr-2"></i>
+                    Preferencje etykiet
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Default Label Format -->
+                    <div>
+                        <label for="label_format" class="block text-sm font-medium text-gray-700">
+                            Domyślny format etykiet
+                        </label>
+                        <select id="label_format" 
+                                name="settings[label_format]" 
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="pdf_a4" {{ (old('settings.label_format', $customer->settings['label_format'] ?? 'pdf_a4') === 'pdf_a4') ? 'selected' : '' }}>
+                                PDF A4 - Standardowy format (210×297mm)
+                            </option>
+                            <option value="pdf_a6" {{ (old('settings.label_format', $customer->settings['label_format'] ?? 'pdf_a4') === 'pdf_a6') ? 'selected' : '' }}>
+                                PDF A6 - Kompaktowy format (105×148mm)
+                            </option>
+                            <option value="zpl" {{ (old('settings.label_format', $customer->settings['label_format'] ?? 'pdf_a4') === 'zpl') ? 'selected' : '' }}>
+                                ZPL - Dla drukarek termicznych Zebra
+                            </option>
+                            <option value="epl" {{ (old('settings.label_format', $customer->settings['label_format'] ?? 'pdf_a4') === 'epl') ? 'selected' : '' }}>
+                                EPL - Dla drukarek termicznych
+                            </option>
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Wybierz domyślny format etykiet, który będzie używany przy pobieraniu. Możesz zmienić format dla poszczególnych etykiet.
+                        </p>
+                    </div>
+
+                    <!-- Label Settings -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <input type="hidden" name="settings[auto_print]" value="0">
+                            <input type="checkbox" 
+                                   id="auto_print" 
+                                   name="settings[auto_print]" 
+                                   value="1"
+                                   {{ old('settings.auto_print', $customer->settings['auto_print'] ?? false) ? 'checked' : '' }}
+                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <label for="auto_print" class="ml-2 block text-sm text-gray-700">
+                                Automatyczne otwieranie etykiet po utworzeniu przesyłki
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="hidden" name="settings[include_return_label]" value="0">
+                            <input type="checkbox" 
+                                   id="include_return_label" 
+                                   name="settings[include_return_label]" 
+                                   value="1"
+                                   {{ old('settings.include_return_label', $customer->settings['include_return_label'] ?? false) ? 'checked' : '' }}
+                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <label for="include_return_label" class="ml-2 block text-sm text-gray-700">
+                                Dołącz etykietę zwrotną (jeśli dostępna)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Submit Button -->
         <div class="flex justify-end">

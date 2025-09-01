@@ -27,6 +27,11 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
+                        <label class="block font-body text-sm font-medium text-gray-700">ID użytkownika</label>
+                        <p class="mt-1 font-body text-sm text-gray-900 font-mono">{{ $user->id }}</p>
+                    </div>
+                    
+                    <div>
                         <label class="block font-body text-sm font-medium text-gray-700">Imię</label>
                         <p class="mt-1 font-body text-sm text-gray-900">{{ $user->first_name }}</p>
                     </div>
@@ -91,6 +96,11 @@
                 <h3 class="text-lg font-heading font-medium text-black-coal mb-4">Dane firmy</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block font-body text-sm font-medium text-gray-700">ID klienta</label>
+                        <p class="mt-1 font-body text-sm text-gray-900 font-mono">{{ $customer->id }}</p>
+                    </div>
+                    
                     <div>
                         <label class="block font-body text-sm font-medium text-gray-700">Nazwa firmy</label>
                         <p class="mt-1 font-body text-sm text-gray-900">{{ $customer->company_name }}</p>
@@ -170,49 +180,27 @@
             </div>
         </div>
 
-        <!-- Financial Information -->
+        {{-- Financial Information Link - Moved to dedicated Finances section --}}
+        {{--
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
-                <h3 class="text-lg font-heading font-medium text-black-coal mb-4">Dane finansowe</h3>
+                <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
+                    <i class="fas fa-university text-skywave mr-2"></i>
+                    Dane finansowe
+                </h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block font-body text-sm font-medium text-gray-700">
-                            Konto zwrotów COD
-                            <span class="text-xs text-gray-500 block mt-1">Konto bankowe do zwrotów pobrań</span>
-                        </label>
-                        <p class="mt-1 font-body text-sm text-gray-900">
-                            {{ $customer->cod_return_account ? $customer->cod_return_account : 'Nie podano' }}
-                        </p>
-                    </div>
-                    
-                    <div>
-                        <label class="block font-body text-sm font-medium text-gray-700">
-                            Konto rozliczeniowe
-                            <span class="text-xs text-gray-500 block mt-1">Konto bankowe do rozliczeń za przesyłki</span>
-                        </label>
-                        <p class="mt-1 font-body text-sm text-gray-900">
-                            {{ $customer->settlement_account ? $customer->settlement_account : 'Nie podano' }}
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <div class="flex">
-                        <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-2"></i>
-                        <div class="text-sm">
-                            <p class="text-blue-800 font-medium">Informacje o kontach bankowych:</p>
-                            <ul class="text-blue-700 mt-1 space-y-1 text-xs">
-                                <li>• Konto COD - zwroty pobrań będą przekazywane na to konto</li>
-                                <li>• Konto rozliczeniowe - rozliczenia za usługi kurierskie</li>
-                                <li>• Te dane możesz edytować w ustawieniach profilu</li>
-                                <li>• Zmiany wymagają zatwierdzenia przez administratora</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="text-center py-6">
+                    <i class="fas fa-coins text-gray-300 text-4xl mb-4"></i>
+                    <p class="text-gray-600 mb-4">Zarządzaj swoimi danymi finansowymi w dedykowanej sekcji</p>
+                    <a href="{{ route('customer.finances.index') }}" 
+                       class="inline-flex items-center px-4 py-2 bg-skywave border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-skywave/90 focus:bg-skywave/90 active:bg-skywave/80 focus:outline-none focus:ring-2 focus:ring-skywave focus:ring-offset-2 transition ease-in-out duration-150">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Przejdź do sekcji Finanse
+                    </a>
                 </div>
             </div>
         </div>
+        --}}
 
         <!-- Account Statistics -->
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -239,8 +227,68 @@
                 </div>
             </div>
         </div>
+
+        <!-- Label Preferences -->
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 text-gray-900">
+                <h3 class="text-lg font-heading font-medium text-black-coal mb-4">
+                    <i class="fas fa-tag text-green-500 mr-2"></i>
+                    Preferencje etykiet
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block font-body text-sm font-medium text-gray-700">Domyślny format etykiet</label>
+                        <p class="mt-1 font-body text-sm text-gray-900">
+                            @php
+                                $labelFormat = $customer->settings['label_format'] ?? 'pdf_a4';
+                                $formatLabels = [
+                                    'pdf_a4' => 'PDF A4 - Standardowy format (210×297mm)',
+                                    'pdf_a6' => 'PDF A6 - Kompaktowy format (105×148mm)',
+                                    'zpl' => 'ZPL - Dla drukarek termicznych Zebra',
+                                    'epl' => 'EPL - Dla drukarek termicznych'
+                                ];
+                            @endphp
+                            {{ $formatLabels[$labelFormat] }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-body text-sm font-medium text-gray-700">Dodatkowe ustawienia</label>
+                        <div class="mt-1 space-y-1">
+                            @if($customer->settings['auto_print'] ?? false)
+                                <div class="flex items-center text-sm text-gray-900">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    Automatyczne otwieranie etykiet
+                                </div>
+                            @endif
+                            @if($customer->settings['include_return_label'] ?? false)
+                                <div class="flex items-center text-sm text-gray-900">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    Dołączanie etykiet zwrotnych
+                                </div>
+                            @endif
+                            @if(!($customer->settings['auto_print'] ?? false) && !($customer->settings['include_return_label'] ?? false))
+                                <p class="text-sm text-gray-500">Brak dodatkowych ustawień</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                
+                @if(auth('customer_user')->user()->canCreateUsers() || auth('customer_user')->user()->is_primary)
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <a href="{{ route('customer.profile.edit') }}" 
+                       class="inline-flex items-center px-3 py-1 bg-gray-100 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-200 focus:bg-gray-200 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <i class="fas fa-edit mr-1"></i>
+                        Zmień ustawienia
+                    </a>
+                </div>
+                @endif
+            </div>
+        </div>
         
-        <!-- Management Logs Section (only for admins) -->
+        {{-- Management Logs Section - Moved to dedicated System Logs section --}}
+        {{--
         @if($user->canCreateUsers() || $user->is_primary)
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
@@ -343,6 +391,7 @@
             </div>
         </div>
         @endif
+        --}}
 
         <!-- API Information (only for primary user) -->
         @if($user->is_primary && $customer->api_key)

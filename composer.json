@@ -5,11 +5,16 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.10"
+        "spatie/laravel-activitylog": "^4.10"
     },
     "autoload": {
         "psr-4": {
             "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -25,6 +30,9 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require-dev": {
+        "fakerphp/faker": "^1.24",
+        "laravel/tinker": "^2.10",
+        "mockery/mockery": "^1.6",
         "phpunit/phpunit": "^12.3"
     }
 }

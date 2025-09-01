@@ -108,6 +108,20 @@ return [
         'default_service' => env('COURIER_DEFAULT_SERVICE', 'inpost'),
         'label_format' => env('COURIER_LABEL_FORMAT', 'pdf'),
         'label_size' => env('COURIER_LABEL_SIZE', 'A4'),
+        'available_formats' => [
+            'pdf' => [
+                'name' => 'PDF',
+                'sizes' => ['A4', 'A6'],
+                'mime_type' => 'application/pdf',
+                'extension' => 'pdf'
+            ],
+            'zpl' => [
+                'name' => 'ZPL',
+                'sizes' => [],
+                'mime_type' => 'text/plain',
+                'extension' => 'zpl'
+            ]
+        ],
         'tracking_update_frequency' => 60, // minutes
         'webhook_timeout' => 30, // seconds
         'api_timeout' => 60, // seconds

@@ -68,6 +68,57 @@ class Customer extends Model
         });
     }
 
+    /**
+     * Generate individual account number for mBank collect requirements
+     * Format: PL + bank code (11) + branch (1140) + customer_id (8 digits) + check (2)
+     */
+    public function getIndividualAccountNumberAttribute(): string
+    {
+        // mBank code: 1140 (branch code for corporate accounts)
+        $bankCode = '11401140';
+        
+        // Customer ID padded to 8 digits
+        $customerId = str_pad((string)$this->id, 8, '0', STR_PAD_LEFT);
+        
+        // Generate account number without check digits
+        $accountWithoutCheck = $bankCode . $customerId . '00000000';
+        
+        // Calculate IBAN check digits for Poland (PL)
+        $checkString = $accountWithoutCheck . '2521'; // PL = 2521
+        $checkDigits = 98 - bcmod($checkString, '97');
+        $checkDigits = str_pad((string)$checkDigits, 2, '0', STR_PAD_LEFT);
+        
+        // Final account number
+        $accountNumber = $bankCode . $customerId . '00000000';
+        
+        return 'PL' . $checkDigits . $accountNumber;
+    }
+
+    /**
+     * Get formatted individual account number for display
+     */
+    public function getFormattedIndividualAccountAttribute(): string
+    {
+        $account = $this->individual_account_number;
+        // Format: PL XX XXXX XXXX XXXX XXXX XXXX XXXX
+        return substr($account, 0, 2) . ' ' . 
+               substr($account, 2, 2) . ' ' .
+               substr($account, 4, 4) . ' ' .
+               substr($account, 8, 4) . ' ' .
+               substr($account, 12, 4) . ' ' .
+               substr($account, 16, 4) . ' ' .
+               substr($account, 20, 4) . ' ' .
+               substr($account, 24, 4);
+    }
+
+    /**
+     * Alias for current_balance for backward compatibility
+     */
+    public function getBalanceAttribute(): float
+    {
+        return (float) $this->current_balance;
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(CustomerUser::class);
@@ -76,6 +127,11 @@ class Customer extends Model
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function payments(): HasMany
@@ -131,21 +187,21 @@ class Customer extends Model
         return $this->current_balance < 100.00;
     }
 
-    public function addBalance(float $amount, string $description = 'Top-up'): Transaction
+    public function addBalance(float $amount, string $description = 'Top-up', $paymentId = null, $transactionableId = null, string $transactionableType = null): Transaction
     {
-        return $this->createTransaction('credit', $amount, $description);
+        return $this->createTransaction('credit', $amount, $description, $paymentId, $transactionableId, $transactionableType);
     }
 
-    public function deductBalance(float $amount, string $description = 'Shipment cost'): Transaction
+    public function deductBalance(float $amount, string $description = 'Shipment cost', $paymentId = null, $transactionableId = null, string $transactionableType = null): Transaction
     {
         if ($this->current_balance < $amount) {
             throw new \Exception('Insufficient balance');
         }
         
-        return $this->createTransaction('debit', $amount, $description);
+        return $this->createTransaction('debit', $amount, $description, $paymentId, $transactionableId, $transactionableType);
     }
 
-    private function createTransaction(string $type, float $amount, string $description): Transaction
+    private function createTransaction(string $type, float $amount, string $description, $paymentId = null, $transactionableId = null, string $transactionableType = null): Transaction
     {
         $balanceBefore = $this->current_balance;
         $balanceAfter = $type === 'credit' 
@@ -156,6 +212,9 @@ class Customer extends Model
 
         return $this->transactions()->create([
             'uuid' => Str::uuid(),
+            'payment_id' => $paymentId,
+            'transactionable_id' => $transactionableId,
+            'transactionable_type' => $transactionableType,
             'type' => $type,
             'amount' => $amount,
             'balance_before' => $balanceBefore,

@@ -51,7 +51,17 @@ class ShipmentsController extends Controller
 
     public function show(Shipment $shipment)
     {
-        $shipment->load(['customer', 'customerUser', 'courierService', 'payments', 'transactions']);
+        $shipment->load([
+            'customer', 
+            'customerUser', 
+            'courierService', 
+            'payments', 
+            'transactions', 
+            'statusHistory',
+            'courierApiLogs' => function($query) {
+                $query->with('courierService')->latest();
+            }
+        ]);
 
         return view('admin.shipments.show', compact('shipment'));
     }

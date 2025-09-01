@@ -12,7 +12,7 @@ interface CourierServiceInterface
     
     public function cancelShipment(string $trackingNumber): bool;
     
-    public function getLabel(string $trackingNumber): string;
+    public function getLabel(string $trackingNumber, ?string $format = null, ?string $size = null): string;
     
     public function calculatePrice(array $data): array;
     

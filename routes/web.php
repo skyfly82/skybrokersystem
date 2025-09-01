@@ -32,6 +32,11 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+// Global login route - redirect to home when session expires
+Route::get('/login', function () {
+    return redirect()->route('home')->with('info', 'Sesja wygasła. Zaloguj się ponownie.');
+})->name('login');
+
 // Dashboard redirect route for authenticated users
 Route::get('/dashboard', function () {
     if (auth()->guard('system_user')->check()) {
@@ -357,10 +362,14 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::get('/address-book', [CustomerShipmentsController::class, 'addressBook'])->name('address-book');
             Route::get('/create', [CustomerShipmentsController::class, 'create'])->name('create');
             Route::post('/', [CustomerShipmentsController::class, 'store'])->name('store');
+            Route::post('/bulk-create', [CustomerShipmentsController::class, 'bulkCreate'])->name('bulk-create');
             Route::get('/{shipment}', [CustomerShipmentsController::class, 'show'])->name('show');
+            Route::get('/{shipment}/edit', [CustomerShipmentsController::class, 'edit'])->name('edit');
+            Route::put('/{shipment}', [CustomerShipmentsController::class, 'update'])->name('update');
             Route::get('/{shipment}/track', [CustomerShipmentsController::class, 'track'])->name('track');
             Route::get('/{shipment}/label', [CustomerShipmentsController::class, 'label'])->name('label');
             Route::post('/{shipment}/cancel', [CustomerShipmentsController::class, 'cancel'])->name('cancel');
+            Route::delete('/{shipment}', [CustomerShipmentsController::class, 'destroy'])->name('destroy');
             Route::post('/export', [CustomerShipmentsController::class, 'export'])->name('export');
             
             // AJAX endpoints for shipment creation
@@ -371,9 +380,20 @@ Route::prefix('customer')->name('customer.')->group(function () {
         // API endpoints for courier services (AJAX calls)
         Route::get('/couriers/{courierCode}/services', [CustomerShipmentsController::class, 'getCourierServices'])->name('customer.courier.services');
         
+        // Orders Management
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Customer\OrdersController::class, 'index'])->name('index');
+            Route::post('/', [App\Http\Controllers\Customer\OrdersController::class, 'store'])->name('store');
+            Route::get('/{order}', [App\Http\Controllers\Customer\OrdersController::class, 'show'])->name('show');
+            Route::get('/{order}/pay', [App\Http\Controllers\Customer\OrdersController::class, 'pay'])->name('pay');
+            Route::patch('/{order}/cancel', [App\Http\Controllers\Customer\OrdersController::class, 'cancel'])->name('cancel');
+        });
+        
         // Payments Management
         Route::prefix('payments')->name('payments.')->group(function () {
             Route::get('/', [CustomerPaymentsController::class, 'index'])->name('index');
+            Route::get('/create', [CustomerPaymentsController::class, 'create'])->name('create');
+            Route::post('/process', [CustomerPaymentsController::class, 'process'])->name('process');
             Route::get('/{payment}', [CustomerPaymentsController::class, 'show'])->name('show');
             Route::get('/topup/create', [CustomerPaymentsController::class, 'topup'])->name('topup');
             Route::post('/topup', [CustomerPaymentsController::class, 'processTopup'])->name('topup.process');
@@ -388,6 +408,17 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::put('/password', [CustomerProfileController::class, 'updatePassword'])->name('update-password');
             Route::get('/notifications', [CustomerProfileController::class, 'notifications'])->name('notifications');
             Route::put('/notifications', [CustomerProfileController::class, 'updateNotifications'])->name('update-notifications');
+        });
+        
+        // Finance Management
+        Route::prefix('finances')->name('finances.')->group(function () {
+            Route::get('/', [CustomerProfileController::class, 'finances'])->name('index');
+            Route::put('/update', [CustomerProfileController::class, 'updateFinances'])->name('update');
+        });
+        
+        // System Logs
+        Route::prefix('logs')->name('logs.')->group(function () {
+            Route::get('/', [CustomerProfileController::class, 'logs'])->name('index');
         });
         
         // Users Management (for customer admin users only)
@@ -451,6 +482,12 @@ Route::prefix('payments')->name('payments.')->group(function () {
     Route::get('/cancel/stripe', function () { 
         return view('payments.cancel', ['provider' => 'Stripe']); 
     })->name('cancel.stripe');
+});
+
+// Payment Simulation Routes
+Route::prefix('payment')->name('payment.')->group(function () {
+    Route::get('/simulate/{paymentUuid}', [\App\Http\Controllers\PaymentSimulationController::class, 'show'])->name('simulate');
+    Route::post('/simulate/{paymentUuid}', [\App\Http\Controllers\PaymentSimulationController::class, 'process'])->name('simulate.process');
 });
 
 /*
