@@ -21,7 +21,8 @@
         "vite": "^5.0.10"
     },
     "dependencies": {
+        "@heroicons/react": "^2.0.18",
         "chart.js": "^4.4.0",
-        "@heroicons/react": "^2.0.18"
+        "leaflet": "^1.9.4"
     }
 }
