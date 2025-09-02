@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * Cel: Bootstrap aplikacji z modularnym routingiem
+ * Moduł: Core
+ * Odpowiedzialny: Claude-Code
+ * Data: 2025-09-02
+ */
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CustomerActiveMiddleware;
 use App\Http\Middleware\CustomerAdminMiddleware;
@@ -18,6 +26,30 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            // Load modular API routes
+            $apiRoutePath = base_path('routes/api');
+            if (is_dir($apiRoutePath)) {
+                $files = glob($apiRoutePath . '/*.php');
+                foreach ($files as $file) {
+                    Route::middleware('api')
+                        ->prefix('api')
+                        ->group($file);
+                }
+            }
+            
+            // Load versioned API routes if they exist (routes/api/v1/, routes/api/v2/, etc.)
+            $versionDirs = glob($apiRoutePath . '/v*', GLOB_ONLYDIR);
+            foreach ($versionDirs as $versionDir) {
+                $version = basename($versionDir);
+                $files = glob($versionDir . '/*.php');
+                foreach ($files as $file) {
+                    Route::middleware('api')
+                        ->prefix("api/{$version}")
+                        ->group($file);
+                }
+            }
+        }
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Global middleware
