@@ -11,6 +11,8 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\Auth\AuthServiceInterface;
+use App\Http\Requests\Api\Auth\LoginRequest;
+use App\Http\Requests\Api\Auth\RegisterRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -20,7 +22,7 @@ class AuthController extends Controller
         private readonly AuthServiceInterface $authService
     ) {}
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
         
@@ -32,9 +34,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $user = $this->authService->register($request->all());
+        $user = $this->authService->register($request->validated());
 
         return response()->json([
             'message' => 'Registration successful. Your account is pending approval.',

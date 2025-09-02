@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Cel: Policy dla autoryzacji operacji na zamówieniach
+ * Moduł: Orders
+ * Odpowiedzialny: Claude-Code
+ * Data: 2025-09-02
+ */
+
 namespace App\Policies;
 
 use App\Models\CustomerUser;

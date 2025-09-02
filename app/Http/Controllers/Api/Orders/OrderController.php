@@ -11,6 +11,8 @@ namespace App\Http\Controllers\Api\Orders;
 
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\Orders\OrderServiceInterface;
+use App\Http\Requests\Api\Orders\StoreOrderRequest;
+use App\Http\Requests\Api\Orders\UpdateOrderRequest;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -39,9 +41,9 @@ class OrderController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreOrderRequest $request): JsonResponse
     {
-        $data = $request->all();
+        $data = $request->validated();
         $data['customer_id'] = $request->user()->customer_id;
         $data['customer_user_id'] = $request->user()->id;
 
@@ -55,14 +57,14 @@ class OrderController extends Controller
 
     public function show(Request $request, Order $order): JsonResponse
     {
-        // Authorization handled by Policy
+        $this->authorize('view', $order);
         return response()->json(['data' => $order->load(['shipments', 'payments'])]);
     }
 
-    public function update(Request $request, Order $order): JsonResponse
+    public function update(UpdateOrderRequest $request, Order $order): JsonResponse
     {
-        // Authorization handled by Policy
-        $updatedOrder = $this->orderService->updateOrder($order, $request->all());
+        // Authorization handled by Policy in the Request
+        $updatedOrder = $this->orderService->updateOrder($order, $request->validated());
 
         return response()->json([
             'message' => 'Order updated successfully',
@@ -72,7 +74,7 @@ class OrderController extends Controller
 
     public function destroy(Request $request, Order $order): JsonResponse
     {
-        // Authorization handled by Policy
+        $this->authorize('delete', $order);
         $this->orderService->cancelOrder($order, $request->input('reason'));
 
         return response()->json([
@@ -82,7 +84,7 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order): JsonResponse
     {
-        // Authorization handled by Policy
+        $this->authorize('update', $order);
         $updatedOrder = $this->orderService->updateOrderStatus(
             $order, 
             $request->input('status')
@@ -96,7 +98,7 @@ class OrderController extends Controller
 
     public function cancel(Request $request, Order $order): JsonResponse
     {
-        // Authorization handled by Policy
+        $this->authorize('delete', $order);
         $this->orderService->cancelOrder($order, $request->input('reason'));
 
         return response()->json([

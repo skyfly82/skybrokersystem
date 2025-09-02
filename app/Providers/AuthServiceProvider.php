@@ -1,9 +1,18 @@
 <?php
 
+/**
+ * Cel: Provider dla uwierzytelniania i autoryzacji z policies
+ * Moduł: Auth
+ * Odpowiedzialny: Claude-Code
+ * Data: 2025-09-02
+ */
+
 namespace App\Providers;
 
 use App\Models\Order;
+use App\Models\ApiKey;
 use App\Policies\OrderPolicy;
+use App\Policies\ApiKeyPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -15,6 +24,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Order::class => OrderPolicy::class,
+        ApiKey::class => ApiKeyPolicy::class,
     ];
 
     /**

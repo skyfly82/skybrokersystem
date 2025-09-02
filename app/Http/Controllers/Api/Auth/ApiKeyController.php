@@ -46,7 +46,7 @@ class ApiKeyController extends Controller
 
     public function destroy(Request $request, ApiKey $apiKey): JsonResponse
     {
-        // Authorization would be handled by Policy
+        $this->authorize('delete', $apiKey);
         
         $success = $this->authService->revokeApiKey($apiKey->key);
 
@@ -63,7 +63,7 @@ class ApiKeyController extends Controller
 
     public function regenerate(Request $request, ApiKey $apiKey): JsonResponse
     {
-        // Authorization would be handled by Policy
+        $this->authorize('regenerate', $apiKey);
         
         // Revoke old key
         $this->authService->revokeApiKey($apiKey->key);
