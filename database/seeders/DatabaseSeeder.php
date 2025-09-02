@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Cel: Główny seeder bazy danych z danymi testowymi
+ * Moduł: Database
+ * Odpowiedzialny: Claude-Code
+ * Data: 2025-09-02
+ */
+
 namespace Database\Seeders;
 
 use App\Models\User;
