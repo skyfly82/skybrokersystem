@@ -15,7 +15,7 @@ class OrdersController extends Controller
     public function index(Request $request)
     {
         $customer = auth()->user()->customer;
-        
+
         $query = $customer->orders()
             ->with(['shipments', 'payments'])
             ->when($request->status, function ($query, $status) {
@@ -30,9 +30,9 @@ class OrdersController extends Controller
     public function show(Order $order)
     {
         $this->authorize('view', $order);
-        
+
         $order->load(['shipments.courierService', 'payments', 'customerUser']);
-        
+
         return view('customer.orders.show', compact('order'));
     }
 
@@ -81,11 +81,12 @@ class OrdersController extends Controller
             DB::commit();
 
             return redirect()->route('customer.orders.show', $order)
-                ->with('success', 'Zamówienie zostało utworzone! Numer: ' . $order->order_number);
+                ->with('success', 'Zamówienie zostało utworzone! Numer: '.$order->order_number);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Wystąpił błąd podczas tworzenia zamówienia: ' . $e->getMessage()]);
+
+            return back()->withErrors(['error' => 'Wystąpił błąd podczas tworzenia zamówienia: '.$e->getMessage()]);
         }
     }
 
@@ -93,7 +94,7 @@ class OrdersController extends Controller
     {
         $this->authorize('update', $order);
 
-        if (!$order->canBeCancelled()) {
+        if (! $order->canBeCancelled()) {
             return back()->withErrors(['error' => 'To zamówienie nie może być anulowane.']);
         }
 
@@ -103,7 +104,7 @@ class OrdersController extends Controller
             return back()->with('success', 'Zamówienie zostało anulowane. Przesyłki wróciły do koszyka.');
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Wystąpił błąd podczas anulowania zamówienia: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Wystąpił błąd podczas anulowania zamówienia: '.$e->getMessage()]);
         }
     }
 
@@ -111,7 +112,7 @@ class OrdersController extends Controller
     {
         $this->authorize('view', $order);
 
-        if (!$order->canBePaid()) {
+        if (! $order->canBePaid()) {
             return back()->withErrors(['error' => 'To zamówienie nie może być opłacone.']);
         }
 

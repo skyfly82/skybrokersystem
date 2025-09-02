@@ -9,8 +9,8 @@
 
 namespace App\Policies;
 
-use App\Models\CustomerUser;
 use App\Models\ApiKey;
+use App\Models\CustomerUser;
 
 class ApiKeyPolicy
 {

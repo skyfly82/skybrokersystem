@@ -20,7 +20,7 @@ class PaymentsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $customer = $request->user();
-        
+
         $payments = $customer->payments()
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);
@@ -34,7 +34,7 @@ class PaymentsController extends Controller
             'meta' => [
                 'current_page' => $payments->currentPage(),
                 'total' => $payments->total(),
-            ]
+            ],
         ]);
     }
 
@@ -43,7 +43,7 @@ class PaymentsController extends Controller
         $request->validate([
             'amount' => 'required|numeric|min:1',
             'type' => 'required|in:topup,shipment',
-            'method' => 'required|in:card,bank_transfer,blik,simulation'
+            'method' => 'required|in:card,bank_transfer,blik,simulation',
         ]);
 
         try {
@@ -59,13 +59,13 @@ class PaymentsController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new PaymentResource($payment),
-                'payment_url' => $result['payment_url'] ?? null
+                'payment_url' => $result['payment_url'] ?? null,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
@@ -74,7 +74,7 @@ class PaymentsController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => new PaymentResource($payment)
+            'data' => new PaymentResource($payment),
         ]);
     }
 }

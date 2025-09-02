@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Payment;
 
-use App\Models\Customer;
-use App\Models\Payment;
-use App\Models\Shipment;
-use App\Services\Payment\Providers\PaymentProviderInterface;
-use App\Services\Payment\Providers\SimulationProvider;
-use App\Services\Payment\Providers\PayNowProvider;
-use App\Services\Payment\Providers\StripeProvider;
-use App\Exceptions\PaymentException;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentFailed;
+use App\Exceptions\PaymentException;
+use App\Models\Customer;
+use App\Models\Payment;
+use App\Services\Payment\Providers\PaymentProviderInterface;
+use App\Services\Payment\Providers\PayNowProvider;
+use App\Services\Payment\Providers\SimulationProvider;
+use App\Services\Payment\Providers\StripeProvider;
 
 class PaymentService
 {
@@ -50,10 +49,10 @@ class PaymentService
     public function processPayment(Payment $payment): array
     {
         $provider = $this->getProvider($payment->provider);
-        
+
         try {
             $result = $provider->createPayment($payment);
-            
+
             $payment->update([
                 'external_id' => $result['external_id'] ?? null,
                 'provider_data' => $result['metadata'] ?? null,
@@ -76,13 +75,13 @@ class PaymentService
         $providerInstance = $this->getProvider($provider);
         $result = $providerInstance->handleWebhook($data);
 
-        if (!$result['payment_id']) {
+        if (! $result['payment_id']) {
             throw new PaymentException('Payment ID not found in webhook');
         }
 
         $payment = Payment::where('external_id', $result['payment_id'])->first();
-        
-        if (!$payment) {
+
+        if (! $payment) {
             throw new PaymentException('Payment not found');
         }
 
@@ -91,7 +90,7 @@ class PaymentService
                 $payment->markAsCompleted();
                 event(new PaymentCompleted($payment));
                 break;
-                
+
             case 'failed':
                 $payment->markAsFailed($result['failure_reason'] ?? 'Payment failed');
                 event(new PaymentFailed($payment));
@@ -99,9 +98,9 @@ class PaymentService
         }
     }
 
-    public function refundPayment(Payment $payment, float $amount = null): Payment
+    public function refundPayment(Payment $payment, ?float $amount = null): Payment
     {
-        if (!$payment->isCompleted()) {
+        if (! $payment->isCompleted()) {
             throw new PaymentException('Can only refund completed payments');
         }
 
@@ -120,7 +119,7 @@ class PaymentService
 
         try {
             $result = $provider->refundPayment($payment, $refundAmount);
-            
+
             $refund->update([
                 'external_id' => $result['external_id'],
                 'status' => 'completed',
@@ -139,7 +138,7 @@ class PaymentService
 
     private function getProvider(string $provider): PaymentProviderInterface
     {
-        if (!isset($this->providers[$provider])) {
+        if (! isset($this->providers[$provider])) {
             throw new PaymentException("Unsupported payment provider: {$provider}");
         }
 
@@ -148,7 +147,7 @@ class PaymentService
 
     private function getProviderForMethod(string $method): string
     {
-        return match($method) {
+        return match ($method) {
             'card', 'blik' => config('payments.default_card_provider', 'paynow'),
             'bank_transfer' => config('payments.default_bank_provider', 'paynow'),
             'paypal' => 'stripe',
@@ -159,7 +158,7 @@ class PaymentService
 
     private function generateDescription(string $type, ?object $payable): string
     {
-        return match($type) {
+        return match ($type) {
             'shipment' => "Payment for shipment {$payable->uuid}",
             'topup' => 'Account top-up',
             'subscription' => 'Subscription payment',

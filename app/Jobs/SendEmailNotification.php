@@ -18,6 +18,7 @@ class SendEmailNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $backoff = 60;
 
     public function __construct(
@@ -32,8 +33,9 @@ class SendEmailNotification implements ShouldQueue
             if ($this->notification->status !== 'pending') {
                 Log::info('Notification already processed', [
                     'notification_id' => $this->notification->id,
-                    'status' => $this->notification->status
+                    'status' => $this->notification->status,
                 ]);
+
                 return;
             }
 
@@ -51,7 +53,7 @@ class SendEmailNotification implements ShouldQueue
                 $this->notification->markAsSent();
                 Log::info('Email notification sent successfully', [
                     'notification_id' => $this->notification->id,
-                    'recipient' => $recipient
+                    'recipient' => $recipient,
                 ]);
             } else {
                 throw new \Exception('Email sending failed');
@@ -61,7 +63,7 @@ class SendEmailNotification implements ShouldQueue
             Log::error('Email notification failed', [
                 'notification_id' => $this->notification->id,
                 'error' => $e->getMessage(),
-                'attempt' => $this->attempts()
+                'attempt' => $this->attempts(),
             ]);
 
             if ($this->attempts() >= $this->tries) {
@@ -76,7 +78,7 @@ class SendEmailNotification implements ShouldQueue
     {
         Log::error('Email notification job failed permanently', [
             'notification_id' => $this->notification->id,
-            'error' => $exception->getMessage()
+            'error' => $exception->getMessage(),
         ]);
 
         $this->notification->markAsFailed($exception->getMessage());

@@ -35,7 +35,7 @@ class AuthController extends Controller
 
         if (Auth::guard('customer_user')->attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-            
+
             // Update last login if user exists
             if ($user = Auth::guard('customer_user')->user()) {
                 $user->update([
@@ -61,21 +61,21 @@ class AuthController extends Controller
 
         return redirect()->route('customer.login');
     }
-    
+
     public function showPendingForm()
     {
         $user = Auth::guard('customer_user')->user();
-        
+
         // If user is not authenticated, redirect to login
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('customer.login');
         }
-        
+
         // If customer is already active, redirect to dashboard
         if ($user->customer && $user->customer->isActive()) {
             return redirect()->route('customer.dashboard');
         }
-        
+
         // Show pending approval page
         return view('customer.auth.pending');
     }
@@ -106,8 +106,8 @@ class AuthController extends Controller
                 'settings' => [
                     'auto_approve_shipments' => false,
                     'require_approval' => true,
-                    'default_pickup_method' => 'point'
-                ]
+                    'default_pickup_method' => 'point',
+                ],
             ]);
 
             // Create the primary user
@@ -125,8 +125,8 @@ class AuthController extends Controller
                     'create_shipments',
                     'view_reports',
                     'manage_users',
-                    'manage_settings'
-                ]
+                    'manage_settings',
+                ],
             ]);
 
             // Generate verification code and send to customer
@@ -148,32 +148,32 @@ class AuthController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Log the actual error for debugging
-            \Log::error('Customer registration failed: ' . $e->getMessage(), [
+            \Log::error('Customer registration failed: '.$e->getMessage(), [
                 'exception' => $e,
-                'request_data' => $request->except(['password', 'password_confirmation'])
+                'request_data' => $request->except(['password', 'password_confirmation']),
             ]);
-            
+
             return back()
                 ->withInput($request->except(['password', 'password_confirmation']))
-                ->with('error', 'Wystąpił błąd podczas tworzenia konta. Spróbuj ponownie lub skontaktuj się z pomocą techniczną. (Błąd: ' . $e->getMessage() . ')');
+                ->with('error', 'Wystąpił błąd podczas tworzenia konta. Spróbuj ponownie lub skontaktuj się z pomocą techniczną. (Błąd: '.$e->getMessage().')');
         }
     }
 
-    public function showVerifyForm(Request $request, string $token = null)
+    public function showVerifyForm(Request $request, ?string $token = null)
     {
-        if (!$token) {
+        if (! $token) {
             return redirect()->route('customer.login')->with('error', 'Nieprawidłowy link weryfikacyjny.');
         }
 
         $customer = Customer::where('verification_token', $token)->first();
-        
-        if (!$customer) {
+
+        if (! $customer) {
             return redirect()->route('customer.login')->with('error', 'Nieprawidłowy lub wygasły link weryfikacyjny.');
         }
 
-        if (!$customer->verifyToken($token)) {
+        if (! $customer->verifyToken($token)) {
             return redirect()->route('customer.login')->with('error', 'Link weryfikacyjny wygasł. Skontaktuj się z administratorem.');
         }
 
@@ -186,19 +186,19 @@ class AuthController extends Controller
             'token' => $token,
             'email' => $customer->email,
             'canResend' => $customer->canResendCode(),
-            'codeExpiryMinutes' => \App\Models\SystemSetting::get('verification_code_expiry_minutes', 60)
+            'codeExpiryMinutes' => \App\Models\SystemSetting::get('verification_code_expiry_minutes', 60),
         ]);
     }
 
     public function verify(Request $request, string $token)
     {
         $request->validate([
-            'verification_code' => 'required|string|size:6|regex:/^[0-9]{6}$/'
+            'verification_code' => 'required|string|size:6|regex:/^[0-9]{6}$/',
         ]);
 
         $customer = Customer::where('verification_token', $token)->first();
-        
-        if (!$customer || !$customer->verifyToken($token)) {
+
+        if (! $customer || ! $customer->verifyToken($token)) {
             return back()->with('error', 'Nieprawidłowy lub wygasły link weryfikacyjny.');
         }
 
@@ -214,12 +214,12 @@ class AuthController extends Controller
     public function resendCode(Request $request, string $token)
     {
         $customer = Customer::where('verification_token', $token)->first();
-        
-        if (!$customer || !$customer->verifyToken($token)) {
+
+        if (! $customer || ! $customer->verifyToken($token)) {
             return response()->json(['success' => false, 'message' => 'Nieprawidłowy lub wygasły link weryfikacyjny.'], 400);
         }
 
-        if (!$customer->canResendCode()) {
+        if (! $customer->canResendCode()) {
             return response()->json(['success' => false, 'message' => 'Kod można wysłać ponownie za kilka minut.'], 429);
         }
 
@@ -227,18 +227,18 @@ class AuthController extends Controller
             // Generate new code but keep the same token
             $verificationData = $customer->generateVerificationCode();
             $verificationData['token'] = $token; // Keep original token
-            
+
             $customer->update(['verification_token' => $token]); // Restore token
-            
+
             $primaryUser = $customer->getPrimaryUser();
             if ($primaryUser) {
                 $primaryUser->notify(new CustomerVerificationCode($customer, $verificationData));
             }
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Nowy kod został wysłany na Twój email.',
-                'codeExpiryMinutes' => \App\Models\SystemSetting::get('verification_code_expiry_minutes', 60)
+                'codeExpiryMinutes' => \App\Models\SystemSetting::get('verification_code_expiry_minutes', 60),
             ]);
 
         } catch (\Exception $e) {

@@ -25,7 +25,7 @@ class CustomerFactory extends Factory
             'current_balance' => $this->faker->randomFloat(2, 0, 1000),
             'credit_limit' => $this->faker->randomFloat(2, 0, 500),
             'is_active' => true,
-            'api_key' => 'sk_' . Str::random(46),
+            'api_key' => 'sk_'.Str::random(46),
             'payment_terms' => 30,
         ];
     }

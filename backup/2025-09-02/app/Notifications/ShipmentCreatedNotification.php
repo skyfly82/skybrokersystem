@@ -23,18 +23,18 @@ class ShipmentCreatedNotification extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         $channels = ['database'];
-        
+
         if ($notifiable->getNotificationPreference('email', 'shipment_created')) {
             $channels[] = 'mail';
         }
-        
+
         return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('📦 Przesyłka utworzona - ' . $this->shipment->tracking_number)
+            ->subject('📦 Przesyłka utworzona - '.$this->shipment->tracking_number)
             ->view('emails.customer.shipment-created', [
                 'shipment' => $this->shipment,
                 'customer' => $notifiable,

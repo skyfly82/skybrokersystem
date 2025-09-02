@@ -14,7 +14,7 @@ class ComplaintMessage extends Model
         'sender_type',
         'sender_id',
         'message',
-        'is_internal'
+        'is_internal',
     ];
 
     protected $casts = [
@@ -31,7 +31,7 @@ class ComplaintMessage extends Model
         if ($this->sender_type === 'customer') {
             return $this->belongsTo(CustomerUser::class, 'sender_id');
         }
-        
+
         return $this->belongsTo(SystemUser::class, 'sender_id');
     }
 }

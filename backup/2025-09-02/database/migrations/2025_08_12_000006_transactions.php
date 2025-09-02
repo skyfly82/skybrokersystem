@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('description');
             $table->json('metadata')->nullable();
             $table->timestamps();
-            
+
             $table->index(['customer_id', 'created_at']);
             $table->index('type');
         });

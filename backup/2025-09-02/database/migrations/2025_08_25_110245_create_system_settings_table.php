@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -31,26 +31,26 @@ return new class extends Migration
                 'group' => 'verification',
                 'description' => 'Czas ważności kodu weryfikacyjnego w minutach',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
-                'key' => 'verification_link_expiry_hours', 
+                'key' => 'verification_link_expiry_hours',
                 'value' => '24',
                 'type' => 'integer',
                 'group' => 'verification',
                 'description' => 'Czas ważności linku weryfikacyjnego w godzinach',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'key' => 'auto_cleanup_unverified_accounts_hours',
                 'value' => '72',
-                'type' => 'integer', 
+                'type' => 'integer',
                 'group' => 'verification',
                 'description' => 'Automatyczne usuwanie niezweryfikowanych kont po godzinach',
                 'created_at' => now(),
-                'updated_at' => now()
-            ]
+                'updated_at' => now(),
+            ],
         ]);
     }
 

@@ -25,12 +25,12 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('system_users');
             $table->foreignId('updated_by')->nullable()->constrained('system_users');
             $table->timestamps();
-            
+
             $table->index(['slug', 'is_published']);
             $table->index('published_at');
         });
 
-        // CMS Media table  
+        // CMS Media table
         Schema::create('cms_media', function (Blueprint $table) {
             $table->id();
             $table->string('filename');
@@ -43,7 +43,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->foreignId('uploaded_by')->constrained('system_users');
             $table->timestamps();
-            
+
             $table->index('mime_type');
             $table->index('uploaded_by');
         });
@@ -62,7 +62,7 @@ return new class extends Migration
             $table->json('display_rules')->nullable(); // for targeting specific pages/users
             $table->foreignId('created_by')->constrained('system_users');
             $table->timestamps();
-            
+
             $table->index(['is_active', 'start_date', 'end_date']);
             $table->index('priority');
         });
@@ -77,7 +77,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->foreignId('updated_by')->nullable()->constrained('system_users');
             $table->timestamps();
-            
+
             $table->index(['key', 'group']);
         });
     }

@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\CustomerUser;
 use App\Models\Order;
-use Illuminate\Auth\Access\Response;
 
 class OrderPolicy
 {
@@ -40,8 +39,8 @@ class OrderPolicy
     public function update(CustomerUser $user, Order $order): bool
     {
         // User can update order if it belongs to their customer and is not finalized
-        return $user->customer_id === $order->customer_id && 
-               !in_array($order->status, ['completed', 'cancelled']);
+        return $user->customer_id === $order->customer_id &&
+               ! in_array($order->status, ['completed', 'cancelled']);
     }
 
     /**

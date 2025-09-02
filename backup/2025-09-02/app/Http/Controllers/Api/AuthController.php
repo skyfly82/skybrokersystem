@@ -14,17 +14,17 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'api_key' => 'required|string'
+            'api_key' => 'required|string',
         ]);
 
         $customer = Customer::where('api_key', $request->api_key)
             ->where('status', 'active')
             ->first();
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json([
                 'success' => false,
-                'error' => 'Invalid API key'
+                'error' => 'Invalid API key',
             ], 401);
         }
 
@@ -39,8 +39,8 @@ class AuthController extends Controller
                     'uuid' => $customer->uuid,
                     'company_name' => $customer->company_name,
                     'current_balance' => $customer->current_balance,
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -50,7 +50,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Successfully logged out'
+            'message' => 'Successfully logged out',
         ]);
     }
 
@@ -60,8 +60,8 @@ class AuthController extends Controller
             'success' => true,
             'data' => [
                 'customer' => $request->user(),
-                'permissions' => $this->getUserPermissions($request->user())
-            ]
+                'permissions' => $this->getUserPermissions($request->user()),
+            ],
         ]);
     }
 

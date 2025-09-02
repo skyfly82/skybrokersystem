@@ -7,8 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 
 class Payment extends Model
@@ -19,7 +19,7 @@ class Payment extends Model
         'uuid', 'customer_id', 'customer_user_id', 'payable_type', 'payable_id',
         'external_id', 'type', 'method', 'provider', 'amount', 'currency',
         'status', 'provider_data', 'description', 'paid_at', 'expires_at',
-        'failure_reason'
+        'failure_reason',
     ];
 
     protected $casts = [
@@ -32,9 +32,9 @@ class Payment extends Model
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
         });
@@ -86,7 +86,7 @@ class Payment extends Model
         $this->customer->addBalance($this->amount, "Payment {$this->uuid}");
     }
 
-    public function markAsFailed(string $reason = null): void
+    public function markAsFailed(?string $reason = null): void
     {
         $this->update([
             'status' => 'failed',
@@ -96,7 +96,7 @@ class Payment extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'yellow',
             'processing' => 'blue',
             'completed' => 'green',
@@ -109,7 +109,7 @@ class Payment extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'Oczekuje',
             'processing' => 'Przetwarzanie',
             'completed' => 'Zakończona',
@@ -122,7 +122,7 @@ class Payment extends Model
 
     public function getStatusColorClassAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'bg-yellow-100 text-yellow-800',
             'processing' => 'bg-blue-100 text-blue-800',
             'completed' => 'bg-green-100 text-green-800',

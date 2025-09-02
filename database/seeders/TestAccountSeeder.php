@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Customer;
 use App\Models\CustomerUser;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class TestAccountSeeder extends Seeder
@@ -20,7 +20,7 @@ class TestAccountSeeder extends Seeder
                 'nip' => '1234567890',
                 'regon' => '123456789',
                 'company_address' => 'ul. Testowa 123',
-                'city' => 'Warszawa', 
+                'city' => 'Warszawa',
                 'postal_code' => '00-001',
                 'country' => 'PL',
                 'phone' => '+48123456789',

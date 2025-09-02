@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\SystemUser;
 use App\Models\Customer;
-use App\Models\Shipment;
 use App\Models\Payment;
+use App\Models\Shipment;
+use App\Models\SystemUser;
 use App\Notifications\DailyReportNotification;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class SendDailyReports extends Command
 {
     protected $signature = 'reports:daily {--date= : Date for the report (Y-m-d format)}';
+
     protected $description = 'Send daily reports to administrators';
 
     public function handle(): int
     {
-        $date = $this->option('date') 
+        $date = $this->option('date')
             ? Carbon::createFromFormat('Y-m-d', $this->option('date'))
             : Carbon::yesterday();
 

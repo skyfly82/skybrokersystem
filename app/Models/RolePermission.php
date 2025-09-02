@@ -13,11 +13,11 @@ class RolePermission extends Model
         'user_type',
         'role',
         'permission_id',
-        'granted'
+        'granted',
     ];
 
     protected $casts = [
-        'granted' => 'boolean'
+        'granted' => 'boolean',
     ];
 
     public function permission(): BelongsTo

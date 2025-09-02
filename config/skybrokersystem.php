@@ -113,14 +113,14 @@ return [
                 'name' => 'PDF',
                 'sizes' => ['A4', 'A6'],
                 'mime_type' => 'application/pdf',
-                'extension' => 'pdf'
+                'extension' => 'pdf',
             ],
             'zpl' => [
                 'name' => 'ZPL',
                 'sizes' => [],
                 'mime_type' => 'text/plain',
-                'extension' => 'zpl'
-            ]
+                'extension' => 'zpl',
+            ],
         ],
         'tracking_update_frequency' => 60, // minutes
         'webhook_timeout' => 30, // seconds

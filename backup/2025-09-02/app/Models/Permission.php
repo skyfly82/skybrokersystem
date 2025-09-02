@@ -11,14 +11,14 @@ class Permission extends Model
 {
     protected $fillable = [
         'name',
-        'display_name', 
+        'display_name',
         'category',
         'description',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
 
     public function rolePermissions(): HasMany

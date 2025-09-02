@@ -10,10 +10,10 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Services\Contracts\Auth\AuthServiceInterface;
 use App\Models\ApiKey;
-use Illuminate\Http\Request;
+use App\Services\Contracts\Auth\AuthServiceInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ApiKeyController extends Controller
 {
@@ -40,34 +40,34 @@ class ApiKeyController extends Controller
 
         return response()->json([
             'message' => 'API key created successfully. Please store it safely - it will not be shown again.',
-            'data' => $apiKeyData
+            'data' => $apiKeyData,
         ], 201);
     }
 
     public function destroy(Request $request, ApiKey $apiKey): JsonResponse
     {
         $this->authorize('delete', $apiKey);
-        
+
         $success = $this->authService->revokeApiKey($apiKey->key);
 
-        if (!$success) {
+        if (! $success) {
             return response()->json([
-                'message' => 'Failed to revoke API key'
+                'message' => 'Failed to revoke API key',
             ], 400);
         }
 
         return response()->json([
-            'message' => 'API key revoked successfully'
+            'message' => 'API key revoked successfully',
         ]);
     }
 
     public function regenerate(Request $request, ApiKey $apiKey): JsonResponse
     {
         $this->authorize('regenerate', $apiKey);
-        
+
         // Revoke old key
         $this->authService->revokeApiKey($apiKey->key);
-        
+
         // Generate new key
         $newApiKeyData = $this->authService->generateApiKey(
             $request->user(),
@@ -76,7 +76,7 @@ class ApiKeyController extends Controller
 
         return response()->json([
             'message' => 'API key regenerated successfully. Please store it safely - it will not be shown again.',
-            'data' => $newApiKeyData
+            'data' => $newApiKeyData,
         ]);
     }
 }

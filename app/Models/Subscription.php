@@ -38,13 +38,16 @@ class Subscription extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active' && (!$this->period_ends_at || $this->period_ends_at->isFuture());
+        return $this->status === 'active' && (! $this->period_ends_at || $this->period_ends_at->isFuture());
     }
 
     public function canConsume(int $n = 1): bool
     {
-        if (!$this->isActive()) return false;
+        if (! $this->isActive()) {
+            return false;
+        }
         $quota = $this->request_quota_monthly ?? 0;
+
         return ($this->requests_used_this_period ?? 0) + $n <= $quota;
     }
 
@@ -54,4 +57,3 @@ class Subscription extends Model
         $this->save();
     }
 }
-

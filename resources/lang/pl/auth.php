@@ -12,7 +12,7 @@ return [
     'forgot_password' => 'Zapomniałeś hasła?',
     'reset_password' => 'Resetuj hasło',
     'send_reset_link' => 'Wyślij link do resetowania',
-    
+
     // Customer authentication
     'customer_login' => 'Logowanie klienta',
     'customer_register' => 'Rejestracja klienta',
@@ -28,11 +28,11 @@ return [
     'country' => 'Kraj',
     'nip' => 'NIP',
     'regon' => 'REGON',
-    
+
     // Admin authentication
     'admin_login' => 'Logowanie administratora',
     'admin_login_subtitle' => 'Zaloguj się do panelu administratora',
-    
+
     // Error messages
     'failed' => 'Te dane logowania nie pasują do naszych rekordów.',
     'password_incorrect' => 'Podane hasło jest nieprawidłowe.',
@@ -45,14 +45,14 @@ return [
     'company_required' => 'Nazwa firmy jest wymagana.',
     'first_name_required' => 'Imię jest wymagane.',
     'last_name_required' => 'Nazwisko jest wymagane.',
-    
+
     // Success messages
     'login_success' => 'Pomyślnie zalogowano.',
     'logout_success' => 'Pomyślnie wylogowano.',
     'register_success' => 'Konto zostało utworzone. Możesz się teraz zalogować.',
     'password_reset_sent' => 'Link do resetowania hasła został wysłany na Twój email.',
     'password_reset_success' => 'Hasło zostało pomyślnie zmienione.',
-    
+
     // Links and actions
     'dont_have_account' => 'Nie masz konta?',
     'already_have_account' => 'Masz już konto?',

@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shipment;
-use App\Models\Payment;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -50,7 +47,7 @@ class DashboardController extends Controller
             ->get();
 
         return view('customer.dashboard', compact(
-            'stats', 
+            'stats',
             'recent_shipments',
             'monthly_shipments',
             'status_distribution',

@@ -15,8 +15,8 @@ class SetLocale
     public function handle(Request $request, Closure $next)
     {
         // Get locale from session, URL parameter, or use default
-        $locale = $request->get('locale') 
-            ?? Session::get('locale') 
+        $locale = $request->get('locale')
+            ?? Session::get('locale')
             ?? config('app.locale', 'pl');
 
         // Validate locale

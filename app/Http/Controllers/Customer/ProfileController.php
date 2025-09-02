@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Customer\UpdateProfileRequest;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 
@@ -17,15 +16,15 @@ class ProfileController extends Controller
         $customer = $user->customer;
 
         // Get recent audit logs for the customer and its users
-        $recentLogs = AuditLog::where(function($query) use ($customer) {
-                $query->where(function($q) use ($customer) {
-                    $q->where('auditable_type', 'App\\Models\\Customer')
-                      ->where('auditable_id', $customer->id);
-                })->orWhere(function($q) use ($customer) {
-                    $q->where('auditable_type', 'App\\Models\\CustomerUser')
-                      ->whereIn('auditable_id', $customer->users->pluck('id'));
-                });
-            })
+        $recentLogs = AuditLog::where(function ($query) use ($customer) {
+            $query->where(function ($q) use ($customer) {
+                $q->where('auditable_type', 'App\\Models\\Customer')
+                    ->where('auditable_id', $customer->id);
+            })->orWhere(function ($q) use ($customer) {
+                $q->where('auditable_type', 'App\\Models\\CustomerUser')
+                    ->whereIn('auditable_id', $customer->users->pluck('id'));
+            });
+        })
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
@@ -58,7 +57,7 @@ class ProfileController extends Controller
         $rules = [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:customer_users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:customer_users,email,'.$user->id,
             'phone' => 'nullable|string|max:20',
         ];
 
@@ -80,13 +79,13 @@ class ProfileController extends Controller
 
         // Update user data
         $user->update($request->only([
-            'first_name', 'last_name', 'email', 'phone'
+            'first_name', 'last_name', 'email', 'phone',
         ]));
 
         // Update customer data if user has permissions
         if ($user->canCreateUsers() || $user->is_primary) {
             $customerData = [];
-            
+
             // Map form fields to model fields
             if ($request->has('company_name')) {
                 $customerData['company_name'] = $request->company_name;
@@ -111,7 +110,7 @@ class ProfileController extends Controller
                 $customerData['settings'] = $newSettings;
             }
 
-            if (!empty($customerData)) {
+            if (! empty($customerData)) {
                 $customer->update($customerData);
             }
         }
@@ -128,7 +127,7 @@ class ProfileController extends Controller
         ]);
 
         auth()->user()->update([
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
         ]);
 
         return back()->with('success', 'Hasło zostało zmienione.');
@@ -155,7 +154,7 @@ class ProfileController extends Controller
         ];
 
         auth()->user()->update([
-            'notification_preferences' => $preferences
+            'notification_preferences' => $preferences,
         ]);
 
         return back()->with('success', 'Preferencje powiadomień zostały zaktualizowane.');
@@ -175,7 +174,7 @@ class ProfileController extends Controller
         $customer = $user->customer;
 
         // Check permissions
-        if (!$user->canCreateUsers() && !$user->is_primary) {
+        if (! $user->canCreateUsers() && ! $user->is_primary) {
             abort(403, 'Brak uprawnień do edycji danych finansowych.');
         }
 
@@ -200,15 +199,15 @@ class ProfileController extends Controller
         $customer = $user->customer;
 
         // Get detailed audit logs for the customer and its users
-        $logs = AuditLog::where(function($query) use ($customer) {
-                $query->where(function($q) use ($customer) {
-                    $q->where('auditable_type', 'App\\Models\\Customer')
-                      ->where('auditable_id', $customer->id);
-                })->orWhere(function($q) use ($customer) {
-                    $q->where('auditable_type', 'App\\Models\\CustomerUser')
-                      ->whereIn('auditable_id', $customer->users->pluck('id'));
-                });
-            })
+        $logs = AuditLog::where(function ($query) use ($customer) {
+            $query->where(function ($q) use ($customer) {
+                $q->where('auditable_type', 'App\\Models\\Customer')
+                    ->where('auditable_id', $customer->id);
+            })->orWhere(function ($q) use ($customer) {
+                $q->where('auditable_type', 'App\\Models\\CustomerUser')
+                    ->whereIn('auditable_id', $customer->users->pluck('id'));
+            });
+        })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

@@ -1,12 +1,13 @@
 <?php
+
 // app/Http/Requests/Api/CreateShipmentRequest.php
 
 declare(strict_types=1);
 
 namespace App\Http\Requests\Api;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CreateShipmentRequest extends FormRequest
@@ -22,7 +23,7 @@ class CreateShipmentRequest extends FormRequest
             // Service selection
             'courier_code' => ['required', 'string', 'in:inpost,dhl,dpd,gls,meest,fedex,ambro,packeta'],
             'service_type' => ['required', 'string', 'max:100'],
-            
+
             // Sender data
             'sender' => ['required', 'array'],
             'sender.name' => ['required', 'string', 'max:255'],
@@ -33,7 +34,7 @@ class CreateShipmentRequest extends FormRequest
             'sender.country' => ['required', 'string', 'size:2'],
             'sender.phone' => ['required', 'string', 'max:20'],
             'sender.email' => ['required', 'email', 'max:255'],
-            
+
             // Recipient data
             'recipient' => ['required', 'array'],
             'recipient.name' => ['required', 'string', 'max:255'],
@@ -45,7 +46,7 @@ class CreateShipmentRequest extends FormRequest
             'recipient.postal_code' => ['required_without:recipient.pickup_point', 'string', 'max:10'],
             'recipient.country' => ['required_without:recipient.pickup_point', 'string', 'size:2'],
             'recipient.pickup_point' => ['required_without:recipient.address', 'string', 'max:50'],
-            
+
             // Package data
             'package' => ['required', 'array'],
             'package.weight' => ['required', 'numeric', 'min:0.01', 'max:70'],
@@ -53,7 +54,7 @@ class CreateShipmentRequest extends FormRequest
             'package.width' => ['required', 'integer', 'min:1', 'max:200'],
             'package.height' => ['required', 'integer', 'min:1', 'max:200'],
             'package.description' => ['nullable', 'string', 'max:255'],
-            
+
             // Optional data
             'cod_amount' => ['nullable', 'numeric', 'min:0.01', 'max:10000'],
             'insurance_amount' => ['nullable', 'numeric', 'min:0.01', 'max:50000'],
@@ -95,7 +96,7 @@ class CreateShipmentRequest extends FormRequest
             response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422)
         );
     }
@@ -108,7 +109,7 @@ class CreateShipmentRequest extends FormRequest
                 'sender' => array_merge($this->sender, [
                     'phone' => preg_replace('/[^0-9+]/', '', $this->input('sender.phone')),
                     'country' => strtoupper($this->input('sender.country', 'PL')),
-                ])
+                ]),
             ]);
         }
 
@@ -117,7 +118,7 @@ class CreateShipmentRequest extends FormRequest
                 'recipient' => array_merge($this->recipient, [
                     'phone' => preg_replace('/[^0-9+]/', '', $this->input('recipient.phone')),
                     'country' => strtoupper($this->input('recipient.country', 'PL')),
-                ])
+                ]),
             ]);
         }
     }

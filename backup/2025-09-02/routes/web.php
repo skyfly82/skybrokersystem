@@ -1,21 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\CustomersController as AdminCustomersController;
-use App\Http\Controllers\Admin\SystemSettingsController as AdminSystemSettingsController;
-use App\Http\Controllers\Admin\ShipmentsController as AdminShipmentsController;
-use App\Http\Controllers\Admin\PaymentsController as AdminPaymentsController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\NotificationsController as AdminNotificationsController;
+use App\Http\Controllers\Admin\PaymentsController as AdminPaymentsController;
+use App\Http\Controllers\Admin\ShipmentsController as AdminShipmentsController;
+use App\Http\Controllers\Admin\SystemSettingsController as AdminSystemSettingsController;
 use App\Http\Controllers\Admin\UsersController as AdminUsersController;
 use App\Http\Controllers\Admin\WebhookSettingsController as AdminWebhookSettingsController;
 use App\Http\Controllers\Customer\AuthController as CustomerAuthController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
-use App\Http\Controllers\Customer\ShipmentsController as CustomerShipmentsController;
 use App\Http\Controllers\Customer\PaymentsController as CustomerPaymentsController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
-use App\Http\Controllers\Customer\UsersController as CustomerUsersController;
+use App\Http\Controllers\Customer\ShipmentsController as CustomerShipmentsController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,23 +42,23 @@ Route::get('/dashboard', function () {
     if (auth()->guard('system_user')->check()) {
         return redirect()->route('admin.dashboard');
     }
-    
+
     if (auth()->guard('customer_user')->check()) {
         return redirect()->route('customer.dashboard');
     }
-    
+
     return redirect()->route('home');
 })->name('dashboard.redirect');
 
 // Language switching route
 Route::get('/language/{locale}', function ($locale) {
-    if (!in_array($locale, array_keys(config('app.supported_locales')))) {
+    if (! in_array($locale, array_keys(config('app.supported_locales')))) {
         abort(404);
     }
-    
+
     session()->put('locale', $locale);
     app()->setLocale($locale);
-    
+
     return redirect()->back();
 })->name('language.switch');
 
@@ -75,15 +74,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [AdminAuthController::class, 'login']);
     });
-    
+
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-    
+
     // Protected Admin Routes
     Route::middleware(['auth:system_user', 'admin'])->group(function () {
         // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/stats', [AdminDashboardController::class, 'stats'])->name('dashboard.stats');
-        
+
         // Customers Management
         Route::prefix('customers')->name('customers.')->group(function () {
             Route::get('/', [AdminCustomersController::class, 'index'])->name('index');
@@ -93,14 +92,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{customer}/edit', [AdminCustomersController::class, 'edit'])->name('edit');
             Route::put('/{customer}', [AdminCustomersController::class, 'update'])->name('update');
             Route::delete('/{customer}', [AdminCustomersController::class, 'destroy'])->name('destroy');
-            
+
             // Customer Actions
             Route::post('/{customer}/approve', [AdminCustomersController::class, 'approve'])->name('approve');
             Route::post('/{customer}/suspend', [AdminCustomersController::class, 'suspend'])->name('suspend');
             Route::post('/{customer}/regenerate-api-key', [AdminCustomersController::class, 'regenerateApiKey'])->name('regenerate-api-key');
             Route::post('/{customer}/add-balance', [AdminCustomersController::class, 'addBalance'])->name('add-balance');
         });
-        
+
         // Shipments Management
         Route::prefix('shipments')->name('shipments.')->group(function () {
             Route::get('/', [AdminShipmentsController::class, 'index'])->name('index');
@@ -112,14 +111,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{shipment}', [AdminShipmentsController::class, 'destroy'])->name('destroy');
             Route::post('/{shipment}/update-status', [AdminShipmentsController::class, 'updateStatus'])->name('update-status');
         });
-        
+
         // Payments Management
         Route::prefix('payments')->name('payments.')->group(function () {
             Route::get('/', [AdminPaymentsController::class, 'index'])->name('index');
             Route::get('/{payment}', [AdminPaymentsController::class, 'show'])->name('show');
             Route::post('/{payment}/refund', [AdminPaymentsController::class, 'refund'])->name('refund');
         });
-        
+
         // Notifications Management
         Route::prefix('notifications')->name('notifications.')->group(function () {
             Route::get('/', [AdminNotificationsController::class, 'index'])->name('index');
@@ -130,210 +129,210 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/templates/{template}', [AdminNotificationsController::class, 'updateTemplate'])->name('templates.update');
             Route::post('/test', [AdminNotificationsController::class, 'testNotification'])->name('test');
         });
-        
+
         // Reports
         Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/', function () { 
+            Route::get('/', function () {
                 return view('admin.reports.index', [
                     'title' => 'Reports Dashboard',
-                    'description' => 'View system reports and analytics'
-                ]); 
+                    'description' => 'View system reports and analytics',
+                ]);
             })->name('index');
-            
-            Route::get('/shipments', function () { 
+
+            Route::get('/shipments', function () {
                 return view('admin.reports.shipments', [
                     'title' => 'Shipments Report',
-                    'description' => 'Detailed shipments analytics'
-                ]); 
+                    'description' => 'Detailed shipments analytics',
+                ]);
             })->name('shipments');
-            
-            Route::get('/payments', function () { 
+
+            Route::get('/payments', function () {
                 return view('admin.reports.payments', [
                     'title' => 'Payments Report',
-                    'description' => 'Financial reports and payment analytics'
-                ]); 
+                    'description' => 'Financial reports and payment analytics',
+                ]);
             })->name('payments');
-            
-            Route::get('/customers', function () { 
+
+            Route::get('/customers', function () {
                 return view('admin.reports.customers', [
                     'title' => 'Customers Report',
-                    'description' => 'Customer analytics and statistics'
-                ]); 
+                    'description' => 'Customer analytics and statistics',
+                ]);
             })->name('customers');
         });
-        
+
         // Courier Services
         Route::prefix('couriers')->name('couriers.')->group(function () {
-            Route::get('/', function () { 
+            Route::get('/', function () {
                 return view('admin.couriers.index', [
                     'title' => 'Courier Services',
-                    'description' => 'Manage courier integrations and settings'
-                ]); 
+                    'description' => 'Manage courier integrations and settings',
+                ]);
             })->name('index');
-            
-            Route::get('/settings', function () { 
+
+            Route::get('/settings', function () {
                 return view('admin.couriers.settings', [
                     'title' => 'Courier Settings',
-                    'description' => 'Configure courier API settings'
-                ]); 
+                    'description' => 'Configure courier API settings',
+                ]);
             })->name('settings');
         });
-        
+
         // System Settings - WSZYSTKIE POTRZEBNE ROUTY
         Route::prefix('settings')->name('settings.')->group(function () {
-            Route::get('/', function () { 
+            Route::get('/', function () {
                 return view('admin.settings.index', [
                     'title' => 'System Settings',
-                    'description' => 'Configure system-wide settings'
-                ]); 
+                    'description' => 'Configure system-wide settings',
+                ]);
             })->name('index');
-            
+
             // DODANA BRAKUJĄCA RUTA!
-            Route::get('/general', function () { 
+            Route::get('/general', function () {
                 return view('admin.settings.general', [
                     'title' => 'General Settings',
-                    'description' => 'General system configuration'
-                ]); 
+                    'description' => 'General system configuration',
+                ]);
             })->name('general');
-            
+
             Route::get('/system', [AdminSystemSettingsController::class, 'index'])->name('system');
             Route::post('/system', [AdminSystemSettingsController::class, 'update'])->name('system.update');
-            
+
             Route::get('/verification', [AdminSystemSettingsController::class, 'verification'])->name('verification');
             Route::post('/verification', [AdminSystemSettingsController::class, 'updateVerification'])->name('verification.update');
             Route::post('/test-email', [AdminSystemSettingsController::class, 'testEmail'])->name('test-email');
-            
-            Route::get('/pricing', function () { 
+
+            Route::get('/pricing', function () {
                 return view('admin.settings.pricing.index', [
                     'title' => 'Cenniki',
-                    'description' => 'Zarządzanie cenami i taryfami'
-                ]); 
+                    'description' => 'Zarządzanie cenami i taryfami',
+                ]);
             })->name('pricing');
-            
-            Route::get('/pricing/create', function () { 
+
+            Route::get('/pricing/create', function () {
                 return view('admin.settings.pricing.create', [
                     'title' => 'Nowy cennik',
-                    'description' => 'Utwórz nowy cennik'
-                ]); 
+                    'description' => 'Utwórz nowy cennik',
+                ]);
             })->name('pricing.create');
-            
-            Route::get('/pricing/{id}/edit', function ($id) { 
+
+            Route::get('/pricing/{id}/edit', function ($id) {
                 return view('admin.settings.pricing.edit', [
                     'title' => 'Edycja cennika',
                     'description' => 'Edytuj istniejący cennik',
-                    'pricing_id' => $id
-                ]); 
+                    'pricing_id' => $id,
+                ]);
             })->name('pricing.edit');
-            
-            Route::get('/pricing/{id}/preview', function ($id) { 
+
+            Route::get('/pricing/{id}/preview', function ($id) {
                 return view('admin.settings.pricing.preview', [
                     'title' => 'Podgląd cennika',
                     'description' => 'Podgląd cennika',
-                    'pricing_id' => $id
-                ]); 
+                    'pricing_id' => $id,
+                ]);
             })->name('pricing.preview');
-            
+
             Route::post('/pricing', function () {
                 return redirect()->route('admin.settings.pricing')->with('success', 'Cennik został utworzony pomyślnie');
             })->name('pricing.store');
-            
+
             Route::put('/pricing/{id}', function ($id) {
                 return redirect()->route('admin.settings.pricing.edit', $id)->with('success', 'Cennik został zaktualizowany pomyślnie');
             })->name('pricing.update');
-            
+
             // Negotiated Pricing Routes
             Route::get('/pricing/negotiated', function () {
                 return view('admin.settings.pricing.negotiated', [
                     'title' => 'Cenniki negocjowane',
-                    'description' => 'Indywidualne umowy cenowe z klientami'
+                    'description' => 'Indywidualne umowy cenowe z klientami',
                 ]);
             })->name('pricing.negotiated');
-            
+
             Route::get('/pricing/negotiated/create', function () {
                 return view('admin.settings.pricing.create-negotiated', [
                     'title' => 'Nowy cennik negocjowany',
-                    'description' => 'Utwórz indywidualną umowę cenową'
+                    'description' => 'Utwórz indywidualną umowę cenową',
                 ]);
             })->name('pricing.negotiated.create');
-            
+
             Route::post('/pricing/negotiated', function () {
                 return redirect()->route('admin.settings.pricing.negotiated')->with('success', 'Cennik negocjowany został utworzony');
             })->name('pricing.negotiated.store');
-            
+
             // Pallet/Freight Pricing Routes
             Route::get('/pricing/pallet/{courier}/edit', function ($courier) {
                 return view('admin.settings.pricing.pallet-edit', [
-                    'title' => 'Konfiguracja cenowa - ' . ucfirst($courier),
-                    'courier' => $courier
+                    'title' => 'Konfiguracja cenowa - '.ucfirst($courier),
+                    'courier' => $courier,
                 ]);
             })->name('pricing.pallet.edit');
-            
+
             Route::put('/pricing/pallet/{courier}', function ($courier) {
                 return redirect()->route('admin.settings.pricing.pallet.edit', $courier)->with('success', 'Macierz paletowa została zaktualizowana');
             })->name('pricing.pallet.update');
-            
+
             Route::get('/pricing/pallet/negotiated/{customer}', function ($customer) {
                 return view('admin.settings.pricing.pallet-negotiated', [
                     'title' => 'Cennik negocjowany - Transport paletowy',
-                    'customer' => $customer
+                    'customer' => $customer,
                 ]);
             })->name('pricing.pallet.negotiated');
-            
+
             Route::post('/pricing/pallet/negotiated', function () {
                 return redirect()->route('admin.settings.pricing.negotiated')->with('success', 'Cennik paletowy został wynegocjowany');
             })->name('pricing.pallet.negotiated.store');
-            
-            Route::get('/couriers', function () { 
+
+            Route::get('/couriers', function () {
                 return view('admin.settings.couriers.index', [
                     'title' => 'Konfiguracja kurierów',
-                    'description' => 'Zarządzanie kurierami i ich konfiguracją'
-                ]); 
+                    'description' => 'Zarządzanie kurierami i ich konfiguracją',
+                ]);
             })->name('couriers');
-            
-            Route::get('/courier', function () { 
+
+            Route::get('/courier', function () {
                 return view('admin.settings.courier', [
                     'title' => 'Courier Settings',
-                    'description' => 'Courier service configuration'
-                ]); 
+                    'description' => 'Courier service configuration',
+                ]);
             })->name('courier');
-            
-            Route::get('/payment', function () { 
+
+            Route::get('/payment', function () {
                 return view('admin.settings.payment', [
                     'title' => 'Payment Settings',
-                    'description' => 'Payment gateway configuration'
-                ]); 
+                    'description' => 'Payment gateway configuration',
+                ]);
             })->name('payment');
-            
-            Route::get('/notifications', function () { 
+
+            Route::get('/notifications', function () {
                 return view('admin.settings.notifications', [
                     'title' => 'Notification Settings',
-                    'description' => 'Configure email and SMS notifications'
-                ]); 
+                    'description' => 'Configure email and SMS notifications',
+                ]);
             })->name('notifications');
-            
+
             Route::put('/notifications', function () {
                 return redirect()->route('admin.settings.notifications')->with('success', 'Notification settings updated successfully');
             })->name('notifications.update');
-            
-            Route::get('/security', function () { 
+
+            Route::get('/security', function () {
                 return view('admin.settings.security', [
                     'title' => 'Security Settings',
-                    'description' => 'Security and authentication settings'
-                ]); 
+                    'description' => 'Security and authentication settings',
+                ]);
             })->name('security');
-            
-            Route::get('/api', function () { 
+
+            Route::get('/api', function () {
                 return app(\App\Http\Controllers\Admin\ApiKeysController::class)->index();
             })->name('api');
 
             Route::post('/api/generate-key', [\App\Http\Controllers\Admin\ApiKeysController::class, 'generate'])->name('api.generate');
             Route::patch('/api/keys/{apiKey}/revoke', [\App\Http\Controllers\Admin\ApiKeysController::class, 'revoke'])->name('api.keys.revoke');
-            
-            Route::get('/maintenance', function () { 
+
+            Route::get('/maintenance', function () {
                 return view('admin.settings.maintenance', [
                     'title' => 'Maintenance Settings',
-                    'description' => 'System maintenance and updates'
-                ]); 
+                    'description' => 'System maintenance and updates',
+                ]);
             })->name('maintenance');
 
             // Webhook Settings
@@ -346,7 +345,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{service}/test', [AdminWebhookSettingsController::class, 'test'])->name('test');
             });
         });
-        
+
         // Employees Management (Admin and Super Admin)
         Route::prefix('employees')->name('employees.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\EmployeesController::class, 'index'])->name('index');
@@ -357,13 +356,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{employee}', [App\Http\Controllers\Admin\EmployeesController::class, 'update'])->name('update');
             Route::delete('/{employee}', [App\Http\Controllers\Admin\EmployeesController::class, 'destroy'])->name('destroy');
         });
-        
+
         // Permissions Management (Super Admin Only)
         Route::middleware('admin:super_admin')->prefix('permissions')->name('permissions.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\PermissionsController::class, 'index'])->name('index');
             Route::post('/', [App\Http\Controllers\Admin\PermissionsController::class, 'update'])->name('update');
         });
-        
+
         // System Users Management (Super Admin Only)
         Route::middleware('admin:super_admin')->prefix('users')->name('users.')->group(function () {
             Route::get('/', [AdminUsersController::class, 'index'])->name('index');
@@ -375,28 +374,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{user}', [AdminUsersController::class, 'destroy'])->name('destroy');
             Route::patch('/{user}/status', [AdminUsersController::class, 'updateStatus'])->name('update-status');
         });
-        
+
         // System Logs
         Route::prefix('logs')->name('logs.')->group(function () {
-            Route::get('/', function () { 
+            Route::get('/', function () {
                 return view('admin.logs.index', [
                     'title' => 'System Logs',
-                    'description' => 'View system activity and error logs'
-                ]); 
+                    'description' => 'View system activity and error logs',
+                ]);
             })->name('index');
-            
-            Route::get('/errors', function () { 
+
+            Route::get('/errors', function () {
                 return view('admin.logs.errors', [
                     'title' => 'Error Logs',
-                    'description' => 'System error logs'
-                ]); 
+                    'description' => 'System error logs',
+                ]);
             })->name('errors');
-            
-            Route::get('/access', function () { 
+
+            Route::get('/access', function () {
                 return view('admin.logs.access', [
                     'title' => 'Access Logs',
-                    'description' => 'User access logs'
-                ]); 
+                    'description' => 'User access logs',
+                ]);
             })->name('access');
         });
 
@@ -410,31 +409,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{courierPoint}', [App\Http\Controllers\Admin\CourierPointsController::class, 'destroy'])->name('destroy');
             Route::post('/import', [App\Http\Controllers\Admin\CourierPointsController::class, 'import'])->name('import');
         });
-        
+
         // Analytics & Statistics
         Route::prefix('analytics')->name('analytics.')->group(function () {
-            Route::get('/', function () { 
+            Route::get('/', function () {
                 return view('admin.analytics.index', [
                     'title' => 'Analytics Dashboard',
-                    'description' => 'System analytics and insights'
-                ]); 
+                    'description' => 'System analytics and insights',
+                ]);
             })->name('index');
-            
-            Route::get('/shipments', function () { 
+
+            Route::get('/shipments', function () {
                 return view('admin.analytics.shipments', [
                     'title' => 'Shipment Analytics',
-                    'description' => 'Detailed shipment analytics'
-                ]); 
+                    'description' => 'Detailed shipment analytics',
+                ]);
             })->name('shipments');
-            
-            Route::get('/revenue', function () { 
+
+            Route::get('/revenue', function () {
                 return view('admin.analytics.revenue', [
                     'title' => 'Revenue Analytics',
-                    'description' => 'Financial performance analytics'
-                ]); 
+                    'description' => 'Financial performance analytics',
+                ]);
             })->name('revenue');
         });
-        
+
         // CMS Management (Marketing + Admin)
         Route::middleware('marketing')->prefix('cms')->name('cms.')->group(function () {
             // Marketing Dashboard
@@ -451,7 +450,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{page}/publish', [App\Http\Controllers\Admin\CmsPageController::class, 'publish'])->name('publish');
                 Route::post('/{page}/unpublish', [App\Http\Controllers\Admin\CmsPageController::class, 'unpublish'])->name('unpublish');
             });
-            
+
             // Media Management
             Route::prefix('media')->name('media.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Admin\CmsMediaController::class, 'index'])->name('index');
@@ -459,7 +458,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{media}', [App\Http\Controllers\Admin\CmsMediaController::class, 'destroy'])->name('destroy');
                 Route::put('/{media}', [App\Http\Controllers\Admin\CmsMediaController::class, 'update'])->name('update');
             });
-            
+
             // Notification Banners
             Route::prefix('banners')->name('banners.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'index'])->name('index');
@@ -471,19 +470,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{banner}', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'destroy'])->name('destroy');
                 Route::post('/{banner}/toggle', [App\Http\Controllers\Admin\CmsNotificationBannerController::class, 'toggle'])->name('toggle');
             });
-            
+
             // AI Content Generation
             Route::prefix('ai')->name('ai.')->group(function () {
                 Route::post('/generate-seo', [App\Http\Controllers\Admin\AiContentController::class, 'generateSeoContent'])->name('generate-seo');
                 Route::post('/generate-banner', [App\Http\Controllers\Admin\AiContentController::class, 'generateBannerContent'])->name('generate-banner');
             });
         });
-        
+
         // Customer Service Management (Admin + Super Admin)
         Route::middleware('admin')->prefix('customer-service')->name('customer-service.')->group(function () {
             // Dashboard
             Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'dashboard'])->name('dashboard');
-            
+
             // Complaints Management
             Route::prefix('complaints')->name('complaints.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'complaints'])->name('index');
@@ -494,7 +493,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{complaint}/reopen', [App\Http\Controllers\Admin\CustomerServiceController::class, 'reopenComplaint'])->name('reopen');
                 Route::patch('/{complaint}/status', [App\Http\Controllers\Admin\CustomerServiceController::class, 'updateStatus'])->name('update-status');
             });
-            
+
             // Complaint Topics Management (Super Admin only)
             Route::middleware('admin:super_admin')->prefix('topics')->name('topics.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'index'])->name('index');
@@ -506,7 +505,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{topic}', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'destroy'])->name('destroy');
                 Route::post('/reorder', [App\Http\Controllers\Admin\ComplaintTopicController::class, 'reorder'])->name('reorder');
             });
-            
+
             // Integrations Management
             Route::prefix('integrations')->name('integrations.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'integrations'])->name('index');
@@ -515,7 +514,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{service}/test', [App\Http\Controllers\Admin\CustomerServiceController::class, 'testIntegration'])->name('test');
                 Route::post('/{service}/sync', [App\Http\Controllers\Admin\CustomerServiceController::class, 'syncIntegration'])->name('sync');
             });
-            
+
             // Webhooks (admin interface)
             Route::prefix('webhooks')->name('webhooks.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Admin\CustomerServiceController::class, 'webhooks'])->name('index');
@@ -538,23 +537,23 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/login', [CustomerAuthController::class, 'login']);
         Route::get('/register', [CustomerAuthController::class, 'showRegistrationForm'])->name('register');
         Route::post('/register', [CustomerAuthController::class, 'register']);
-        
+
         // Verification routes
         Route::get('/verify/{token}', [CustomerAuthController::class, 'showVerifyForm'])->name('verify');
         Route::post('/verify/{token}', [CustomerAuthController::class, 'verify']);
         Route::post('/verify/{token}/resend', [CustomerAuthController::class, 'resendCode'])->name('verify.resend');
     });
-    
+
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
-    
-    // Pending approval route (only for authenticated but not active customers)  
+
+    // Pending approval route (only for authenticated but not active customers)
     Route::get('/pending', [CustomerAuthController::class, 'showPendingForm'])->name('pending')->middleware('auth:customer_user');
-    
+
     // Protected Customer Routes
     Route::middleware(['auth:customer_user', 'customer.active'])->group(function () {
         // Dashboard
         Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
-        
+
         // Shipments Management
         Route::prefix('shipments')->name('shipments.')->group(function () {
             Route::get('/', [CustomerShipmentsController::class, 'index'])->name('index');
@@ -572,15 +571,15 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::post('/{shipment}/cancel', [CustomerShipmentsController::class, 'cancel'])->name('cancel');
             Route::delete('/{shipment}', [CustomerShipmentsController::class, 'destroy'])->name('destroy');
             Route::post('/export', [CustomerShipmentsController::class, 'export'])->name('export');
-            
+
             // AJAX endpoints for shipment creation
             Route::post('/calculate-price', [CustomerShipmentsController::class, 'calculatePrice'])->name('calculate-price');
             Route::post('/pickup-points', [CustomerShipmentsController::class, 'getPickupPoints'])->name('pickup-points');
         });
-        
+
         // API endpoints for courier services (AJAX calls)
         Route::get('/couriers/{courierCode}/services', [CustomerShipmentsController::class, 'getCourierServices'])->name('customer.courier.services');
-        
+
         // Orders Management
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [App\Http\Controllers\Customer\OrdersController::class, 'index'])->name('index');
@@ -589,7 +588,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::get('/{order}/pay', [App\Http\Controllers\Customer\OrdersController::class, 'pay'])->name('pay');
             Route::patch('/{order}/cancel', [App\Http\Controllers\Customer\OrdersController::class, 'cancel'])->name('cancel');
         });
-        
+
         // Payments Management
         Route::prefix('payments')->name('payments.')->group(function () {
             Route::get('/', [CustomerPaymentsController::class, 'index'])->name('index');
@@ -600,7 +599,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::post('/topup', [CustomerPaymentsController::class, 'processTopup'])->name('topup.process');
             Route::post('/export', [CustomerPaymentsController::class, 'export'])->name('export');
         });
-        
+
         // Complaints Management
         Route::prefix('complaints')->name('complaints.')->group(function () {
             Route::get('/', [App\Http\Controllers\Customer\ComplaintController::class, 'index'])->name('index');
@@ -610,7 +609,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::post('/{complaint}/messages', [App\Http\Controllers\Customer\ComplaintController::class, 'addMessage'])->name('add-message');
             Route::post('/{complaint}/files', [App\Http\Controllers\Customer\ComplaintController::class, 'uploadFile'])->name('upload-file');
         });
-        
+
         // Profile Management
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::get('/', [CustomerProfileController::class, 'show'])->name('show');
@@ -620,18 +619,18 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::get('/notifications', [CustomerProfileController::class, 'notifications'])->name('notifications');
             Route::put('/notifications', [CustomerProfileController::class, 'updateNotifications'])->name('update-notifications');
         });
-        
+
         // Finance Management
         Route::prefix('finances')->name('finances.')->group(function () {
             Route::get('/', [CustomerProfileController::class, 'finances'])->name('index');
             Route::put('/update', [CustomerProfileController::class, 'updateFinances'])->name('update');
         });
-        
+
         // System Logs
         Route::prefix('logs')->name('logs.')->group(function () {
             Route::get('/', [CustomerProfileController::class, 'logs'])->name('index');
         });
-        
+
         // Users Management (for customer admin users only)
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [App\Http\Controllers\Customer\UsersController::class, 'index'])->name('index');
@@ -643,28 +642,28 @@ Route::prefix('customer')->name('customer.')->group(function () {
             Route::delete('/{customerUser}', [App\Http\Controllers\Customer\UsersController::class, 'destroy'])->name('destroy');
             Route::post('/{customerUser}/transfer-admin', [App\Http\Controllers\Customer\UsersController::class, 'transferAdmin'])->name('transfer-admin');
         });
-        
+
         // Customer Reports
         Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/', function () { 
+            Route::get('/', function () {
                 return view('customer.reports.index', [
                     'title' => 'Reports',
-                    'description' => 'Your shipment and payment reports'
-                ]); 
+                    'description' => 'Your shipment and payment reports',
+                ]);
             })->name('index');
-            
-            Route::get('/shipments', function () { 
+
+            Route::get('/shipments', function () {
                 return view('customer.reports.shipments', [
                     'title' => 'Shipment Reports',
-                    'description' => 'Detailed shipment analytics'
-                ]); 
+                    'description' => 'Detailed shipment analytics',
+                ]);
             })->name('shipments');
-            
-            Route::get('/payments', function () { 
+
+            Route::get('/payments', function () {
                 return view('customer.reports.payments', [
                     'title' => 'Payment Reports',
-                    'description' => 'Payment history and analytics'
-                ]); 
+                    'description' => 'Payment history and analytics',
+                ]);
             })->name('payments');
         });
     });
@@ -678,20 +677,20 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
 Route::prefix('payments')->name('payments.')->group(function () {
     // Payment gateway returns (no authentication required)
-    Route::get('/return/paynow', function () { 
-        return view('payments.return', ['provider' => 'PayNow']); 
+    Route::get('/return/paynow', function () {
+        return view('payments.return', ['provider' => 'PayNow']);
     })->name('return.paynow');
-    
-    Route::get('/return/stripe', function () { 
-        return view('payments.return', ['provider' => 'Stripe']); 
+
+    Route::get('/return/stripe', function () {
+        return view('payments.return', ['provider' => 'Stripe']);
     })->name('return.stripe');
-    
-    Route::get('/cancel/paynow', function () { 
-        return view('payments.cancel', ['provider' => 'PayNow']); 
+
+    Route::get('/cancel/paynow', function () {
+        return view('payments.cancel', ['provider' => 'PayNow']);
     })->name('cancel.paynow');
-    
-    Route::get('/cancel/stripe', function () { 
-        return view('payments.cancel', ['provider' => 'Stripe']); 
+
+    Route::get('/cancel/stripe', function () {
+        return view('payments.cancel', ['provider' => 'Stripe']);
     })->name('cancel.stripe');
 });
 
@@ -712,15 +711,15 @@ Route::prefix('api/public')->name('api.public.')->group(function () {
         return response()->json([
             'tracking_number' => $trackingNumber,
             'status' => 'in_transit',
-            'message' => 'Package is in transit'
+            'message' => 'Package is in transit',
         ]);
     })->name('track');
-    
+
     Route::get('/status', function () {
         return response()->json([
             'status' => 'operational',
             'timestamp' => now(),
-            'version' => '6.0.0'
+            'version' => '6.0.0',
         ]);
     })->name('status');
 });
@@ -736,7 +735,7 @@ Route::get('/health', function () {
         'status' => 'ok',
         'timestamp' => now(),
         'service' => 'SkyBrokerSystem',
-        'version' => '6.0.0'
+        'version' => '6.0.0',
     ]);
 })->name('health');
 
@@ -755,7 +754,7 @@ Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
 // Secured webhook endpoints moved to admin area
-Route::prefix("admin/webhooks")->name("admin.webhooks.")->middleware(['auth:system_user', 'admin'])->group(function () {
-    Route::post("/freshdesk", [\App\Http\Controllers\WebhookController::class, "freshdeskWebhook"])->name("freshdesk");
-    Route::post("/freshcaller", [\App\Http\Controllers\WebhookController::class, "freshcallerWebhook"])->name("freshcaller");
+Route::prefix('admin/webhooks')->name('admin.webhooks.')->middleware(['auth:system_user', 'admin'])->group(function () {
+    Route::post('/freshdesk', [\App\Http\Controllers\WebhookController::class, 'freshdeskWebhook'])->name('freshdesk');
+    Route::post('/freshcaller', [\App\Http\Controllers\WebhookController::class, 'freshcallerWebhook'])->name('freshcaller');
 });

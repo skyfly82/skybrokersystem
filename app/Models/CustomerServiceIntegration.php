@@ -16,7 +16,7 @@ class CustomerServiceIntegration extends Model
         'webhook_secret',
         'configuration',
         'is_active',
-        'last_sync_at'
+        'last_sync_at',
     ];
 
     protected $casts = [
@@ -42,11 +42,11 @@ class CustomerServiceIntegration extends Model
 
     public function isConnected(): bool
     {
-        return !empty($this->api_key) && !empty($this->api_url);
+        return ! empty($this->api_key) && ! empty($this->api_url);
     }
 
     public function canReceiveWebhooks(): bool
     {
-        return $this->isConnected() && !empty($this->webhook_secret);
+        return $this->isConnected() && ! empty($this->webhook_secret);
     }
 }

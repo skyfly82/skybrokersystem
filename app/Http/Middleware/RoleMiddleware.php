@@ -14,30 +14,31 @@ class RoleMiddleware
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  $permission - The required permission/ability
+     * @param  string  $permission  - The required permission/ability
      */
     public function handle(Request $request, Closure $next, string $permission): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Unauthenticated'], 401);
             }
-            
+
             // Determine which guard to redirect to
             if ($request->is('admin/*')) {
                 return redirect()->route('admin.login');
             }
+
             return redirect()->route('customer.login');
         }
 
         // Check permission based on user type and role
-        if (!$this->hasPermission($user, $permission)) {
+        if (! $this->hasPermission($user, $permission)) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Access denied'], 403);
             }
-            
+
             abort(403, 'Nie masz uprawnień do tej akcji.');
         }
 

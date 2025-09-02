@@ -33,12 +33,12 @@ interface PaymentServiceInterface
     /**
      * Cancel payment
      */
-    public function cancelPayment(Payment $payment, string $reason = null): Payment;
+    public function cancelPayment(Payment $payment, ?string $reason = null): Payment;
 
     /**
      * Refund payment
      */
-    public function refundPayment(Payment $payment, float $amount = null): Payment;
+    public function refundPayment(Payment $payment, ?float $amount = null): Payment;
 
     /**
      * Handle payment webhook

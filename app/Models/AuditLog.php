@@ -21,7 +21,7 @@ class AuditLog extends Model
         'new_values',
         'ip_address',
         'user_agent',
-        'description'
+        'description',
     ];
 
     protected $casts = [
@@ -49,7 +49,7 @@ class AuditLog extends Model
 
     public function getChangedFieldsAttribute(): array
     {
-        if (!$this->old_values || !$this->new_values) {
+        if (! $this->old_values || ! $this->new_values) {
             return [];
         }
 
@@ -59,7 +59,7 @@ class AuditLog extends Model
             if ($oldValue !== $newValue) {
                 $changes[$field] = [
                     'old' => $oldValue,
-                    'new' => $newValue
+                    'new' => $newValue,
                 ];
             }
         }
@@ -80,7 +80,7 @@ class AuditLog extends Model
             'first_name' => 'Imię',
             'last_name' => 'Nazwisko',
             'role' => 'Rola',
-            'is_active' => 'Status aktywności'
+            'is_active' => 'Status aktywności',
         ];
 
         return $labels[$field] ?? ucfirst(str_replace('_', ' ', $field));

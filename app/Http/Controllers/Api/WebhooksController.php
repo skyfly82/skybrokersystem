@@ -22,12 +22,13 @@ class WebhooksController extends Controller
     {
         try {
             Log::info('PayNow webhook received', $request->all());
-            
+
             $this->paymentService->handleWebhook('paynow', $request->all());
-            
+
             return response()->json(['status' => 'ok']);
         } catch (\Exception $e) {
-            Log::error('PayNow webhook error: ' . $e->getMessage(), $request->all());
+            Log::error('PayNow webhook error: '.$e->getMessage(), $request->all());
+
             return response()->json(['error' => 'Webhook processing failed'], 400);
         }
     }
@@ -36,12 +37,13 @@ class WebhooksController extends Controller
     {
         try {
             Log::info('Stripe webhook received', $request->all());
-            
+
             $this->paymentService->handleWebhook('stripe', $request->all());
-            
+
             return response()->json(['status' => 'ok']);
         } catch (\Exception $e) {
-            Log::error('Stripe webhook error: ' . $e->getMessage(), $request->all());
+            Log::error('Stripe webhook error: '.$e->getMessage(), $request->all());
+
             return response()->json(['error' => 'Webhook processing failed'], 400);
         }
     }
@@ -50,13 +52,14 @@ class WebhooksController extends Controller
     {
         try {
             Log::info('InPost webhook received', $request->all());
-            
+
             // Handle InPost tracking status updates
             $this->shipmentService->handleTrackingWebhook('inpost', $request->all());
-            
+
             return response()->json(['status' => 'ok']);
         } catch (\Exception $e) {
-            Log::error('InPost webhook error: ' . $e->getMessage(), $request->all());
+            Log::error('InPost webhook error: '.$e->getMessage(), $request->all());
+
             return response()->json(['error' => 'Webhook processing failed'], 400);
         }
     }
@@ -65,12 +68,13 @@ class WebhooksController extends Controller
     {
         try {
             Log::info('DHL webhook received', $request->all());
-            
+
             $this->shipmentService->handleTrackingWebhook('dhl', $request->all());
-            
+
             return response()->json(['status' => 'ok']);
         } catch (\Exception $e) {
-            Log::error('DHL webhook error: ' . $e->getMessage(), $request->all());
+            Log::error('DHL webhook error: '.$e->getMessage(), $request->all());
+
             return response()->json(['error' => 'Webhook processing failed'], 400);
         }
     }

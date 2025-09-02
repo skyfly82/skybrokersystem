@@ -61,7 +61,7 @@ return [
             'queue_name' => 'sms',
             'max_retries' => 3,
             'retry_delay' => 180, // 3 minutes
-            
+
             'providers' => [
                 'smsapi' => [
                     'api_url' => 'https://api.smsapi.pl',

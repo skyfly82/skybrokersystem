@@ -15,7 +15,7 @@ class CourierApiLog extends Model
 
     protected $fillable = [
         'shipment_id',
-        'courier_service_id', 
+        'courier_service_id',
         'loggable_type',
         'loggable_id',
         'action',
@@ -24,11 +24,11 @@ class CourierApiLog extends Model
         'request_headers',
         'request_body',
         'response_status',
-        'response_headers', 
+        'response_headers',
         'response_body',
         'response_time_ms',
         'error_message',
-        'context'
+        'context',
     ];
 
     protected $casts = [
@@ -69,7 +69,7 @@ class CourierApiLog extends Model
         } elseif ($this->response_status >= 500) {
             return 'bg-red-100 text-red-800';
         }
-        
+
         return 'bg-gray-100 text-gray-800';
     }
 
@@ -78,7 +78,7 @@ class CourierApiLog extends Model
         if (is_array($this->request_body)) {
             return json_encode($this->request_body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         }
-        
+
         return $this->request_body ?? '';
     }
 
@@ -87,7 +87,7 @@ class CourierApiLog extends Model
         if (is_array($this->response_body)) {
             return json_encode($this->response_body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         }
-        
+
         return $this->response_body ?? '';
     }
 }

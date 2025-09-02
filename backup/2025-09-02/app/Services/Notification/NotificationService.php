@@ -29,7 +29,7 @@ class NotificationService
                 'type' => 'success',
                 'read' => true,
                 'created_at' => now()->subHours(2),
-            ]
+            ],
         ]);
     }
 

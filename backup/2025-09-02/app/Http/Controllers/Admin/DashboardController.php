@@ -6,10 +6,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\Shipment;
 use App\Models\CustomerUser;
 use App\Models\Payment;
-use Carbon\Carbon;
+use App\Models\Shipment;
 
 class DashboardController extends Controller
 {
@@ -23,8 +22,8 @@ class DashboardController extends Controller
             'total_shipments' => Shipment::count(),
             'today_shipments' => Shipment::whereDate('created_at', today())->count(),
             'this_month_shipments' => Shipment::whereMonth('created_at', now()->month)
-                                              ->whereYear('created_at', now()->year)
-                                              ->count(),
+                ->whereYear('created_at', now()->year)
+                ->count(),
             'pending_shipments' => Shipment::whereIn('status', ['created', 'printed'])->count(),
             'delivered_shipments' => Shipment::where('status', 'delivered')->count(),
             'total_revenue' => Payment::where('status', 'completed')->sum('amount'),
@@ -55,8 +54,8 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.dashboard', compact(
-            'stats', 
-            'recent_customers', 
+            'stats',
+            'recent_customers',
             'recent_shipments',
             'monthly_shipments',
             'revenue_chart'

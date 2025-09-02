@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('last_login_ip')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            
+
             $table->index(['customer_id', 'is_active']);
             $table->index(['email', 'is_active']);
             $table->unique(['customer_id', 'email']);

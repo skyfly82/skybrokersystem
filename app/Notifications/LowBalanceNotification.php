@@ -24,11 +24,11 @@ class LowBalanceNotification extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         $channels = ['database'];
-        
+
         if ($notifiable->getNotificationPreference('email', 'low_balance')) {
             $channels[] = 'mail';
         }
-        
+
         return $channels;
     }
 
@@ -39,9 +39,9 @@ class LowBalanceNotification extends Notification implements ShouldQueue
             ->greeting('Dzień dobry!')
             ->line('Informujemy, że saldo Twojego konta jest niskie.')
             ->line('**Aktualny stan konta:**')
-            ->line('• Dostępne środki: **' . number_format($this->customer->current_balance, 2) . ' PLN**')
-            ->line('• Limit kredytowy: ' . number_format($this->customer->credit_limit, 2) . ' PLN')
-            ->line('• Łączne dostępne środki: ' . number_format($this->customer->current_balance + $this->customer->credit_limit, 2) . ' PLN')
+            ->line('• Dostępne środki: **'.number_format($this->customer->current_balance, 2).' PLN**')
+            ->line('• Limit kredytowy: '.number_format($this->customer->credit_limit, 2).' PLN')
+            ->line('• Łączne dostępne środki: '.number_format($this->customer->current_balance + $this->customer->credit_limit, 2).' PLN')
             ->line('Aby uniknąć problemów z realizacją przesyłek, zalecamy doładowanie konta.')
             ->action('Doładuj konto', route('customer.payments.topup'))
             ->line('Doładowanie konta pozwoli Ci na:')

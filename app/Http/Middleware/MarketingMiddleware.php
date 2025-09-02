@@ -14,11 +14,11 @@ class MarketingMiddleware
     {
         $user = $request->user();
 
-        if (!$user || !$user->canManageContent()) {
+        if (! $user || ! $user->canManageContent()) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Marketing access denied'], 403);
             }
-            
+
             abort(403, 'Marketing access denied');
         }
 

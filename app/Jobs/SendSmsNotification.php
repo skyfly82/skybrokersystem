@@ -18,6 +18,7 @@ class SendSmsNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $backoff = 60;
 
     public function __construct(
@@ -32,15 +33,16 @@ class SendSmsNotification implements ShouldQueue
             if ($this->notification->status !== 'pending') {
                 Log::info('SMS notification already processed', [
                     'notification_id' => $this->notification->id,
-                    'status' => $this->notification->status
+                    'status' => $this->notification->status,
                 ]);
+
                 return;
             }
 
             $notifiable = $this->notification->notifiable;
             $recipient = $notifiable->routeNotificationForSms();
-            
-            if (!$recipient) {
+
+            if (! $recipient) {
                 throw new \Exception('No SMS recipient available');
             }
 
@@ -50,7 +52,7 @@ class SendSmsNotification implements ShouldQueue
                 $this->notification->markAsSent();
                 Log::info('SMS notification sent successfully', [
                     'notification_id' => $this->notification->id,
-                    'recipient' => $recipient
+                    'recipient' => $recipient,
                 ]);
             } else {
                 throw new \Exception('SMS sending failed');
@@ -60,7 +62,7 @@ class SendSmsNotification implements ShouldQueue
             Log::error('SMS notification failed', [
                 'notification_id' => $this->notification->id,
                 'error' => $e->getMessage(),
-                'attempt' => $this->attempts()
+                'attempt' => $this->attempts(),
             ]);
 
             if ($this->attempts() >= $this->tries) {
@@ -75,7 +77,7 @@ class SendSmsNotification implements ShouldQueue
     {
         Log::error('SMS notification job failed permanently', [
             'notification_id' => $this->notification->id,
-            'error' => $exception->getMessage()
+            'error' => $exception->getMessage(),
         ]);
 
         $this->notification->markAsFailed($exception->getMessage());

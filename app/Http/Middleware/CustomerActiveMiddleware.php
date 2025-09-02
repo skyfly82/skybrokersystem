@@ -14,27 +14,27 @@ class CustomerActiveMiddleware
     {
         $user = $request->user('customer_user');
 
-        if (!$user || !$user->is_active) {
+        if (! $user || ! $user->is_active) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Account inactive'], 403);
             }
-            
+
             return redirect()->route('customer.login')
                 ->withErrors(['error' => 'Twoje konto zostało dezaktywowane.']);
         }
 
         $customer = $user->customer;
 
-        if (!$customer || !$customer->isActive()) {
+        if (! $customer || ! $customer->isActive()) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Customer account inactive'], 403);
             }
-            
+
             // If customer exists but is not active (status = pending), show pending page
             if ($customer && $customer->status === 'pending') {
                 return redirect()->route('customer.pending');
             }
-            
+
             // Otherwise (suspended/banned), redirect to login with error
             return redirect()->route('customer.login')
                 ->withErrors(['error' => 'Konto firmy zostało zawieszone.']);

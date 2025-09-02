@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['customer_id', 'status']);
         });
     }

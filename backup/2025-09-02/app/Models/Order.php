@@ -17,8 +17,8 @@ class Order extends Model
 
     protected $fillable = [
         'uuid', 'customer_id', 'customer_user_id', 'order_number',
-        'status', 'total_amount', 'currency', 'shipping_data', 
-        'notes', 'paid_at', 'completed_at'
+        'status', 'total_amount', 'currency', 'shipping_data',
+        'notes', 'paid_at', 'completed_at',
     ];
 
     protected $casts = [
@@ -31,7 +31,7 @@ class Order extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($order) {
             if (empty($order->uuid)) {
                 $order->uuid = Str::uuid();
@@ -70,18 +70,18 @@ class Order extends Model
         $lastOrder = self::whereYear('created_at', $year)
             ->orderBy('id', 'desc')
             ->first();
-        
+
         $nextNumber = $lastOrder ? intval(substr($lastOrder->order_number, -6)) + 1 : 1;
-        
-        return 'ORDER-' . $year . '-' . str_pad((string)$nextNumber, 6, '0', STR_PAD_LEFT);
+
+        return 'ORDER-'.$year.'-'.str_pad((string) $nextNumber, 6, '0', STR_PAD_LEFT);
     }
 
     // Status methods
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'Oczekujące',
-            'paid' => 'Opłacone', 
+            'paid' => 'Opłacone',
             'processing' => 'W realizacji',
             'completed' => 'Zakończone',
             'cancelled' => 'Anulowane',
@@ -91,7 +91,7 @@ class Order extends Model
 
     public function getStatusColorClassAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'bg-yellow-100 text-yellow-800',
             'paid' => 'bg-blue-100 text-blue-800',
             'processing' => 'bg-purple-100 text-purple-800',
@@ -116,7 +116,7 @@ class Order extends Model
     {
         $this->update([
             'status' => 'paid',
-            'paid_at' => now()
+            'paid_at' => now(),
         ]);
 
         // Update all shipments to created status
@@ -132,14 +132,14 @@ class Order extends Model
     {
         $this->update([
             'status' => 'completed',
-            'completed_at' => now()
+            'completed_at' => now(),
         ]);
     }
 
     public function cancel(): void
     {
         $this->update(['status' => 'cancelled']);
-        
+
         // Update shipments back to draft
         $this->shipments()->update(['status' => 'draft']);
     }

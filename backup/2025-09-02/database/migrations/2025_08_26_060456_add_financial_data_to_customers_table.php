@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             // Only add address field since financial fields already exist
-            if (!Schema::hasColumn('customers', 'address')) {
+            if (! Schema::hasColumn('customers', 'address')) {
                 $table->text('address')->nullable()->after('phone'); // Company address
             }
         });

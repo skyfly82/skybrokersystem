@@ -6,18 +6,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CmsPage;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class CmsPageController extends Controller
 {
     public function index(): View
     {
         $pages = CmsPage::with(['creator', 'updater'])
-                       ->orderBy('created_at', 'desc')
-                       ->paginate(20);
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
         return view('admin.cms.pages.index', compact('pages'));
     }
@@ -57,6 +57,7 @@ class CmsPageController extends Controller
     public function show(CmsPage $page): View
     {
         $page->load(['creator', 'updater']);
+
         return view('admin.cms.pages.show', compact('page'));
     }
 
@@ -69,7 +70,7 @@ class CmsPageController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:cms_pages,slug,' . $page->id],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:cms_pages,slug,'.$page->id],
             'content' => ['required', 'string'],
             'meta_description' => ['nullable', 'string', 'max:160'],
             'meta_keywords' => ['nullable', 'string', 'max:255'],
@@ -81,9 +82,9 @@ class CmsPageController extends Controller
             $validated['slug'] = Str::slug($validated['title']);
         }
 
-        if (($validated['is_published'] ?? false) && !$page->is_published) {
+        if (($validated['is_published'] ?? false) && ! $page->is_published) {
             $validated['published_at'] = now();
-        } elseif (!($validated['is_published'] ?? false)) {
+        } elseif (! ($validated['is_published'] ?? false)) {
             $validated['published_at'] = null;
         }
 

@@ -15,8 +15,8 @@ class EmployeesController extends Controller
     public function index()
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do zarządzania pracownikami.');
         }
 
@@ -30,8 +30,8 @@ class EmployeesController extends Controller
     public function create()
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do tworzenia pracowników.');
         }
 
@@ -41,8 +41,8 @@ class EmployeesController extends Controller
     public function store(Request $request)
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do tworzenia pracowników.');
         }
 
@@ -68,8 +68,8 @@ class EmployeesController extends Controller
     public function show(SystemUser $employee)
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do przeglądania pracowników.');
         }
 
@@ -83,8 +83,8 @@ class EmployeesController extends Controller
     public function edit(SystemUser $employee)
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do edytowania pracowników.');
         }
 
@@ -98,8 +98,8 @@ class EmployeesController extends Controller
     public function update(Request $request, SystemUser $employee)
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do edytowania pracowników.');
         }
 
@@ -114,7 +114,7 @@ class EmployeesController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('system_users')->ignore($employee->id)
+                Rule::unique('system_users')->ignore($employee->id),
             ],
             'is_active' => 'boolean',
         ]);
@@ -133,8 +133,8 @@ class EmployeesController extends Controller
     public function destroy(SystemUser $employee)
     {
         $user = auth('system_user')->user();
-        
-        if (!$user->canCreateEmployees()) {
+
+        if (! $user->canCreateEmployees()) {
             abort(403, 'Brak uprawnień do usuwania pracowników.');
         }
 

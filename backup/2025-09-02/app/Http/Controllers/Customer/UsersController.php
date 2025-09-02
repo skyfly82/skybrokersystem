@@ -15,8 +15,8 @@ class UsersController extends Controller
     public function index()
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers()) {
+
+        if (! $user->canCreateUsers()) {
             abort(403, 'Brak uprawnień do zarządzania użytkownikami.');
         }
 
@@ -31,8 +31,8 @@ class UsersController extends Controller
     public function create()
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers()) {
+
+        if (! $user->canCreateUsers()) {
             abort(403, 'Brak uprawnień do tworzenia użytkowników.');
         }
 
@@ -40,7 +40,7 @@ class UsersController extends Controller
             'user' => 'Standardowy użytkownik',
             'accountant' => 'Księgowy',
             'warehouse' => 'Magazynier',
-            'viewer' => 'Tylko do odczytu'
+            'viewer' => 'Tylko do odczytu',
         ];
 
         return view('customer.users.create', compact('roles'));
@@ -49,8 +49,8 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers()) {
+
+        if (! $user->canCreateUsers()) {
             abort(403, 'Brak uprawnień do tworzenia użytkowników.');
         }
 
@@ -64,7 +64,7 @@ class UsersController extends Controller
                 'max:255',
                 Rule::unique('customer_users')->where(function ($query) use ($user) {
                     return $query->where('customer_id', $user->customer_id);
-                })
+                }),
             ],
             'phone' => 'nullable|string|max:20',
             'role' => 'required|in:user,accountant,warehouse,viewer',
@@ -91,8 +91,8 @@ class UsersController extends Controller
     public function show(CustomerUser $customerUser)
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+
+        if (! $user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
             abort(403, 'Brak uprawnień do przeglądania tego użytkownika.');
         }
 
@@ -102,8 +102,8 @@ class UsersController extends Controller
     public function edit(CustomerUser $customerUser)
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+
+        if (! $user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
             abort(403, 'Brak uprawnień do edytowania tego użytkownika.');
         }
 
@@ -116,7 +116,7 @@ class UsersController extends Controller
             'user' => 'Standardowy użytkownik',
             'accountant' => 'Księgowy',
             'warehouse' => 'Magazynier',
-            'viewer' => 'Tylko do odczytu'
+            'viewer' => 'Tylko do odczytu',
         ];
 
         return view('customer.users.edit', compact('customerUser', 'roles'));
@@ -125,8 +125,8 @@ class UsersController extends Controller
     public function update(Request $request, CustomerUser $customerUser)
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+
+        if (! $user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
             abort(403, 'Brak uprawnień do edytowania tego użytkownika.');
         }
 
@@ -145,7 +145,7 @@ class UsersController extends Controller
                 'max:255',
                 Rule::unique('customer_users')->where(function ($query) use ($user) {
                     return $query->where('customer_id', $user->customer_id);
-                })->ignore($customerUser->id)
+                })->ignore($customerUser->id),
             ],
             'phone' => 'nullable|string|max:20',
             'role' => 'required|in:user,accountant,warehouse,viewer',
@@ -169,8 +169,8 @@ class UsersController extends Controller
     public function destroy(CustomerUser $customerUser)
     {
         $user = auth('customer_user')->user();
-        
-        if (!$user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
+
+        if (! $user->canCreateUsers() || $customerUser->customer_id !== $user->customer_id) {
             abort(403, 'Brak uprawnień do usuwania tego użytkownika.');
         }
 
@@ -194,8 +194,8 @@ class UsersController extends Controller
     public function transferAdmin(Request $request, CustomerUser $customerUser)
     {
         $currentUser = auth('customer_user')->user();
-        
-        if (!$currentUser->canTransferAdminRights()) {
+
+        if (! $currentUser->canTransferAdminRights()) {
             abort(403, 'Brak uprawnień do przeniesienia uprawnień administratora.');
         }
 
@@ -209,7 +209,7 @@ class UsersController extends Controller
                 ->withErrors(['error' => 'Nie można przenieść uprawnień na siebie.']);
         }
 
-        if (!$customerUser->is_active) {
+        if (! $customerUser->is_active) {
             return redirect()
                 ->route('customer.users.index')
                 ->withErrors(['error' => 'Nie można przenieść uprawnień na nieaktywnego użytkownika.']);

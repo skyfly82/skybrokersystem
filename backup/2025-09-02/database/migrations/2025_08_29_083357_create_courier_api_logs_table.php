@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status', ['success', 'error'])->default('success');
             $table->text('error_message')->nullable();
             $table->timestamps();
-            
+
             $table->index(['shipment_id', 'action']);
             $table->index(['courier_service', 'created_at']);
         });

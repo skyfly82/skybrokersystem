@@ -23,18 +23,18 @@ class PaymentCompletedNotification extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         $channels = ['database'];
-        
+
         if ($notifiable->getNotificationPreference('email', 'payment_completed')) {
             $channels[] = 'mail';
         }
-        
+
         return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('💰 Płatność zakończona - ' . number_format($this->payment->amount, 2) . ' PLN')
+            ->subject('💰 Płatność zakończona - '.number_format($this->payment->amount, 2).' PLN')
             ->view('emails.customer.payment-completed', [
                 'payment' => $this->payment,
                 'customer' => $notifiable,

@@ -16,9 +16,9 @@ class SmsChannel
     public function send(object $notifiable, Notification $notification): void
     {
         $message = $notification->toSms($notifiable);
-        
+
         $to = $message['to'];
-        
+
         if (isset($message['template'])) {
             $this->smsManager->sendFromTemplate(
                 $to,

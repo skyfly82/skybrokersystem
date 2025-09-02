@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Requests/Customer/RegisterRequest.php
 
 declare(strict_types=1);
@@ -25,12 +26,12 @@ class RegisterRequest extends FormRequest
             'postal_code' => ['required', 'string', 'regex:/^\d{2}-\d{3}$/'],
             'phone' => ['required', 'string', 'max:20'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
-            
+
             // Primary user data
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            
+
             // Agreements
             'terms_accepted' => ['required', 'accepted'],
             'privacy_accepted' => ['required', 'accepted'],

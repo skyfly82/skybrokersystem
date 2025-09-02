@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\CustomerUser;
 use App\Models\Customer;
+use App\Models\CustomerUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class CustomerUserFactory extends Factory
 {

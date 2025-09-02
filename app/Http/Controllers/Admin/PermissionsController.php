@@ -17,17 +17,17 @@ class PermissionsController extends Controller
         $roles = [
             'system_user' => [
                 'super_admin' => 'Super Administrator',
-                'admin' => 'Administrator', 
+                'admin' => 'Administrator',
                 'moderator' => 'Moderator',
-                'employee' => 'Employee'
+                'employee' => 'Employee',
             ],
             'customer_user' => [
                 'admin' => 'Company Admin',
                 'accountant' => 'Accountant',
                 'warehouse' => 'Warehouse Manager',
                 'user' => 'Standard User',
-                'viewer' => 'View Only'
-            ]
+                'viewer' => 'View Only',
+            ],
         ];
 
         // Get all permissions grouped by category
@@ -52,7 +52,7 @@ class PermissionsController extends Controller
     {
         $request->validate([
             'permissions' => 'required|array',
-            'permissions.*.*.*' => 'boolean'
+            'permissions.*.*.*' => 'boolean',
         ]);
 
         // Clear all existing permissions
@@ -66,8 +66,8 @@ class PermissionsController extends Controller
                         RolePermission::create([
                             'user_type' => $userType,
                             'role' => $role,
-                            'permission_id' => (int)$permissionId,
-                            'granted' => true
+                            'permission_id' => (int) $permissionId,
+                            'granted' => true,
                         ]);
                     }
                 }

@@ -6,9 +6,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CmsNotificationBanner;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CmsNotificationBannerController extends Controller
@@ -16,9 +16,9 @@ class CmsNotificationBannerController extends Controller
     public function index(): View
     {
         $banners = CmsNotificationBanner::with('creator')
-                                        ->orderBy('priority', 'desc')
-                                        ->orderBy('created_at', 'desc')
-                                        ->paginate(20);
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
         return view('admin.cms.banners.index', compact('banners'));
     }
@@ -54,6 +54,7 @@ class CmsNotificationBannerController extends Controller
     public function show(CmsNotificationBanner $banner): View
     {
         $banner->load('creator');
+
         return view('admin.cms.banners.show', compact('banner'));
     }
 
@@ -96,12 +97,12 @@ class CmsNotificationBannerController extends Controller
 
     public function toggle(CmsNotificationBanner $banner): JsonResponse
     {
-        $banner->update(['is_active' => !$banner->is_active]);
+        $banner->update(['is_active' => ! $banner->is_active]);
 
         return response()->json([
             'success' => true,
             'is_active' => $banner->is_active,
-            'message' => $banner->is_active ? 'Banner activated' : 'Banner deactivated'
+            'message' => $banner->is_active ? 'Banner activated' : 'Banner deactivated',
         ]);
     }
 }

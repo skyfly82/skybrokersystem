@@ -7,19 +7,18 @@
  * Data: 2025-09-02
  */
 
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\ApiKeyMiddleware;
+use App\Http\Middleware\CheckApiKey;
+use App\Http\Middleware\CustomerActiveMiddleware;
+use App\Http\Middleware\CustomerAdminMiddleware;
+use App\Http\Middleware\MarketingMiddleware;
+use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\AdminMiddleware;
-use App\Http\Middleware\CustomerActiveMiddleware;
-use App\Http\Middleware\CustomerAdminMiddleware;
-use App\Http\Middleware\MarketingMiddleware;
-use App\Http\Middleware\ApiKeyMiddleware;
-use App\Http\Middleware\CheckApiKey;
-use App\Http\Middleware\SetLocale;
-use App\Http\Middleware\SecurityHeadersMiddleware;
-use App\Exceptions\Handler;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,19 +30,19 @@ return Application::configure(basePath: dirname(__DIR__))
             // Load modular API routes
             $apiRoutePath = base_path('routes/api');
             if (is_dir($apiRoutePath)) {
-                $files = glob($apiRoutePath . '/*.php');
+                $files = glob($apiRoutePath.'/*.php');
                 foreach ($files as $file) {
                     Route::middleware('api')
                         ->prefix('api')
                         ->group($file);
                 }
             }
-            
+
             // Load versioned API routes if they exist (routes/api/v1/, routes/api/v2/, etc.)
-            $versionDirs = glob($apiRoutePath . '/v*', GLOB_ONLYDIR);
+            $versionDirs = glob($apiRoutePath.'/v*', GLOB_ONLYDIR);
             foreach ($versionDirs as $versionDir) {
                 $version = basename($versionDir);
-                $files = glob($versionDir . '/*.php');
+                $files = glob($versionDir.'/*.php');
                 foreach ($files as $file) {
                     Route::middleware('api')
                         ->prefix("api/{$version}")
@@ -58,7 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
             SecurityHeadersMiddleware::class,
         ]);
-        
+
         $middleware->api(append: [
             SecurityHeadersMiddleware::class,
         ]);
@@ -76,7 +75,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Rate limiting dla API
         $middleware->throttleApi();
-        
+
         // CORS dla API (Sanctum) - tylko jeśli pakiet jest obecny
         if (class_exists(\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class)) {
             $middleware->api(prepend: [

@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Polyfill dla paczek/providera wołających $app->make('files')
         $this->app->singleton('files', function () {
-            return new Filesystem();
+            return new Filesystem;
         });
     }
 
@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             $apiKey = $request->header(config('map.api.header', 'X-API-Key'))
                 ?? (string) $request->query('api_key');
             $key = $apiKey ?: $request->ip();
+
             return Limit::perMinute($perMinute)->by($key);
         });
     }

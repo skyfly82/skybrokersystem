@@ -15,7 +15,7 @@ class CourierService extends Model
     protected $fillable = [
         'code', 'name', 'slug', 'logo_url', 'description', 'api_endpoint',
         'api_credentials', 'is_active', 'is_sandbox', 'supported_services',
-        'service_configuration', 'pricing_rules', 'sort_order'
+        'service_configuration', 'pricing_rules', 'sort_order',
     ];
 
     protected $casts = [

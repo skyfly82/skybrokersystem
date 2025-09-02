@@ -32,7 +32,7 @@ interface OrderServiceInterface
     /**
      * Cancel order
      */
-    public function cancelOrder(Order $order, string $reason = null): Order;
+    public function cancelOrder(Order $order, ?string $reason = null): Order;
 
     /**
      * Update order status

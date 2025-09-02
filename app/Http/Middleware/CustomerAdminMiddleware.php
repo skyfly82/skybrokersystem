@@ -15,10 +15,11 @@ class CustomerAdminMiddleware
         $user = $request->user('customer_user');
 
         // Check if user is authenticated and is a customer user
-        if (!$user) {
+        if (! $user) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Unauthenticated'], 401);
             }
+
             return redirect()->route('customer.login')
                 ->withErrors(['error' => 'Musisz być zalogowany aby uzyskać dostęp.']);
         }
@@ -28,7 +29,7 @@ class CustomerAdminMiddleware
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Access denied'], 403);
             }
-            
+
             return redirect()->route('customer.dashboard')
                 ->withErrors(['error' => 'Nie masz uprawnień do tej sekcji. Tylko administratorzy firmy mogą zarządzać użytkownikami.']);
         }

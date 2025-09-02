@@ -6,20 +6,20 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
 class CustomerUser extends Authenticatable
 {
-    use HasFactory, Notifiable, Auditable;
+    use Auditable, HasFactory, Notifiable;
 
     protected $fillable = [
         'uuid', 'customer_id', 'first_name', 'last_name', 'email', 'password',
         'phone', 'role', 'permissions', 'is_active', 'is_primary',
-        'notification_preferences', 'last_login_at', 'last_login_ip'
+        'notification_preferences', 'last_login_at', 'last_login_ip',
     ];
 
     protected $hidden = [
@@ -39,12 +39,12 @@ class CustomerUser extends Authenticatable
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
-            if (!$model->notification_preferences) {
+            if (! $model->notification_preferences) {
                 $model->notification_preferences = [
                     'email' => [
                         'shipment_status_update' => true,
@@ -54,7 +54,7 @@ class CustomerUser extends Authenticatable
                     'sms' => [
                         'shipment_delivered' => false,
                         'urgent_notifications' => true,
-                    ]
+                    ],
                 ];
             }
         });
@@ -72,7 +72,7 @@ class CustomerUser extends Authenticatable
 
     public function getFullNameAttribute(): string
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function isAdmin(): bool
@@ -127,7 +127,7 @@ class CustomerUser extends Authenticatable
 
     public function transferAdminRightsTo(CustomerUser $newAdmin): bool
     {
-        if (!$this->canTransferAdminRights()) {
+        if (! $this->canTransferAdminRights()) {
             return false;
         }
 

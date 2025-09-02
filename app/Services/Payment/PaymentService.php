@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Payment;
 
-use App\Models\Payment;
 use App\Models\Customer;
+use App\Models\Payment;
 use App\Services\Payment\Providers\PaymentProviderInterface;
-use App\Services\Payment\Providers\SimulationProvider;
 use App\Services\Payment\Providers\PayNowProvider;
+use App\Services\Payment\Providers\SimulationProvider;
 use App\Services\Payment\Providers\StripeProvider;
-use Illuminate\Support\Str;
 use Exception;
+use Illuminate\Support\Str;
 
 class PaymentService
 {
@@ -46,28 +46,28 @@ class PaymentService
     public function processPayment(Payment $payment): array
     {
         $provider = $this->getProvider($payment->provider);
-        
+
         try {
             $result = $provider->createPayment($payment);
-            
+
             // Update payment with provider data
             $payment->update([
                 'provider_payment_id' => $result['payment_id'] ?? null,
                 'provider_data' => $result['provider_data'] ?? [],
             ]);
-            
+
             return [
                 'success' => true,
                 'payment_url' => $result['payment_url'] ?? null,
                 'payment_id' => $payment->id,
             ];
-            
+
         } catch (\Exception $e) {
             $payment->update([
                 'status' => 'failed',
                 'failure_reason' => $e->getMessage(),
             ]);
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -120,29 +120,30 @@ class PaymentService
      */
     private function getProvider(string $provider): PaymentProviderInterface
     {
-        if (!isset($this->providers[$provider])) {
-            $this->providers[$provider] = match($provider) {
-                'simulation' => new SimulationProvider(),
-                'paynow' => new PayNowProvider(),
+        if (! isset($this->providers[$provider])) {
+            $this->providers[$provider] = match ($provider) {
+                'simulation' => new SimulationProvider,
+                'paynow' => new PayNowProvider,
                 'stripe' => $this->createStripeProvider(),
-                default => new SimulationProvider(),
+                default => new SimulationProvider,
             };
         }
-        
+
         return $this->providers[$provider];
     }
-    
+
     /**
      * Create Stripe provider with error handling
      */
     private function createStripeProvider(): PaymentProviderInterface
     {
         try {
-            return new StripeProvider();
+            return new StripeProvider;
         } catch (Exception $e) {
             // If Stripe is not available, log the error and fallback to simulation
-            \Log::warning('Stripe provider unavailable: ' . $e->getMessage());
-            return new SimulationProvider();
+            \Log::warning('Stripe provider unavailable: '.$e->getMessage());
+
+            return new SimulationProvider;
         }
     }
 
@@ -155,11 +156,11 @@ class PaymentService
         if (config('services.paynow.enabled', false)) {
             return 'paynow';
         }
-        
+
         if (config('services.stripe.enabled', false)) {
             return 'stripe';
         }
-        
+
         // Default to simulation for development
         return 'simulation';
     }
@@ -170,7 +171,7 @@ class PaymentService
     public function getAvailablePaymentMethods(Customer $customer): array
     {
         $methods = [];
-        
+
         if (config('services.paynow.enabled', false)) {
             $methods[] = [
                 'provider' => 'paynow',
@@ -178,15 +179,15 @@ class PaymentService
                 'methods' => ['card', 'blik', 'bank_transfer'],
             ];
         }
-        
+
         if (config('services.stripe.enabled', false)) {
             $methods[] = [
-                'provider' => 'stripe', 
+                'provider' => 'stripe',
                 'name' => 'Stripe',
                 'methods' => ['card'],
             ];
         }
-        
+
         // Always include simulation for development
         if (config('app.debug') || config('services.payment_simulation.enabled', false)) {
             $methods[] = [
@@ -195,7 +196,7 @@ class PaymentService
                 'methods' => ['simulation'],
             ];
         }
-        
+
         return $methods;
     }
 }

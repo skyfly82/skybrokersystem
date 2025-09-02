@@ -47,7 +47,7 @@ class CourierPoint extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = \Illuminate\Support\Str::uuid();
             }
         });
@@ -68,6 +68,7 @@ class CourierPoint extends Model
         if (is_numeric($courier)) {
             return $query->where('courier_service_id', (int) $courier);
         }
+
         return $query->whereHas('courierService', fn ($q) => $q->where('code', $courier));
     }
 
@@ -79,6 +80,6 @@ class CourierPoint extends Model
     public function scopeWithinBBox($query, float $south, float $west, float $north, float $east)
     {
         return $query->whereBetween('latitude', [$south, $north])
-                     ->whereBetween('longitude', [$west, $east]);
+            ->whereBetween('longitude', [$west, $east]);
     }
 }

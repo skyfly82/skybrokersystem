@@ -12,13 +12,13 @@ class PaymentSimulationController extends Controller
     public function show(string $paymentUuid)
     {
         $payment = Payment::where('uuid', $paymentUuid)->firstOrFail();
-        
+
         // Check if payment is still valid
         if ($payment->status !== 'pending') {
             return redirect()->route('customer.shipments.index')
                 ->with('error', 'Ta płatność nie jest już dostępna.');
         }
-        
+
         if ($payment->expires_at && $payment->expires_at->isPast()) {
             return redirect()->route('customer.shipments.index')
                 ->with('error', 'Link płatności wygasł.');
@@ -30,11 +30,11 @@ class PaymentSimulationController extends Controller
     public function process(Request $request, string $paymentUuid)
     {
         $request->validate([
-            'action' => 'required|in:success,fail'
+            'action' => 'required|in:success,fail',
         ]);
 
         $payment = Payment::where('uuid', $paymentUuid)->firstOrFail();
-        
+
         if ($payment->status !== 'pending') {
             return redirect()->route('customer.shipments.index')
                 ->with('error', 'Ta płatność została już przetworzona.');
@@ -47,8 +47,8 @@ class PaymentSimulationController extends Controller
                 'paid_at' => now(),
                 'provider_data' => array_merge($payment->provider_data ?? [], [
                     'simulation_result' => 'success',
-                    'processed_at' => now()->toISOString()
-                ])
+                    'processed_at' => now()->toISOString(),
+                ]),
             ]);
 
             // For shipment payments, deduct balance; for topup, add balance
@@ -71,7 +71,7 @@ class PaymentSimulationController extends Controller
                     if ($payment->type !== 'topup') {
                         $transaction->update([
                             'transactionable_id' => $shipment->id,
-                            'transactionable_type' => 'App\\Models\\Shipment'
+                            'transactionable_type' => 'App\\Models\\Shipment',
                         ]);
                     }
                 }
@@ -87,8 +87,8 @@ class PaymentSimulationController extends Controller
                 'failure_reason' => 'Payment cancelled by user in simulation',
                 'provider_data' => array_merge($payment->provider_data ?? [], [
                     'simulation_result' => 'failed',
-                    'processed_at' => now()->toISOString()
-                ])
+                    'processed_at' => now()->toISOString(),
+                ]),
             ]);
 
             return redirect()->route('customer.shipments.index')

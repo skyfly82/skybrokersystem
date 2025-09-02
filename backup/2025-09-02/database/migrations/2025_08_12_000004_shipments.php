@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('external_id')->nullable();
             $table->string('reference_number')->nullable(); // Numer referencyjny klienta
             $table->enum('status', [
-                'draft', 'created', 'printed', 'dispatched', 
-                'in_transit', 'out_for_delivery', 'delivered', 
-                'returned', 'cancelled', 'failed'
+                'draft', 'created', 'printed', 'dispatched',
+                'in_transit', 'out_for_delivery', 'delivered',
+                'returned', 'cancelled', 'failed',
             ])->default('draft');
             $table->string('service_type', 100);
             $table->json('sender_data');
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->timestamp('delivered_at')->nullable();
             $table->json('tracking_events')->nullable();
             $table->timestamps();
-            
+
             $table->index(['customer_id', 'status']);
             $table->index(['status', 'created_at']);
             $table->index('reference_number');

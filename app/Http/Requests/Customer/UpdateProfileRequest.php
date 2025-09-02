@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Requests/Customer/UpdateProfileRequest.php
 
 declare(strict_types=1);
@@ -26,14 +27,14 @@ class UpdateProfileRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('customer_users', 'email')->ignore($userId)],
             'phone' => ['nullable', 'string', 'max:20'],
-            
+
             // Company data (only for primary users)
             'company_name' => ['required_if:is_primary,true', 'string', 'max:255'],
             'company_address' => ['required_if:is_primary,true', 'string', 'max:500'],
             'city' => ['required_if:is_primary,true', 'string', 'max:100'],
             'postal_code' => ['required_if:is_primary,true', 'string', 'regex:/^\d{2}-\d{3}$/'],
             'website' => ['nullable', 'url', 'max:255'],
-            
+
             // Notification preferences
             'notification_preferences' => ['sometimes', 'array'],
             'notification_preferences.email' => ['sometimes', 'array'],

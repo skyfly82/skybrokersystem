@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Http;
 class SmsChannel implements NotificationChannelInterface
 {
     private string $apiUrl;
+
     private string $apiKey;
+
     private string $sender;
 
     public function __construct()
@@ -28,16 +30,16 @@ class SmsChannel implements NotificationChannelInterface
 
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json'
-            ])->post($this->apiUrl . '/sms/send', [
+                'Authorization' => 'Bearer '.$this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->post($this->apiUrl.'/sms/send', [
                 'to' => $this->formatPhoneNumber($recipient),
                 'from' => $this->sender,
                 'text' => $this->formatSmsContent($content),
             ]);
 
-            if (!$response->successful()) {
-                throw new \Exception('SMS API Error: ' . $response->body());
+            if (! $response->successful()) {
+                throw new \Exception('SMS API Error: '.$response->body());
             }
 
             return true;
@@ -46,7 +48,7 @@ class SmsChannel implements NotificationChannelInterface
             \Log::error('SMS notification failed', [
                 'recipient' => $recipient,
                 'content' => $content,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -54,7 +56,8 @@ class SmsChannel implements NotificationChannelInterface
 
     public function sendTest(string $recipient, string $subject, string $content): bool
     {
-        $testContent = '[TEST] ' . $content;
+        $testContent = '[TEST] '.$content;
+
         return $this->send($recipient, $subject, $testContent);
     }
 
@@ -63,7 +66,7 @@ class SmsChannel implements NotificationChannelInterface
         \Log::info('SMS Notification (Development Mode)', [
             'to' => $recipient,
             'content' => $content,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ]);
 
         return true;
@@ -73,22 +76,22 @@ class SmsChannel implements NotificationChannelInterface
     {
         // Remove all non-numeric characters
         $phone = preg_replace('/[^0-9]/', '', $phone);
-        
+
         // Add +48 prefix if not present (Polish numbers)
-        if (!str_starts_with($phone, '48') && strlen($phone) === 9) {
-            $phone = '48' . $phone;
+        if (! str_starts_with($phone, '48') && strlen($phone) === 9) {
+            $phone = '48'.$phone;
         }
-        
-        return '+' . $phone;
+
+        return '+'.$phone;
     }
 
     private function formatSmsContent(string $content): string
     {
         // SMS content should be max 160 characters
         if (strlen($content) > 160) {
-            return substr($content, 0, 157) . '...';
+            return substr($content, 0, 157).'...';
         }
-        
+
         return $content;
     }
 }

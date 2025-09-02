@@ -10,8 +10,8 @@
 namespace App\Http\Requests\Api\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
@@ -32,20 +32,20 @@ class RegisterRequest extends FormRequest
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'email' => [
-                'required', 
-                'email', 
-                'max:255', 
-                Rule::unique('customer_users', 'email')
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('customer_users', 'email'),
             ],
             'password' => [
-                'required', 
+                'required',
                 'confirmed',
                 Password::min(8)
                     ->letters()
                     ->mixedCase()
                     ->numbers()
                     ->symbols()
-                    ->uncompromised()
+                    ->uncompromised(),
             ],
             'phone' => ['nullable', 'string', 'regex:/^(\+48|0048|48)?[1-9]\d{8}$/'],
             'role' => ['nullable', 'string', 'in:user,admin'],

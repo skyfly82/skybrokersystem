@@ -16,25 +16,25 @@ class CmsSetting extends Model
         'type',
         'group',
         'description',
-        'updated_by'
+        'updated_by',
     ];
 
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::updating(function ($model) {
             $model->updated_by = auth('system_user')->id();
         });
-        
+
         static::saved(function ($model) {
-            Cache::forget('cms_setting_' . $model->key);
-            Cache::forget('cms_settings_group_' . $model->group);
+            Cache::forget('cms_setting_'.$model->key);
+            Cache::forget('cms_settings_group_'.$model->group);
         });
-        
+
         static::deleted(function ($model) {
-            Cache::forget('cms_setting_' . $model->key);
-            Cache::forget('cms_settings_group_' . $model->group);
+            Cache::forget('cms_setting_'.$model->key);
+            Cache::forget('cms_settings_group_'.$model->group);
         });
     }
 
@@ -65,10 +65,11 @@ class CmsSetting extends Model
     public static function get(string $key, $default = null)
     {
         return Cache::remember(
-            'cms_setting_' . $key,
+            'cms_setting_'.$key,
             now()->addHours(24),
             function () use ($key, $default) {
                 $setting = static::where('key', $key)->first();
+
                 return $setting ? $setting->value : $default;
             }
         );
@@ -82,7 +83,7 @@ class CmsSetting extends Model
                 'value' => $value,
                 'type' => $type,
                 'group' => $group,
-                'description' => $description
+                'description' => $description,
             ]
         );
     }
@@ -90,12 +91,12 @@ class CmsSetting extends Model
     public static function getGroup(string $group): array
     {
         return Cache::remember(
-            'cms_settings_group_' . $group,
+            'cms_settings_group_'.$group,
             now()->addHours(24),
             function () use ($group) {
                 return static::where('group', $group)
-                            ->pluck('value', 'key')
-                            ->toArray();
+                    ->pluck('value', 'key')
+                    ->toArray();
             }
         );
     }

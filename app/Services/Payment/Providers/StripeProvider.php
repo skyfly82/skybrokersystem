@@ -13,10 +13,10 @@ class StripeProvider implements PaymentProviderInterface
 
     public function __construct()
     {
-        if (!class_exists('\Stripe\StripeClient')) {
+        if (! class_exists('\Stripe\StripeClient')) {
             throw new Exception('Stripe PHP SDK is not installed. Run: composer require stripe/stripe-php');
         }
-        
+
         $this->stripe = new \Stripe\StripeClient(config('payments.providers.stripe.secret_key', ''));
     }
 
@@ -24,7 +24,7 @@ class StripeProvider implements PaymentProviderInterface
     {
         try {
             $paymentIntent = $this->stripe->paymentIntents->create([
-                'amount' => (int)($payment->amount * 100), // Stripe expects amount in cents
+                'amount' => (int) ($payment->amount * 100), // Stripe expects amount in cents
                 'currency' => strtolower($payment->currency),
                 'metadata' => [
                     'payment_uuid' => $payment->uuid,
@@ -41,11 +41,11 @@ class StripeProvider implements PaymentProviderInterface
                 'metadata' => [
                     'client_secret' => $paymentIntent->client_secret,
                     'stripe_payment_intent_id' => $paymentIntent->id,
-                ]
+                ],
             ];
 
         } catch (ApiErrorException $e) {
-            throw new \Exception('Stripe API Error: ' . $e->getMessage());
+            throw new \Exception('Stripe API Error: '.$e->getMessage());
         }
     }
 
@@ -60,7 +60,7 @@ class StripeProvider implements PaymentProviderInterface
             ];
 
         } catch (ApiErrorException $e) {
-            throw new \Exception('Stripe status check failed: ' . $e->getMessage());
+            throw new \Exception('Stripe status check failed: '.$e->getMessage());
         }
     }
 
@@ -69,11 +69,11 @@ class StripeProvider implements PaymentProviderInterface
         try {
             $refund = $this->stripe->refunds->create([
                 'payment_intent' => $payment->external_id,
-                'amount' => (int)($amount * 100),
+                'amount' => (int) ($amount * 100),
                 'reason' => 'requested_by_customer',
                 'metadata' => [
                     'original_payment_uuid' => $payment->uuid,
-                ]
+                ],
             ]);
 
             return [
@@ -83,7 +83,7 @@ class StripeProvider implements PaymentProviderInterface
             ];
 
         } catch (ApiErrorException $e) {
-            throw new \Exception('Stripe refund failed: ' . $e->getMessage());
+            throw new \Exception('Stripe refund failed: '.$e->getMessage());
         }
     }
 
@@ -92,11 +92,11 @@ class StripeProvider implements PaymentProviderInterface
         $event = $data['type'] ?? null;
         $paymentIntent = $data['data']['object'] ?? null;
 
-        if (!$paymentIntent || !isset($paymentIntent['id'])) {
+        if (! $paymentIntent || ! isset($paymentIntent['id'])) {
             throw new \Exception('Invalid Stripe webhook data');
         }
 
-        $status = match($event) {
+        $status = match ($event) {
             'payment_intent.succeeded' => 'completed',
             'payment_intent.payment_failed' => 'failed',
             'payment_intent.canceled' => 'cancelled',
@@ -112,7 +112,7 @@ class StripeProvider implements PaymentProviderInterface
 
     private function mapStatus(string $stripeStatus): string
     {
-        return match($stripeStatus) {
+        return match ($stripeStatus) {
             'succeeded' => 'completed',
             'requires_payment_method', 'requires_confirmation', 'requires_action' => 'pending',
             'processing' => 'processing',

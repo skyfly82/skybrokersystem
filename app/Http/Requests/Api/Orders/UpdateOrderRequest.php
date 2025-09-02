@@ -36,11 +36,11 @@ class UpdateOrderRequest extends FormRequest
             'shipping_data.recipient.address' => ['sometimes', 'string', 'max:255'],
             'shipping_data.recipient.city' => ['sometimes', 'string', 'max:100'],
             'shipping_data.recipient.postal_code' => ['sometimes', 'string', 'regex:/^\d{2}-\d{3}$/'],
-            
+
             'shipping_data.package' => ['sometimes', 'array'],
             'shipping_data.package.description' => ['sometimes', 'string', 'max:500'],
             'shipping_data.package.value' => ['nullable', 'numeric', 'min:0'],
-            
+
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
@@ -62,10 +62,10 @@ class UpdateOrderRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $order = $this->route('order');
-            
+
             // Cannot update order if it's already shipped
             if (in_array($order->status, ['shipped', 'delivered', 'cancelled'])) {
-                $validator->errors()->add('order', 'Cannot update order in current status: ' . $order->status);
+                $validator->errors()->add('order', 'Cannot update order in current status: '.$order->status);
             }
         });
     }

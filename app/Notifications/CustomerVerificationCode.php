@@ -6,7 +6,6 @@ namespace App\Notifications;
 
 use App\Models\Customer;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -30,16 +29,16 @@ class CustomerVerificationCode extends Notification
     {
         $verificationUrl = route('customer.verify', ['token' => $this->verificationData['token']]);
         $codeExpiryMinutes = \App\Models\SystemSetting::get('verification_code_expiry_minutes', 60);
-        
+
         return (new MailMessage)
             ->subject('🔐 Weryfikacja konta - SkyBrokerSystem')
             ->greeting('Witaj!')
             ->line('Dziękujemy za rejestrację w SkyBrokerSystem.')
             ->line('**Dane Twojego konta:**')
-            ->line('• Firma: ' . $this->customer->company_name)
-            ->line('• Email: ' . $this->customer->email)
+            ->line('• Firma: '.$this->customer->company_name)
+            ->line('• Email: '.$this->customer->email)
             ->line('**Aby aktywować konto, wprowadź 6-cyfrowy kod weryfikacyjny:**')
-            ->line('# **' . $this->verificationData['code'] . '**')
+            ->line('# **'.$this->verificationData['code'].'**')
             ->line("⏰ Kod jest ważny przez {$codeExpiryMinutes} minut.")
             ->line('**Opcja 1: Wprowadź kod automatycznie**')
             ->action('Kliknij tutaj i wprowadź kod', $verificationUrl)
@@ -51,7 +50,7 @@ class CustomerVerificationCode extends Notification
             ->line('2. Wprowadź 6-cyfrowy kod weryfikacyjny')
             ->line('3. Twoje konto zostanie aktywowane automatycznie')
             ->line('4. Możesz się zalogować i korzystać z systemu')
-            ->line('**Ważne:** Link jest ważny przez ' . \App\Models\SystemSetting::get('verification_link_expiry_hours', 24) . ' godzin.')
+            ->line('**Ważne:** Link jest ważny przez '.\App\Models\SystemSetting::get('verification_link_expiry_hours', 24).' godzin.')
             ->line('Jeśli nie rejestrowałeś się w naszym systemie, zignoruj tę wiadomość.')
             ->salutation('Zespół SkyBrokerSystem');
     }

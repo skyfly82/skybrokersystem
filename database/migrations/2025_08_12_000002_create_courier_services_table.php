@@ -24,7 +24,7 @@ return new class extends Migration
             $table->json('pricing_rules')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index(['is_active', 'sort_order']);
         });
     }

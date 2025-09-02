@@ -6,15 +6,15 @@ return [
     | Default Mailer
     |--------------------------------------------------------------------------
     */
-    
+
     'default' => env('MAIL_MAILER', 'smtp'),
-    
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations
     |--------------------------------------------------------------------------
     */
-    
+
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
@@ -26,7 +26,7 @@ return [
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
-        
+
         'mailpit' => [
             'transport' => 'smtp',
             'host' => env('MAILPIT_HOST', 'mailpit'),
@@ -35,18 +35,18 @@ return [
             'username' => null,
             'password' => null,
         ],
-        
+
         'ses' => [
             'transport' => 'ses',
         ],
-        
+
         'mailgun' => [
             'transport' => 'mailgun',
             'client' => [
                 'timeout' => 5,
             ],
         ],
-        
+
         'postmark' => [
             'transport' => 'postmark',
             'message_stream_id' => null,
@@ -54,21 +54,21 @@ return [
                 'timeout' => 5,
             ],
         ],
-        
+
         'sendmail' => [
             'transport' => 'sendmail',
             'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
         ],
-        
+
         'log' => [
             'transport' => 'log',
             'channel' => env('MAIL_LOG_CHANNEL'),
         ],
-        
+
         'array' => [
             'transport' => 'array',
         ],
-        
+
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
@@ -77,29 +77,29 @@ return [
             ],
         ],
     ],
-    
+
     /*
     |--------------------------------------------------------------------------
     | Global "From" Address
     |--------------------------------------------------------------------------
     */
-    
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'noreply@skybrokersystem.com'),
         'name' => env('MAIL_FROM_NAME', 'SkyBrokerSystem'),
     ],
-    
+
     /*
     |--------------------------------------------------------------------------
     | SkyBrokerSystem Email Configuration
     |--------------------------------------------------------------------------
     */
-    
+
     'skybrokersystem' => [
         'admin_email' => env('ADMIN_EMAIL', 'admin@skybrokersystem.com'),
         'support_email' => env('SUPPORT_EMAIL', 'support@skybrokersystem.com'),
         'noreply_email' => env('NOREPLY_EMAIL', 'noreply@skybrokersystem.com'),
-        
+
         'templates' => [
             'customer' => [
                 'shipment_created' => 'emails.customer.shipment-created',
@@ -115,7 +115,7 @@ return [
                 'system_alert' => 'emails.admin.system-alert',
             ],
         ],
-        
+
         'queue' => [
             'enabled' => env('MAIL_QUEUE_ENABLED', true),
             'connection' => env('MAIL_QUEUE_CONNECTION', 'redis'),

@@ -21,10 +21,10 @@ class GenericNotificationMail extends Mailable
     public function build()
     {
         return $this->subject($this->emailSubject)
-                    ->view('emails.generic-notification')
-                    ->with([
-                        'content' => $this->emailContent,
-                        'data' => $this->data
-                    ]);
+            ->view('emails.generic-notification')
+            ->with([
+                'content' => $this->emailContent,
+                'data' => $this->data,
+            ]);
     }
 }

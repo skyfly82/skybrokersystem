@@ -17,7 +17,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new CustomerResource($customer)
+            'data' => new CustomerResource($customer),
         ]);
     }
 
@@ -31,15 +31,15 @@ class CustomerController extends Controller
                 'current_balance' => $customer->current_balance,
                 'credit_limit' => $customer->credit_limit,
                 'available_balance' => $customer->current_balance + $customer->credit_limit,
-                'currency' => 'PLN'
-            ]
+                'currency' => 'PLN',
+            ],
         ]);
     }
 
     public function transactions(Request $request): JsonResponse
     {
         $customer = $request->user();
-        
+
         $transactions = $customer->transactions()
             ->latest()
             ->paginate(20);
@@ -50,7 +50,7 @@ class CustomerController extends Controller
             'meta' => [
                 'current_page' => $transactions->currentPage(),
                 'total' => $transactions->total(),
-            ]
+            ],
         ]);
     }
 
@@ -69,7 +69,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 }

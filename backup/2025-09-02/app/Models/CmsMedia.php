@@ -19,23 +19,23 @@ class CmsMedia extends Model
         'alt_text',
         'description',
         'metadata',
-        'uploaded_by'
+        'uploaded_by',
     ];
 
     protected $casts = [
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uploaded_by) {
+            if (! $model->uploaded_by) {
                 $model->uploaded_by = auth('system_user')->id();
             }
         });
-        
+
         static::deleting(function ($model) {
             if (Storage::exists($model->path)) {
                 Storage::delete($model->path);
@@ -57,12 +57,12 @@ class CmsMedia extends Model
     {
         $size = $this->size;
         $units = ['B', 'KB', 'MB', 'GB'];
-        
+
         for ($i = 0; $size > 1024 && $i < count($units) - 1; $i++) {
             $size /= 1024;
         }
-        
-        return round($size, 2) . ' ' . $units[$i];
+
+        return round($size, 2).' '.$units[$i];
     }
 
     public function isImage(): bool
@@ -77,6 +77,6 @@ class CmsMedia extends Model
 
     public function scopeByType($query, string $type)
     {
-        return $query->where('mime_type', 'like', $type . '/%');
+        return $query->where('mime_type', 'like', $type.'/%');
     }
 }

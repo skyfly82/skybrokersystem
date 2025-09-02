@@ -18,7 +18,7 @@ class CourierPointsController extends Controller
             ->when($request->courier, fn ($q, $c) => $q->forCourier($c))
             ->when($request->type, fn ($q, $t) => $q->where('type', $t))
             ->when($request->city, fn ($q, $city) => $q->where('city', 'like', "%{$city}%"))
-            ->when($request->active, fn ($q, $a) => $q->where('is_active', (bool)$a));
+            ->when($request->active, fn ($q, $a) => $q->where('is_active', (bool) $a));
 
         $points = $query->latest()->paginate(20);
         $couriers = CourierService::orderBy('name')->get();
@@ -29,6 +29,7 @@ class CourierPointsController extends Controller
     public function create()
     {
         $couriers = CourierService::orderBy('name')->get();
+
         return view('courier_points.create', compact('couriers'));
     }
 
@@ -37,12 +38,14 @@ class CourierPointsController extends Controller
         $validated = $this->validateData($request);
         $validated['uuid'] = \Illuminate\Support\Str::uuid();
         CourierPoint::create($validated);
+
         return redirect()->route('admin.courier-points.index')->with('success', 'Punkt został dodany.');
     }
 
     public function edit(CourierPoint $courierPoint)
     {
         $couriers = CourierService::orderBy('name')->get();
+
         return view('courier_points.create', ['courierPoint' => $courierPoint, 'couriers' => $couriers]);
     }
 
@@ -50,12 +53,14 @@ class CourierPointsController extends Controller
     {
         $validated = $this->validateData($request, $courierPoint->id);
         $courierPoint->update($validated);
+
         return redirect()->route('admin.courier-points.index')->with('success', 'Punkt został zaktualizowany.');
     }
 
     public function destroy(CourierPoint $courierPoint)
     {
         $courierPoint->delete();
+
         return back()->with('success', 'Punkt został usunięty.');
     }
 
@@ -73,7 +78,7 @@ class CourierPointsController extends Controller
         // Here we can queue a job or call command synchronously
         \Artisan::call('points:import', [
             'path' => $request->file('file')->getRealPath(),
-            '--courier' => (string)$request->courier_service_id,
+            '--courier' => (string) $request->courier_service_id,
             '--type' => $request->type,
             '--delimiter' => $request->get('delimiter', ';'),
             '--header' => $request->boolean('has_header', true),
@@ -86,7 +91,7 @@ class CourierPointsController extends Controller
     {
         $unique = 'unique:courier_points,code';
         if ($ignoreId) {
-            $unique .= ',' . $ignoreId;
+            $unique .= ','.$ignoreId;
         }
 
         return $request->validate([

@@ -31,7 +31,7 @@ return new class extends Migration
             $table->timestamp('contract_signed_at')->nullable();
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['status', 'verified_at']);
             $table->index('api_key');
             $table->index('nip');

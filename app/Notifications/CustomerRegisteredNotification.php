@@ -28,7 +28,7 @@ class CustomerRegisteredNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('🔔 Nowa rejestracja klienta - ' . $this->customer->company_name)
+            ->subject('🔔 Nowa rejestracja klienta - '.$this->customer->company_name)
             ->view('emails.admin.customer-registered', [
                 'customer' => $this->customer,
                 'admin' => $notifiable,

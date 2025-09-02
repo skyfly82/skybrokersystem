@@ -9,10 +9,10 @@
 
 namespace App\Providers;
 
-use App\Models\Order;
 use App\Models\ApiKey;
-use App\Policies\OrderPolicy;
+use App\Models\Order;
 use App\Policies\ApiKeyPolicy;
+use App\Policies\OrderPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider

@@ -10,11 +10,11 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Services\Contracts\Auth\AuthServiceInterface;
 use App\Http\Requests\Api\Auth\LoginRequest;
 use App\Http\Requests\Api\Auth\RegisterRequest;
-use Illuminate\Http\Request;
+use App\Services\Contracts\Auth\AuthServiceInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -25,12 +25,12 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
-        
+
         $result = $this->authService->login($credentials);
 
         return response()->json([
             'message' => 'Login successful',
-            'data' => $result
+            'data' => $result,
         ]);
     }
 
@@ -40,7 +40,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Registration successful. Your account is pending approval.',
-            'data' => $user
+            'data' => $user,
         ], 201);
     }
 
@@ -49,14 +49,14 @@ class AuthController extends Controller
         $this->authService->logout($request);
 
         return response()->json([
-            'message' => 'Logout successful'
+            'message' => 'Logout successful',
         ]);
     }
 
     public function me(Request $request): JsonResponse
     {
         return response()->json([
-            'data' => $request->user()->load('customer')
+            'data' => $request->user()->load('customer'),
         ]);
     }
 
@@ -65,7 +65,7 @@ class AuthController extends Controller
         $this->authService->sendPasswordResetEmail($request->input('email'));
 
         return response()->json([
-            'message' => 'If an account with that email exists, a password reset link has been sent.'
+            'message' => 'If an account with that email exists, a password reset link has been sent.',
         ]);
     }
 
@@ -75,14 +75,14 @@ class AuthController extends Controller
             'email', 'password', 'password_confirmation', 'token'
         ));
 
-        if (!$success) {
+        if (! $success) {
             return response()->json([
-                'message' => 'Failed to reset password. Please try again.'
+                'message' => 'Failed to reset password. Please try again.',
             ], 400);
         }
 
         return response()->json([
-            'message' => 'Password reset successful'
+            'message' => 'Password reset successful',
         ]);
     }
 
@@ -95,7 +95,7 @@ class AuthController extends Controller
         );
 
         return response()->json([
-            'message' => 'Password changed successfully'
+            'message' => 'Password changed successfully',
         ]);
     }
 
@@ -108,7 +108,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'data' => $updatedUser
+            'data' => $updatedUser,
         ]);
     }
 }

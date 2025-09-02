@@ -14,12 +14,12 @@ class ComplaintTopic extends Model
         'description',
         'is_active',
         'sort_order',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     public function complaints(): HasMany

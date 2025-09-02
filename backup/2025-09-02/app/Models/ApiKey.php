@@ -45,14 +45,20 @@ class ApiKey extends Model
 
     public function isActive(): bool
     {
-        if ($this->status !== 'active') return false;
-        if ($this->expires_at && $this->expires_at->isPast()) return false;
+        if ($this->status !== 'active') {
+            return false;
+        }
+        if ($this->expires_at && $this->expires_at->isPast()) {
+            return false;
+        }
+
         return true;
     }
 
     public function hasScope(string $scope): bool
     {
         $scopes = $this->scopes ?? [];
+
         return in_array($scope, $scopes, true);
     }
 
@@ -61,12 +67,12 @@ class ApiKey extends Model
         $now = now();
 
         // reset windows if needed
-        if (!$this->usage_minute_reset_at || $this->usage_minute_reset_at->lt($now->copy()->subMinute())) {
+        if (! $this->usage_minute_reset_at || $this->usage_minute_reset_at->lt($now->copy()->subMinute())) {
             $this->usage_minute = 0;
             $this->usage_minute_reset_at = $now;
         }
 
-        if (!$this->usage_day_reset_at || $this->usage_day_reset_at->lt($now->copy()->startOfDay())) {
+        if (! $this->usage_day_reset_at || $this->usage_day_reset_at->lt($now->copy()->startOfDay())) {
             $this->usage_day = 0;
             $this->usage_day_reset_at = $now;
         }
@@ -85,4 +91,3 @@ class ApiKey extends Model
         $this->save();
     }
 }
-

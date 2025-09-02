@@ -7,7 +7,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
 
 class CustomerComplaint extends Model
 {
@@ -30,19 +29,19 @@ class CustomerComplaint extends Model
         'resolved_by',
         'contact_email',
         'contact_phone',
-        'preferred_contact_method'
+        'preferred_contact_method',
     ];
 
     protected $casts = [
         'freshdesk_data' => 'array',
         'assigned_at' => 'datetime',
-        'resolved_at' => 'datetime'
+        'resolved_at' => 'datetime',
     ];
 
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->complaint_number)) {
                 $model->complaint_number = static::generateComplaintNumber();
@@ -130,7 +129,7 @@ class CustomerComplaint extends Model
 
     public function canBeModifiedBy(CustomerUser $user): bool
     {
-        return $this->customer_user_id === $user->id && !$this->isResolved();
+        return $this->customer_user_id === $user->id && ! $this->isResolved();
     }
 
     public function getStatusColorAttribute(): string
@@ -160,12 +159,12 @@ class CustomerComplaint extends Model
     {
         $year = date('Y');
         $lastComplaint = static::whereYear('created_at', $year)
-                              ->orderBy('id', 'desc')
-                              ->first();
-        
-        $sequence = $lastComplaint ? 
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $sequence = $lastComplaint ?
                    intval(substr($lastComplaint->complaint_number, -6)) + 1 : 1;
-        
+
         return sprintf('COMP-%s-%06d', $year, $sequence);
     }
 
@@ -175,7 +174,7 @@ class CustomerComplaint extends Model
             'status' => 'resolved',
             'resolution' => $resolution,
             'resolved_at' => now(),
-            'resolved_by' => $resolvedBy
+            'resolved_by' => $resolvedBy,
         ]);
     }
 
@@ -184,7 +183,7 @@ class CustomerComplaint extends Model
         return $this->update([
             'assigned_to' => $userId,
             'assigned_at' => now(),
-            'status' => 'in_progress'
+            'status' => 'in_progress',
         ]);
     }
 }

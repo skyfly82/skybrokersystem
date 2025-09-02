@@ -27,7 +27,7 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->text('failure_reason')->nullable();
             $table->timestamps();
-            
+
             $table->index(['customer_id', 'status']);
             $table->index(['status', 'created_at']);
             $table->index('external_id');

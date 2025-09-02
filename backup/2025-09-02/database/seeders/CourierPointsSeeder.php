@@ -77,4 +77,3 @@ class CourierPointsSeeder extends Seeder
         }
     }
 }
-

@@ -25,7 +25,7 @@ class CouriersController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => CourierServiceResource::collection($couriers)
+            'data' => CourierServiceResource::collection($couriers),
         ]);
     }
 
@@ -33,7 +33,7 @@ class CouriersController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => new CourierServiceResource($courier)
+            'data' => new CourierServiceResource($courier),
         ]);
     }
 
@@ -41,7 +41,7 @@ class CouriersController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $courier->supported_services
+            'data' => $courier->supported_services,
         ]);
     }
 
@@ -54,11 +54,11 @@ class CouriersController extends Controller
 
         try {
             $courierService = $this->courierFactory->makeByCode($courier->code);
-            
-            if (!method_exists($courierService, 'getPickupPoints')) {
+
+            if (! method_exists($courierService, 'getPickupPoints')) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Pickup points not supported for this courier'
+                    'error' => 'Pickup points not supported for this courier',
                 ], 400);
             }
 
@@ -69,13 +69,13 @@ class CouriersController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $points
+                'data' => $points,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
@@ -95,13 +95,13 @@ class CouriersController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $prices
+                'data' => $prices,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }

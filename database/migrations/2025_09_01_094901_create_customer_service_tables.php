@@ -20,11 +20,11 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->json('metadata')->nullable(); // For additional settings
             $table->timestamps();
-            
+
             $table->index(['is_active', 'sort_order']);
         });
 
-        // Customer Complaints table  
+        // Customer Complaints table
         Schema::create('customer_complaints', function (Blueprint $table) {
             $table->id();
             $table->string('complaint_number')->unique(); // AUTO-generated: COMP-YYYY-XXXXXX
@@ -32,32 +32,32 @@ return new class extends Migration
             $table->foreignId('customer_user_id')->constrained('customer_users');
             $table->foreignId('shipment_id')->nullable()->constrained('shipments');
             $table->foreignId('complaint_topic_id')->constrained('complaint_topics');
-            
+
             $table->string('subject');
             $table->text('description');
             $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
             $table->enum('status', ['open', 'in_progress', 'waiting_customer', 'resolved', 'closed'])->default('open');
-            
+
             // Freshdesk integration
             $table->string('freshdesk_ticket_id')->nullable();
             $table->json('freshdesk_data')->nullable();
-            
+
             // Assignment
             $table->foreignId('assigned_to')->nullable()->constrained('system_users');
             $table->timestamp('assigned_at')->nullable();
-            
+
             // Resolution tracking
             $table->text('resolution')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->foreignId('resolved_by')->nullable()->constrained('system_users');
-            
+
             // Contact details
             $table->string('contact_email')->nullable();
             $table->string('contact_phone')->nullable();
             $table->enum('preferred_contact_method', ['email', 'phone', 'both'])->default('email');
-            
+
             $table->timestamps();
-            
+
             $table->index(['customer_id', 'status']);
             $table->index(['complaint_number']);
             $table->index(['status', 'priority']);
@@ -74,7 +74,7 @@ return new class extends Migration
             $table->boolean('is_internal')->default(false); // Internal notes not visible to customer
             $table->json('attachments')->nullable(); // File attachments
             $table->timestamps();
-            
+
             $table->index(['complaint_id', 'created_at']);
         });
 
@@ -89,7 +89,7 @@ return new class extends Migration
             $table->string('path');
             $table->foreignId('uploaded_by')->constrained('customer_users');
             $table->timestamps();
-            
+
             $table->index('complaint_id');
         });
 
@@ -103,7 +103,7 @@ return new class extends Migration
             $table->timestamp('last_sync_at')->nullable();
             $table->json('sync_status')->nullable();
             $table->timestamps();
-            
+
             $table->unique('service_name');
         });
 
@@ -116,7 +116,7 @@ return new class extends Migration
             $table->integer('resolution_hours'); // Hours to resolution
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->unique(['complaint_topic_id', 'priority']);
         });
     }

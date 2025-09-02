@@ -9,21 +9,19 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-
-// Service Contracts
+use App\Services\Auth\AuthService;
 use App\Services\Contracts\Auth\AuthServiceInterface;
 use App\Services\Contracts\Orders\OrderServiceInterface;
 use App\Services\Contracts\Payments\PaymentServiceInterface;
-
-// Service Implementations
-use App\Services\Auth\AuthService;
 use App\Services\Orders\OrderService;
+// Service Contracts
 use App\Services\Payments\PaymentService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Filesystem\Filesystem;
+// Service Implementations
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Polyfill dla paczek/providera wołających $app->make('files')
         $this->app->singleton('files', function () {
-            return new Filesystem();
+            return new Filesystem;
         });
 
         // Register service layer bindings
@@ -48,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(OrderServiceInterface::class, OrderService::class);
-        
+
         // PaymentService will be created in next step
         // $this->app->bind(PaymentServiceInterface::class, PaymentService::class);
     }
@@ -70,11 +68,11 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             $perMinute = 60;
             $perHour = 1000;
-            
+
             // Use API key or IP for identification
             $apiKey = $request->header('X-API-Key');
             $key = $apiKey ? "api-key:{$apiKey}" : "ip:{$request->ip()}";
-            
+
             return [
                 Limit::perMinute($perMinute)->by($key),
                 Limit::perHour($perHour)->by($key),
@@ -93,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('authenticated', function (Request $request) {
             $userId = $request->user()?->id;
             $key = $userId ? "user:{$userId}" : "ip:{$request->ip()}";
-            
+
             return [
                 Limit::perMinute(120)->by($key),
                 Limit::perHour(2000)->by($key),

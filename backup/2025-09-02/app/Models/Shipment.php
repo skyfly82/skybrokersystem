@@ -9,10 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
-use App\Models\CourierApiLog;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Shipment extends Model
 {
@@ -23,7 +22,7 @@ class Shipment extends Model
         'tracking_number', 'external_id', 'reference_number', 'status',
         'service_type', 'sender_data', 'recipient_data', 'package_data',
         'cost_data', 'cod_amount', 'insurance_amount', 'additional_services',
-        'label_url', 'notes', 'shipped_at', 'delivered_at', 'tracking_events'
+        'label_url', 'notes', 'shipped_at', 'delivered_at', 'tracking_events',
     ];
 
     protected $casts = [
@@ -42,9 +41,9 @@ class Shipment extends Model
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
         });
@@ -57,9 +56,9 @@ class Shipment extends Model
                     try {
                         app(\App\Services\ShipmentService::class)->processInPostShipment($model);
                     } catch (\Exception $e) {
-                        \Log::error('InPost API call failed for shipment ' . $model->id, [
+                        \Log::error('InPost API call failed for shipment '.$model->id, [
                             'error' => $e->getMessage(),
-                            'shipment_id' => $model->id
+                            'shipment_id' => $model->id,
                         ]);
                     }
                 })->afterResponse();
@@ -99,7 +98,7 @@ class Shipment extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'draft' => 'gray',
             'created' => 'blue',
             'printed' => 'indigo',
@@ -113,7 +112,6 @@ class Shipment extends Model
             default => 'gray',
         };
     }
-
 
     public function isEditable(): bool
     {
@@ -166,13 +164,13 @@ class Shipment extends Model
         if (isset($this->cost_data['gross'])) {
             return (float) $this->cost_data['gross'];
         }
-        
+
         // Fallback to detailed calculation
         $basePrice = $this->cost_data['base_price'] ?? $this->cost_data['price'] ?? 0;
         $codFee = $this->cost_data['cod_fee'] ?? 0;
         $insuranceFee = $this->cost_data['insurance_fee'] ?? 0;
         $additionalFees = $this->cost_data['additional_fees'] ?? 0;
-        
+
         return (float) ($basePrice + $codFee + $insuranceFee + $additionalFees);
     }
 
@@ -199,8 +197,8 @@ class Shipment extends Model
     public function statusHistory(): MorphMany
     {
         return $this->morphMany(Activity::class, 'subject')
-                   ->where('log_name', 'shipment_status')
-                   ->latest();
+            ->where('log_name', 'shipment_status')
+            ->latest();
     }
 
     public function courierApiLogs()
@@ -216,5 +214,4 @@ class Shipment extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
-
 }

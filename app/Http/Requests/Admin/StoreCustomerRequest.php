@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Requests/Admin/StoreCustomerRequest.php
 
 declare(strict_types=1);

@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 class ImportCourierPoints extends Command
 {
     protected $signature = 'points:import {path : CSV file path} {--courier=} {--type=} {--delimiter=;} {--header}';
+
     protected $description = 'Import courier pickup/locker points from CSV file';
 
     public function handle(): int
@@ -22,8 +23,9 @@ class ImportCourierPoints extends Command
         $delimiter = (string) $this->option('delimiter');
         $hasHeader = (bool) $this->option('header');
 
-        if (!file_exists($path)) {
-            $this->error('File not found: ' . $path);
+        if (! file_exists($path)) {
+            $this->error('File not found: '.$path);
+
             return self::FAILURE;
         }
 
@@ -35,8 +37,9 @@ class ImportCourierPoints extends Command
             $courierServiceId = CourierService::where('code', $courierArg)->value('id');
         }
 
-        if (!$courierServiceId) {
+        if (! $courierServiceId) {
             $this->error('Invalid courier (use id or code).');
+
             return self::FAILURE;
         }
 
@@ -49,17 +52,19 @@ class ImportCourierPoints extends Command
 
             while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
                 $data = $this->mapRow($row, $columns);
-                if (!$data) continue;
+                if (! $data) {
+                    continue;
+                }
 
                 // Basic validation
-                if (!isset($data['code'], $data['latitude'], $data['longitude'])) {
+                if (! isset($data['code'], $data['latitude'], $data['longitude'])) {
                     continue;
                 }
 
                 CourierPoint::updateOrCreate(
                     [
                         'courier_service_id' => $courierServiceId,
-                        'code' => (string)$data['code'],
+                        'code' => (string) $data['code'],
                     ],
                     [
                         'uuid' => Str::uuid(),
@@ -72,8 +77,8 @@ class ImportCourierPoints extends Command
                         'city' => $data['city'] ?? null,
                         'postal_code' => $data['postal_code'] ?? null,
                         'country_code' => strtoupper($data['country'] ?? 'PL'),
-                        'latitude' => (float)$data['latitude'],
-                        'longitude' => (float)$data['longitude'],
+                        'latitude' => (float) $data['latitude'],
+                        'longitude' => (float) $data['longitude'],
                         'opening_hours' => $this->jsonOrNull($data['opening_hours'] ?? null),
                         'functions' => $this->jsonOrNull($data['functions'] ?? null),
                         'is_active' => true,
@@ -88,6 +93,7 @@ class ImportCourierPoints extends Command
         }
 
         $this->info("Imported/updated {$count} points for courier_service_id={$courierServiceId}.");
+
         return self::SUCCESS;
     }
 
@@ -111,19 +117,26 @@ class ImportCourierPoints extends Command
 
         $data = [];
         foreach ($columns as $i => $name) {
-            if (!array_key_exists($i, $row)) continue;
-            $key = strtolower(trim((string)$name));
+            if (! array_key_exists($i, $row)) {
+                continue;
+            }
+            $key = strtolower(trim((string) $name));
             $data[$key] = $row[$i];
         }
+
         return $data;
     }
 
     private function jsonOrNull($value)
     {
-        if (!$value) return null;
-        if (is_array($value)) return $value;
-        $decoded = json_decode((string)$value, true);
+        if (! $value) {
+            return null;
+        }
+        if (is_array($value)) {
+            return $value;
+        }
+        $decoded = json_decode((string) $value, true);
+
         return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
     }
 }
-

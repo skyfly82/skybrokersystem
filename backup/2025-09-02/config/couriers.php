@@ -360,7 +360,7 @@ return [
         'max_width' => 200, // cm
         'max_height' => 200, // cm
         'max_girth' => 400, // cm (length + 2*(width + height))
-        
+
         'size_categories' => [
             'small' => [
                 'max_weight' => 2,

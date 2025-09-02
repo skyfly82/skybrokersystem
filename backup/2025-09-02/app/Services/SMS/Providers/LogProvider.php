@@ -17,15 +17,15 @@ class LogProvider implements SmsProviderInterface
             'timestamp' => now()->toISOString(),
             'provider' => 'log',
         ]);
-        
+
         return true;
     }
-    
+
     public function getBalance(): ?float
     {
         return null; // Log provider doesn't have balance
     }
-    
+
     public function isAvailable(): bool
     {
         return true;

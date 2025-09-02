@@ -20,8 +20,8 @@ class ShipmentCreatedMail extends Mailable
     public function build()
     {
         return $this->subject("Przesyłka utworzona - {$this->shipment->tracking_number}")
-                    ->view('emails.customer.shipment-created')
-                    ->with(['shipment' => $this->shipment]);
+            ->view('emails.customer.shipment-created')
+            ->with(['shipment' => $this->shipment]);
     }
 }
 
@@ -36,8 +36,8 @@ class ShipmentDeliveredMail extends Mailable
     public function build()
     {
         return $this->subject("Przesyłka dostarczona - {$this->shipment->tracking_number}")
-                    ->view('emails.customer.shipment-delivered')
-                    ->with(['shipment' => $this->shipment]);
+            ->view('emails.customer.shipment-delivered')
+            ->with(['shipment' => $this->shipment]);
     }
 }
 
@@ -52,7 +52,7 @@ class PaymentCompletedMail extends Mailable
     public function build()
     {
         return $this->subject("Płatność zakończona - {$this->payment->amount} PLN")
-                    ->view('emails.customer.payment-completed')
-                    ->with(['payment' => $this->payment]);
+            ->view('emails.customer.payment-completed')
+            ->with(['payment' => $this->payment]);
     }
 }

@@ -2,20 +2,19 @@
 
 /**
  * Cel: Implementacja serwisu uwierzytelniania
- * Moduł: Auth  
+ * Moduł: Auth
  * Odpowiedzialny: Claude-Code
  * Data: 2025-09-02
  */
 
 namespace App\Services\Auth;
 
-use App\Models\CustomerUser;
 use App\Models\ApiKey;
+use App\Models\CustomerUser;
 use App\Services\Contracts\Auth\AuthServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -24,19 +23,19 @@ class AuthService implements AuthServiceInterface
 {
     public function login(array $credentials): array
     {
-        if (!Auth::guard('customer_user')->attempt($credentials)) {
+        if (! Auth::guard('customer_user')->attempt($credentials)) {
             throw ValidationException::withMessages([
-                'email' => 'The provided credentials are incorrect.'
+                'email' => 'The provided credentials are incorrect.',
             ]);
         }
 
         $user = Auth::guard('customer_user')->user();
-        
+
         // Check if customer is active
-        if (!$user->customer->isActive()) {
+        if (! $user->customer->isActive()) {
             Auth::guard('customer_user')->logout();
             throw ValidationException::withMessages([
-                'account' => 'Your account is not active. Please contact support.'
+                'account' => 'Your account is not active. Please contact support.',
             ]);
         }
 
@@ -45,7 +44,7 @@ class AuthService implements AuthServiceInterface
         return [
             'user' => $user->load('customer'),
             'token' => $token,
-            'token_type' => 'Bearer'
+            'token_type' => 'Bearer',
         ];
     }
 
@@ -62,28 +61,28 @@ class AuthService implements AuthServiceInterface
         ]);
 
         // Send verification email or notify admin
-        
+
         return $user;
     }
 
     public function logout(Request $request): bool
     {
         $request->user()->currentAccessToken()?->delete();
-        
+
         return true;
     }
 
     public function sendPasswordResetEmail(string $email): bool
     {
         $user = CustomerUser::where('email', $email)->first();
-        
-        if (!$user) {
+
+        if (! $user) {
             // Don't reveal whether email exists
             return true;
         }
 
         $status = Password::broker('customer_users')->sendResetLink(['email' => $email]);
-        
+
         return $status === Password::RESET_LINK_SENT;
     }
 
@@ -99,14 +98,14 @@ class AuthService implements AuthServiceInterface
 
     public function changePassword(CustomerUser $user, string $currentPassword, string $newPassword): bool
     {
-        if (!Hash::check($currentPassword, $user->password)) {
+        if (! Hash::check($currentPassword, $user->password)) {
             throw ValidationException::withMessages([
-                'current_password' => 'Current password is incorrect.'
+                'current_password' => 'Current password is incorrect.',
             ]);
         }
 
         $user->update(['password' => Hash::make($newPassword)]);
-        
+
         return true;
     }
 
@@ -123,8 +122,8 @@ class AuthService implements AuthServiceInterface
 
     public function generateApiKey(CustomerUser $user, string $name): array
     {
-        $key = 'sk_' . Str::random(48);
-        
+        $key = 'sk_'.Str::random(48);
+
         ApiKey::create([
             'customer_id' => $user->customer_id,
             'customer_user_id' => $user->id,
@@ -136,7 +135,7 @@ class AuthService implements AuthServiceInterface
         return [
             'name' => $name,
             'key' => $key, // Return plain key only once
-            'created_at' => now()
+            'created_at' => now(),
         ];
     }
 
@@ -148,12 +147,12 @@ class AuthService implements AuthServiceInterface
     public function validateApiKey(string $apiKey): ?CustomerUser
     {
         $hashedKey = hash('sha256', $apiKey);
-        
+
         $apiKeyRecord = ApiKey::where('key', $hashedKey)
             ->where('is_active', true)
             ->first();
 
-        if (!$apiKeyRecord) {
+        if (! $apiKeyRecord) {
             return null;
         }
 

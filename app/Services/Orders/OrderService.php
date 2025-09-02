@@ -23,21 +23,21 @@ class OrderService implements OrderServiceInterface
         $query = Order::where('customer_id', $customerId);
 
         // Apply filters
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('created_at', '<=', $filters['date_to']);
         }
 
         return $query->with(['shipments', 'payments'])
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($filters['per_page'] ?? 15);
+            ->orderBy('created_at', 'desc')
+            ->paginate($filters['per_page'] ?? 15);
     }
 
     public function createOrder(array $data): Order
@@ -45,7 +45,7 @@ class OrderService implements OrderServiceInterface
         $validatedData = $this->validateOrderData($data);
 
         DB::beginTransaction();
-        
+
         try {
             $order = Order::create([
                 'customer_id' => $validatedData['customer_id'],
@@ -59,11 +59,11 @@ class OrderService implements OrderServiceInterface
             ]);
 
             Log::info('Order created', ['order_id' => $order->id, 'customer_id' => $order->customer_id]);
-            
+
             DB::commit();
-            
+
             return $order->load(['customer', 'customerUser']);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to create order', ['error' => $e->getMessage(), 'data' => $data]);
@@ -81,13 +81,13 @@ class OrderService implements OrderServiceInterface
             $order->update([
                 'shipping_data' => $validatedData['shipping_data'] ?? $order->shipping_data,
                 'notes' => $validatedData['notes'] ?? $order->notes,
-                'total_amount' => isset($validatedData['shipping_data']) 
+                'total_amount' => isset($validatedData['shipping_data'])
                     ? $this->calculateOrderTotal(array_merge($order->toArray(), $validatedData))
                     : $order->total_amount,
             ]);
 
             Log::info('Order updated', ['order_id' => $order->id]);
-            
+
             DB::commit();
 
             return $order->fresh();
@@ -99,17 +99,17 @@ class OrderService implements OrderServiceInterface
         }
     }
 
-    public function cancelOrder(Order $order, string $reason = null): Order
+    public function cancelOrder(Order $order, ?string $reason = null): Order
     {
-        if (!$order->canBeCancelled()) {
+        if (! $order->canBeCancelled()) {
             throw ValidationException::withMessages([
-                'order' => 'This order cannot be cancelled at this time.'
+                'order' => 'This order cannot be cancelled at this time.',
             ]);
         }
 
         $order->update([
             'status' => 'cancelled',
-            'notes' => $order->notes . "\n\nCancellation reason: " . ($reason ?? 'Customer request'),
+            'notes' => $order->notes."\n\nCancellation reason: ".($reason ?? 'Customer request'),
         ]);
 
         Log::info('Order cancelled', ['order_id' => $order->id, 'reason' => $reason]);
@@ -120,10 +120,10 @@ class OrderService implements OrderServiceInterface
     public function updateOrderStatus(Order $order, string $status): Order
     {
         $validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned'];
-        
-        if (!in_array($status, $validStatuses)) {
+
+        if (! in_array($status, $validStatuses)) {
             throw ValidationException::withMessages([
-                'status' => 'Invalid order status.'
+                'status' => 'Invalid order status.',
             ]);
         }
 
@@ -145,7 +145,7 @@ class OrderService implements OrderServiceInterface
         // Base shipping cost calculation - simplified for now
         if (isset($orderData['shipping_data'])) {
             $shippingData = $orderData['shipping_data'];
-            
+
             // Add weight-based cost
             if (isset($shippingData['weight'])) {
                 $total += $shippingData['weight'] * 0.5; // 0.5 PLN per kg
@@ -163,15 +163,15 @@ class OrderService implements OrderServiceInterface
         return round($total, 2);
     }
 
-    public function validateOrderData(array $data, Order $existingOrder = null): array
+    public function validateOrderData(array $data, ?Order $existingOrder = null): array
     {
         // Basic validation - in real implementation would use Form Request
         $required = $existingOrder ? [] : ['customer_id', 'customer_user_id', 'shipping_data'];
-        
+
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 throw ValidationException::withMessages([
-                    $field => "The {$field} field is required."
+                    $field => "The {$field} field is required.",
                 ]);
             }
         }

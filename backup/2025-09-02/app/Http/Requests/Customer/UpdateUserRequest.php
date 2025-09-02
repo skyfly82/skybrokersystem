@@ -11,7 +11,7 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->guard('customer_user')->check() && 
+        return auth()->guard('customer_user')->check() &&
                auth()->guard('customer_user')->user()->role === 'admin';
     }
 

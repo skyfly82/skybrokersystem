@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class WebhookSettingsController extends Controller
 {
@@ -51,7 +51,7 @@ class WebhookSettingsController extends Controller
 
         try {
             $serviceName = strtolower($validated['service_name']);
-            
+
             // Check if service already exists
             if (config("services.{$serviceName}.api_url")) {
                 return redirect()->back()
@@ -70,13 +70,13 @@ class WebhookSettingsController extends Controller
 
             // Add route to web.php (this would need manual addition for now)
             // TODO: Implement dynamic route registration
-            
+
             return redirect()->route('admin.settings.webhooks.index')
                 ->with('success', 'Nowy webhook został pomyślnie dodany.');
-                
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Błąd podczas dodawania webhook: ' . $e->getMessage())
+                ->with('error', 'Błąd podczas dodawania webhook: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -84,7 +84,7 @@ class WebhookSettingsController extends Controller
     public function destroy(string $service): RedirectResponse
     {
         $validServices = ['freshdesk', 'freshcaller'];
-        
+
         if (in_array($service, $validServices)) {
             return redirect()->back()->with('error', 'Nie można usunąć wbudowanego webhook.');
         }
@@ -92,21 +92,21 @@ class WebhookSettingsController extends Controller
         try {
             // Remove from environment file
             $this->removeServiceConfig($service);
-            
+
             return redirect()->route('admin.settings.webhooks.index')
                 ->with('success', 'Webhook został usunięty.');
-                
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Błąd podczas usuwania webhook: ' . $e->getMessage());
+                ->with('error', 'Błąd podczas usuwania webhook: '.$e->getMessage());
         }
     }
 
     public function update(Request $request, string $service): RedirectResponse
     {
         $validServices = ['freshdesk', 'freshcaller'];
-        
-        if (!in_array($service, $validServices)) {
+
+        if (! in_array($service, $validServices)) {
             return redirect()->back()->with('error', 'Nieprawidłowy serwis webhook.');
         }
 
@@ -120,13 +120,13 @@ class WebhookSettingsController extends Controller
         try {
             // Update environment file or configuration
             $this->updateServiceConfig($service, $validated);
-            
+
             return redirect()->route('admin.settings.webhooks.index')
-                ->with('success', 'Ustawienia webhook ' . ucfirst($service) . ' zostały zaktualizowane.');
-                
+                ->with('success', 'Ustawienia webhook '.ucfirst($service).' zostały zaktualizowane.');
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Błąd podczas aktualizacji ustawień: ' . $e->getMessage())
+                ->with('error', 'Błąd podczas aktualizacji ustawień: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -134,29 +134,29 @@ class WebhookSettingsController extends Controller
     public function generateSecret(Request $request, string $service): RedirectResponse
     {
         $validServices = ['freshdesk', 'freshcaller'];
-        
-        if (!in_array($service, $validServices)) {
+
+        if (! in_array($service, $validServices)) {
             return redirect()->back()->with('error', 'Nieprawidłowy serwis webhook.');
         }
 
         try {
             $secret = Str::random(32);
             $this->updateServiceConfig($service, ['webhook_secret' => $secret]);
-            
+
             return redirect()->route('admin.settings.webhooks.index')
-                ->with('success', 'Nowy secret webhook został wygenerowany dla ' . ucfirst($service) . '.');
-                
+                ->with('success', 'Nowy secret webhook został wygenerowany dla '.ucfirst($service).'.');
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Błąd podczas generowania secret: ' . $e->getMessage());
+                ->with('error', 'Błąd podczas generowania secret: '.$e->getMessage());
         }
     }
 
     public function test(Request $request, string $service): RedirectResponse
     {
         $validServices = ['freshdesk', 'freshcaller'];
-        
-        if (!in_array($service, $validServices)) {
+
+        if (! in_array($service, $validServices)) {
             return redirect()->back()->with('error', 'Nieprawidłowy serwis webhook.');
         }
 
@@ -164,9 +164,9 @@ class WebhookSettingsController extends Controller
             $apiUrl = config("services.{$service}.api_url");
             $apiKey = config("services.{$service}.api_key");
 
-            if (!$apiUrl || !$apiKey) {
+            if (! $apiUrl || ! $apiKey) {
                 return redirect()->back()
-                    ->with('error', 'Brak konfiguracji API dla ' . ucfirst($service) . '. Skonfiguruj najpierw połączenie.');
+                    ->with('error', 'Brak konfiguracji API dla '.ucfirst($service).'. Skonfiguruj najpierw połączenie.');
             }
 
             // Test connection based on service
@@ -174,15 +174,15 @@ class WebhookSettingsController extends Controller
 
             if ($response['success']) {
                 return redirect()->route('admin.settings.webhooks.index')
-                    ->with('success', 'Połączenie z ' . ucfirst($service) . ' zostało pomyślnie przetestowane.');
+                    ->with('success', 'Połączenie z '.ucfirst($service).' zostało pomyślnie przetestowane.');
             } else {
                 return redirect()->back()
-                    ->with('error', 'Test połączenia nieudany: ' . $response['message']);
+                    ->with('error', 'Test połączenia nieudany: '.$response['message']);
             }
-            
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Błąd podczas testowania połączenia: ' . $e->getMessage());
+                ->with('error', 'Błąd podczas testowania połączenia: '.$e->getMessage());
         }
     }
 
@@ -192,11 +192,11 @@ class WebhookSettingsController extends Controller
         $envContent = file_get_contents($envFile);
 
         $serviceUpper = strtoupper($service);
-        
+
         foreach ($config as $key => $value) {
-            $envKey = "{$serviceUpper}_" . strtoupper($key);
+            $envKey = "{$serviceUpper}_".strtoupper($key);
             $envValue = is_bool($value) ? ($value ? 'true' : 'false') : $value;
-            
+
             // Check if key exists
             if (preg_match("/^{$envKey}=.*$/m", $envContent)) {
                 $envContent = preg_replace("/^{$envKey}=.*$/m", "{$envKey}={$envValue}", $envContent);
@@ -206,7 +206,7 @@ class WebhookSettingsController extends Controller
         }
 
         file_put_contents($envFile, $envContent);
-        
+
         // Clear config cache
         \Artisan::call('config:clear');
     }
@@ -224,7 +224,7 @@ class WebhookSettingsController extends Controller
             "/^{$serviceUpper}_ENABLED=.*$/m",
             "/^{$serviceUpper}_SERVICE_TYPE=.*$/m",
         ];
-        
+
         foreach ($patterns as $pattern) {
             $envContent = preg_replace($pattern, '', $envContent);
         }
@@ -233,7 +233,7 @@ class WebhookSettingsController extends Controller
         $envContent = preg_replace("/\n{3,}/", "\n\n", $envContent);
 
         file_put_contents($envFile, $envContent);
-        
+
         // Clear config cache
         \Artisan::call('config:clear');
     }
@@ -245,19 +245,19 @@ class WebhookSettingsController extends Controller
                 case 'freshdesk':
                     $response = Http::withBasicAuth($apiKey, 'X')
                         ->timeout(10)
-                        ->get($apiUrl . '/api/v2/tickets', [
-                            'per_page' => 1
+                        ->get($apiUrl.'/api/v2/tickets', [
+                            'per_page' => 1,
                         ]);
                     break;
-                    
+
                 case 'freshcaller':
                     $response = Http::withHeaders([
-                        'Authorization' => 'Token token=' . $apiKey
+                        'Authorization' => 'Token token='.$apiKey,
                     ])
-                    ->timeout(10)
-                    ->get($apiUrl . '/v1/accounts');
+                        ->timeout(10)
+                        ->get($apiUrl.'/v1/accounts');
                     break;
-                    
+
                 default:
                     return ['success' => false, 'message' => 'Nieobsługiwany serwis'];
             }
@@ -265,9 +265,9 @@ class WebhookSettingsController extends Controller
             if ($response->successful()) {
                 return ['success' => true, 'message' => 'Połączenie udane'];
             } else {
-                return ['success' => false, 'message' => 'HTTP ' . $response->status() . ': ' . $response->body()];
+                return ['success' => false, 'message' => 'HTTP '.$response->status().': '.$response->body()];
             }
-            
+
         } catch (\Exception $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }

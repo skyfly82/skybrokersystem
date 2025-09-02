@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('customers', function (Blueprint $table) {
             $table->json('notification_preferences')->nullable()->after('settings');
         });
-        
+
         Schema::table('customer_users', function (Blueprint $table) {
             $table->json('notification_preferences')->nullable()->after('permissions');
         });
@@ -28,7 +28,7 @@ return new class extends Migration
         Schema::table('customers', function (Blueprint $table) {
             $table->dropColumn('notification_preferences');
         });
-        
+
         Schema::table('customer_users', function (Blueprint $table) {
             $table->dropColumn('notification_preferences');
         });

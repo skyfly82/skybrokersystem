@@ -20,28 +20,28 @@ class CmsPage extends Model
         'is_published',
         'published_at',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
 
     protected $casts = [
         'seo_data' => 'array',
         'is_published' => 'boolean',
-        'published_at' => 'datetime'
+        'published_at' => 'datetime',
     ];
 
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->slug)) {
                 $model->slug = Str::slug($model->title);
             }
-            if (!$model->created_by) {
+            if (! $model->created_by) {
                 $model->created_by = auth('system_user')->id();
             }
         });
-        
+
         static::updating(function ($model) {
             if ($model->isDirty('title') && empty($model->slug)) {
                 $model->slug = Str::slug($model->title);
@@ -79,7 +79,7 @@ class CmsPage extends Model
     {
         return $this->update([
             'is_published' => true,
-            'published_at' => now()
+            'published_at' => now(),
         ]);
     }
 
@@ -87,7 +87,7 @@ class CmsPage extends Model
     {
         return $this->update([
             'is_published' => false,
-            'published_at' => null
+            'published_at' => null,
         ]);
     }
 }

@@ -11,11 +11,11 @@ class SimulationProvider implements PaymentProviderInterface
     public function createPayment(Payment $payment): array
     {
         // Simulate payment creation
-        $externalId = 'sim_' . uniqid();
-        
+        $externalId = 'sim_'.uniqid();
+
         // Auto-complete small amounts for testing
         $status = $payment->amount <= 100 ? 'completed' : 'pending';
-        
+
         if ($status === 'completed') {
             $payment->markAsCompleted();
         }
@@ -27,7 +27,7 @@ class SimulationProvider implements PaymentProviderInterface
             'metadata' => [
                 'provider' => 'simulation',
                 'created_at' => now()->toISOString(),
-            ]
+            ],
         ];
     }
 
@@ -44,7 +44,7 @@ class SimulationProvider implements PaymentProviderInterface
     {
         // Simulate refund
         return [
-            'external_id' => 'ref_' . uniqid(),
+            'external_id' => 'ref_'.uniqid(),
             'status' => 'completed',
             'amount' => $amount,
         ];

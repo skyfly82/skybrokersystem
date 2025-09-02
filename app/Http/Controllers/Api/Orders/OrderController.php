@@ -10,12 +10,12 @@
 namespace App\Http\Controllers\Api\Orders;
 
 use App\Http\Controllers\Controller;
-use App\Services\Contracts\Orders\OrderServiceInterface;
 use App\Http\Requests\Api\Orders\StoreOrderRequest;
 use App\Http\Requests\Api\Orders\UpdateOrderRequest;
 use App\Models\Order;
-use Illuminate\Http\Request;
+use App\Services\Contracts\Orders\OrderServiceInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -37,7 +37,7 @@ class OrderController extends Controller
                 'last_page' => $orders->lastPage(),
                 'per_page' => $orders->perPage(),
                 'total' => $orders->total(),
-            ]
+            ],
         ]);
     }
 
@@ -51,13 +51,14 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order created successfully',
-            'data' => $order
+            'data' => $order,
         ], 201);
     }
 
     public function show(Request $request, Order $order): JsonResponse
     {
         $this->authorize('view', $order);
+
         return response()->json(['data' => $order->load(['shipments', 'payments'])]);
     }
 
@@ -68,7 +69,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order updated successfully',
-            'data' => $updatedOrder
+            'data' => $updatedOrder,
         ]);
     }
 
@@ -78,7 +79,7 @@ class OrderController extends Controller
         $this->orderService->cancelOrder($order, $request->input('reason'));
 
         return response()->json([
-            'message' => 'Order cancelled successfully'
+            'message' => 'Order cancelled successfully',
         ]);
     }
 
@@ -86,13 +87,13 @@ class OrderController extends Controller
     {
         $this->authorize('update', $order);
         $updatedOrder = $this->orderService->updateOrderStatus(
-            $order, 
+            $order,
             $request->input('status')
         );
 
         return response()->json([
             'message' => 'Order status updated successfully',
-            'data' => $updatedOrder
+            'data' => $updatedOrder,
         ]);
     }
 
@@ -102,7 +103,7 @@ class OrderController extends Controller
         $this->orderService->cancelOrder($order, $request->input('reason'));
 
         return response()->json([
-            'message' => 'Order cancelled successfully'
+            'message' => 'Order cancelled successfully',
         ]);
     }
 }

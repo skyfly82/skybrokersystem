@@ -14,19 +14,19 @@ class AdminMiddleware
     {
         $user = $request->user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (! $user || ! $user->isAdmin()) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Access denied'], 403);
             }
-            
+
             abort(403, 'Access denied');
         }
 
-        if ($role === 'super_admin' && !$user->isSuperAdmin()) {
+        if ($role === 'super_admin' && ! $user->isSuperAdmin()) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Super admin access required'], 403);
             }
-            
+
             abort(403, 'Super admin access required');
         }
 

@@ -2,8 +2,8 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -58,11 +58,11 @@ class Handler extends ExceptionHandler
 
         // Determine which guard triggered the exception
         $guards = $exception->guards();
-        
+
         if (in_array('system_user', $guards)) {
             return redirect()->guest(route('admin.login'));
         }
-        
+
         if (in_array('customer_user', $guards)) {
             return redirect()->guest(route('customer.login'));
         }

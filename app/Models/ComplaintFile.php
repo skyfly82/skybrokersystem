@@ -16,7 +16,7 @@ class ComplaintFile extends Model
         'mime_type',
         'size',
         'path',
-        'uploaded_by'
+        'uploaded_by',
     ];
 
     protected $casts = [

@@ -6,17 +6,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ComplaintTopic;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class ComplaintTopicController extends Controller
 {
     public function index(): View
     {
         $topics = ComplaintTopic::withCount('complaints')
-                                ->orderBy('sort_order')
-                                ->paginate(20);
+            ->orderBy('sort_order')
+            ->paginate(20);
 
         return view('admin.customer-service.topics.index', compact('topics'));
     }
@@ -37,7 +37,7 @@ class ComplaintTopicController extends Controller
             'auto_assign_to' => ['nullable', 'exists:system_users,id'],
             'estimated_resolution_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'requires_attachment' => ['boolean'],
-            'customer_visible' => ['boolean']
+            'customer_visible' => ['boolean'],
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -60,8 +60,8 @@ class ComplaintTopicController extends Controller
     {
         $topic->load(['complaints' => function ($query) {
             $query->with(['customer', 'customerUser'])
-                  ->latest()
-                  ->limit(10);
+                ->latest()
+                ->limit(10);
         }]);
 
         return view('admin.customer-service.topics.show', compact('topic'));
@@ -75,7 +75,7 @@ class ComplaintTopicController extends Controller
     public function update(Request $request, ComplaintTopic $topic): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:complaint_topics,name,' . $topic->id],
+            'name' => ['required', 'string', 'max:255', 'unique:complaint_topics,name,'.$topic->id],
             'description' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
@@ -83,7 +83,7 @@ class ComplaintTopicController extends Controller
             'auto_assign_to' => ['nullable', 'exists:system_users,id'],
             'estimated_resolution_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'requires_attachment' => ['boolean'],
-            'customer_visible' => ['boolean']
+            'customer_visible' => ['boolean'],
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -114,10 +114,10 @@ class ComplaintTopicController extends Controller
 
     public function toggle(ComplaintTopic $topic): RedirectResponse
     {
-        $topic->update(['is_active' => !$topic->is_active]);
+        $topic->update(['is_active' => ! $topic->is_active]);
 
         $status = $topic->is_active ? 'aktywowany' : 'dezaktywowany';
-        
+
         return redirect()
             ->route('admin.customer-service.topics.index')
             ->with('success', "Temat reklamacji został {$status}.");

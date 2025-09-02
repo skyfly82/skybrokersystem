@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class Customer extends Model
 {
-    use HasFactory, Notifiable, Auditable;
+    use Auditable, HasFactory, Notifiable;
 
     protected $fillable = [
         'uuid', 'company_name', 'company_short_name', 'nip', 'regon', 'krs',
@@ -23,7 +23,7 @@ class Customer extends Model
         'cod_return_account', 'settlement_account', 'address',
         'settings', 'notification_preferences', 'contract_signed_at', 'verified_at',
         'verification_code', 'verification_code_expires_at', 'email_verified',
-        'verification_token', 'verification_token_expires_at'
+        'verification_token', 'verification_token_expires_at',
     ];
 
     protected $casts = [
@@ -41,15 +41,15 @@ class Customer extends Model
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
-            if (!$model->api_key) {
-                $model->api_key = 'sk_' . Str::random(48);
+            if (! $model->api_key) {
+                $model->api_key = 'sk_'.Str::random(48);
             }
-            if (!$model->notification_preferences) {
+            if (! $model->notification_preferences) {
                 $model->notification_preferences = [
                     'email' => [
                         'shipment_created' => true,
@@ -62,7 +62,7 @@ class Customer extends Model
                         'shipment_delivered' => false,
                         'payment_failed' => true,
                         'low_balance' => false,
-                    ]
+                    ],
                 ];
             }
         });
@@ -76,22 +76,22 @@ class Customer extends Model
     {
         // mBank code: 1140 (branch code for corporate accounts)
         $bankCode = '11401140';
-        
+
         // Customer ID padded to 8 digits
-        $customerId = str_pad((string)$this->id, 8, '0', STR_PAD_LEFT);
-        
+        $customerId = str_pad((string) $this->id, 8, '0', STR_PAD_LEFT);
+
         // Generate account number without check digits
-        $accountWithoutCheck = $bankCode . $customerId . '00000000';
-        
+        $accountWithoutCheck = $bankCode.$customerId.'00000000';
+
         // Calculate IBAN check digits for Poland (PL)
-        $checkString = $accountWithoutCheck . '2521'; // PL = 2521
+        $checkString = $accountWithoutCheck.'2521'; // PL = 2521
         $checkDigits = 98 - bcmod($checkString, '97');
-        $checkDigits = str_pad((string)$checkDigits, 2, '0', STR_PAD_LEFT);
-        
+        $checkDigits = str_pad((string) $checkDigits, 2, '0', STR_PAD_LEFT);
+
         // Final account number
-        $accountNumber = $bankCode . $customerId . '00000000';
-        
-        return 'PL' . $checkDigits . $accountNumber;
+        $accountNumber = $bankCode.$customerId.'00000000';
+
+        return 'PL'.$checkDigits.$accountNumber;
     }
 
     /**
@@ -100,14 +100,15 @@ class Customer extends Model
     public function getFormattedIndividualAccountAttribute(): string
     {
         $account = $this->individual_account_number;
+
         // Format: PL XX XXXX XXXX XXXX XXXX XXXX XXXX
-        return substr($account, 0, 2) . ' ' . 
-               substr($account, 2, 2) . ' ' .
-               substr($account, 4, 4) . ' ' .
-               substr($account, 8, 4) . ' ' .
-               substr($account, 12, 4) . ' ' .
-               substr($account, 16, 4) . ' ' .
-               substr($account, 20, 4) . ' ' .
+        return substr($account, 0, 2).' '.
+               substr($account, 2, 2).' '.
+               substr($account, 4, 4).' '.
+               substr($account, 8, 4).' '.
+               substr($account, 12, 4).' '.
+               substr($account, 16, 4).' '.
+               substr($account, 20, 4).' '.
                substr($account, 24, 4);
     }
 
@@ -148,7 +149,7 @@ class Customer extends Model
     {
         return $this->hasOne(CustomerUser::class)->where('is_primary', true);
     }
-    
+
     public function getPrimaryUser(): ?CustomerUser
     {
         return $this->users()->where('is_primary', true)->first();
@@ -187,25 +188,25 @@ class Customer extends Model
         return $this->current_balance < 100.00;
     }
 
-    public function addBalance(float $amount, string $description = 'Top-up', $paymentId = null, $transactionableId = null, string $transactionableType = null): Transaction
+    public function addBalance(float $amount, string $description = 'Top-up', $paymentId = null, $transactionableId = null, ?string $transactionableType = null): Transaction
     {
         return $this->createTransaction('credit', $amount, $description, $paymentId, $transactionableId, $transactionableType);
     }
 
-    public function deductBalance(float $amount, string $description = 'Shipment cost', $paymentId = null, $transactionableId = null, string $transactionableType = null): Transaction
+    public function deductBalance(float $amount, string $description = 'Shipment cost', $paymentId = null, $transactionableId = null, ?string $transactionableType = null): Transaction
     {
         if ($this->current_balance < $amount) {
             throw new \Exception('Insufficient balance');
         }
-        
+
         return $this->createTransaction('debit', $amount, $description, $paymentId, $transactionableId, $transactionableType);
     }
 
-    private function createTransaction(string $type, float $amount, string $description, $paymentId = null, $transactionableId = null, string $transactionableType = null): Transaction
+    private function createTransaction(string $type, float $amount, string $description, $paymentId = null, $transactionableId = null, ?string $transactionableType = null): Transaction
     {
         $balanceBefore = $this->current_balance;
-        $balanceAfter = $type === 'credit' 
-            ? $balanceBefore + $amount 
+        $balanceAfter = $type === 'credit'
+            ? $balanceBefore + $amount
             : $balanceBefore - $amount;
 
         $this->update(['current_balance' => $balanceAfter]);
@@ -254,24 +255,24 @@ class Customer extends Model
     {
         $code = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
         $token = \Str::random(64);
-        
+
         // Get expiry times from settings
         $codeExpiry = \App\Models\SystemSetting::get('verification_code_expiry_minutes', 60);
         $linkExpiry = \App\Models\SystemSetting::get('verification_link_expiry_hours', 24);
-        
+
         $this->update([
             'verification_code' => $code,
             'verification_code_expires_at' => now()->addMinutes($codeExpiry),
             'verification_token' => $token,
             'verification_token_expires_at' => now()->addHours($linkExpiry),
-            'email_verified' => false
+            'email_verified' => false,
         ]);
 
         return [
             'code' => $code,
             'token' => $token,
             'code_expires_at' => $this->verification_code_expires_at,
-            'link_expires_at' => $this->verification_token_expires_at
+            'link_expires_at' => $this->verification_token_expires_at,
         ];
     }
 
@@ -286,6 +287,7 @@ class Customer extends Model
         }
 
         $this->activateAccount();
+
         return true;
     }
 
@@ -311,7 +313,7 @@ class Customer extends Model
             'verification_code' => null,
             'verification_code_expires_at' => null,
             'verification_token' => null,
-            'verification_token_expires_at' => null
+            'verification_token_expires_at' => null,
         ]);
     }
 
@@ -322,26 +324,26 @@ class Customer extends Model
 
     public function hasValidVerificationCode(): bool
     {
-        return $this->verification_code 
-            && $this->verification_code_expires_at 
+        return $this->verification_code
+            && $this->verification_code_expires_at
             && $this->verification_code_expires_at->isFuture();
     }
 
     public function hasValidVerificationToken(): bool
     {
-        return $this->verification_token 
-            && $this->verification_token_expires_at 
+        return $this->verification_token
+            && $this->verification_token_expires_at
             && $this->verification_token_expires_at->isFuture();
     }
 
     public function canResendCode(): bool
     {
         // Can resend if no valid code or if last code was sent more than 5 minutes ago
-        if (!$this->hasValidVerificationCode()) {
+        if (! $this->hasValidVerificationCode()) {
             return true;
         }
 
-        return $this->verification_code_expires_at && 
+        return $this->verification_code_expires_at &&
                $this->verification_code_expires_at->subMinutes(55)->isPast(); // Allow resend 5 mins after sending
     }
 }

@@ -29,16 +29,16 @@ trait Auditable
         return $this->morphMany(AuditLog::class, 'auditable');
     }
 
-    public function auditLog(string $event, array $oldValues = null, string $description = null): void
+    public function auditLog(string $event, ?array $oldValues = null, ?string $description = null): void
     {
         $user = $this->getCurrentAuditUser();
-        
-        if (!$user) {
+
+        if (! $user) {
             return; // Skip if no authenticated user
         }
 
         $newValues = null;
-        
+
         if ($event === 'updated') {
             $newValues = $this->getDirty();
             // Only log if there are actual changes
@@ -61,11 +61,11 @@ trait Auditable
             'new_values' => $newValues,
             'ip_address' => request()->ip(),
             'user_agent' => request()->header('User-Agent'),
-            'description' => $description
+            'description' => $description,
         ]);
     }
 
-    public function logCustomEvent(string $event, string $description = null, array $data = null): void
+    public function logCustomEvent(string $event, ?string $description = null, ?array $data = null): void
     {
         $this->auditLog($event, null, $description);
     }
@@ -75,22 +75,24 @@ trait Auditable
         // Check for system user first
         if (auth('system_user')->check()) {
             $user = auth('system_user')->user();
+
             return [
                 'type' => 'system_user',
                 'id' => $user->id,
                 'name' => $user->name,
-                'email' => $user->email
+                'email' => $user->email,
             ];
         }
 
         // Check for customer user
         if (auth('customer_user')->check()) {
             $user = auth('customer_user')->user();
+
             return [
                 'type' => 'customer_user',
                 'id' => $user->id,
-                'name' => $user->first_name . ' ' . $user->last_name,
-                'email' => $user->email
+                'name' => $user->first_name.' '.$user->last_name,
+                'email' => $user->email,
             ];
         }
 

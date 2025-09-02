@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class CmsNotificationBanner extends Model
 {
@@ -20,22 +19,22 @@ class CmsNotificationBanner extends Model
         'end_date',
         'priority',
         'display_rules',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
-        'display_rules' => 'array'
+        'display_rules' => 'array',
     ];
 
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->created_by) {
+            if (! $model->created_by) {
                 $model->created_by = auth('system_user')->id();
             }
         });
@@ -49,14 +48,14 @@ class CmsNotificationBanner extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-                    ->where(function ($q) {
-                        $q->whereNull('start_date')
-                          ->orWhere('start_date', '<=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('end_date')
-                          ->orWhere('end_date', '>=', now());
-                    });
+            ->where(function ($q) {
+                $q->whereNull('start_date')
+                    ->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            });
     }
 
     public function scopeByPosition($query, string $position)
@@ -76,20 +75,20 @@ class CmsNotificationBanner extends Model
 
     public function isCurrentlyActive(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
-        
+
         $now = now();
-        
+
         if ($this->start_date && $now->lt($this->start_date)) {
             return false;
         }
-        
+
         if ($this->end_date && $now->gt($this->end_date)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -105,20 +104,20 @@ class CmsNotificationBanner extends Model
 
     public function shouldDisplayOnPage(string $currentPage): bool
     {
-        if (!$this->display_rules) {
+        if (! $this->display_rules) {
             return true;
         }
-        
+
         $rules = $this->display_rules;
-        
+
         if (isset($rules['pages'])) {
             return in_array($currentPage, $rules['pages']);
         }
-        
+
         if (isset($rules['exclude_pages'])) {
-            return !in_array($currentPage, $rules['exclude_pages']);
+            return ! in_array($currentPage, $rules['exclude_pages']);
         }
-        
+
         return true;
     }
 }

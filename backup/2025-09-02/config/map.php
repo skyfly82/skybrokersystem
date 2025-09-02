@@ -17,4 +17,3 @@ return [
         'default_limit' => 100,
     ],
 ];
-

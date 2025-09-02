@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CustomerComplaint;
 use App\Models\ComplaintTopic;
+use App\Models\CustomerComplaint;
 use App\Models\SystemUser;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class CustomerServiceController extends Controller
 {
@@ -21,21 +21,21 @@ class CustomerServiceController extends Controller
             'in_progress' => CustomerComplaint::where('status', 'in_progress')->count(),
             'waiting_customer' => CustomerComplaint::where('status', 'waiting_customer')->count(),
             'resolved_today' => CustomerComplaint::where('status', 'resolved')
-                                               ->whereDate('resolved_at', today())
-                                               ->count(),
+                ->whereDate('resolved_at', today())
+                ->count(),
         ];
 
         $recent_complaints = CustomerComplaint::with(['customer', 'customerUser', 'topic', 'assignedTo'])
-                                             ->latest()
-                                             ->limit(10)
-                                             ->get();
+            ->latest()
+            ->limit(10)
+            ->get();
 
         $urgent_complaints = CustomerComplaint::with(['customer', 'customerUser', 'topic'])
-                                             ->where('priority', 'urgent')
-                                             ->whereIn('status', ['open', 'in_progress'])
-                                             ->latest()
-                                             ->limit(5)
-                                             ->get();
+            ->where('priority', 'urgent')
+            ->whereIn('status', ['open', 'in_progress'])
+            ->latest()
+            ->limit(5)
+            ->get();
 
         return view('admin.customer-service.dashboard', compact('stats', 'recent_complaints', 'urgent_complaints'));
     }
@@ -60,8 +60,8 @@ class CustomerServiceController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->where('subject', 'like', "%{$search}%")
-                  ->orWhere('complaint_number', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('complaint_number', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -81,7 +81,7 @@ class CustomerServiceController extends Controller
             'assignedTo',
             'resolvedBy',
             'messages.sender',
-            'files'
+            'files',
         ]);
 
         $agents = SystemUser::whereIn('role', ['admin', 'super_admin'])->orderBy('name')->get();
@@ -92,7 +92,7 @@ class CustomerServiceController extends Controller
     public function assignComplaint(Request $request, CustomerComplaint $complaint): RedirectResponse
     {
         $validated = $request->validate([
-            'assigned_to' => ['required', 'exists:system_users,id']
+            'assigned_to' => ['required', 'exists:system_users,id'],
         ]);
 
         $complaint->assignTo((int) $validated['assigned_to']);
@@ -105,7 +105,7 @@ class CustomerServiceController extends Controller
     public function updateStatus(Request $request, CustomerComplaint $complaint): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:open,in_progress,waiting_customer,resolved,closed']
+            'status' => ['required', 'string', 'in:open,in_progress,waiting_customer,resolved,closed'],
         ]);
 
         $complaint->update(['status' => $validated['status']]);
@@ -118,7 +118,7 @@ class CustomerServiceController extends Controller
     public function resolveComplaint(Request $request, CustomerComplaint $complaint): RedirectResponse
     {
         $validated = $request->validate([
-            'resolution' => ['required', 'string', 'max:5000']
+            'resolution' => ['required', 'string', 'max:5000'],
         ]);
 
         $complaint->markAsResolved($validated['resolution'], auth('system_user')->id());
@@ -132,7 +132,7 @@ class CustomerServiceController extends Controller
     {
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:2000'],
-            'is_internal' => ['boolean']
+            'is_internal' => ['boolean'],
         ]);
 
         $validated['is_internal'] = $request->has('is_internal');
@@ -141,10 +141,10 @@ class CustomerServiceController extends Controller
             'sender_type' => 'admin',
             'sender_id' => auth('system_user')->id(),
             'message' => $validated['message'],
-            'is_internal' => $validated['is_internal']
+            'is_internal' => $validated['is_internal'],
         ]);
 
-        if (!$validated['is_internal'] && $complaint->status === 'waiting_customer') {
+        if (! $validated['is_internal'] && $complaint->status === 'waiting_customer') {
             $complaint->update(['status' => 'in_progress']);
         }
 

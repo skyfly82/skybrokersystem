@@ -28,7 +28,7 @@ return [
 
     'allowed_origins' => [
         'http://localhost:3000',
-        'http://localhost:3001', 
+        'http://localhost:3001',
         'http://127.0.0.1:3000',
         'https://admin.skybrokersystem.com',
         'https://app.skybrokersystem.com',
@@ -40,7 +40,7 @@ return [
 
     'allowed_headers' => [
         'Accept',
-        'Authorization', 
+        'Authorization',
         'Content-Type',
         'X-Requested-With',
         'X-API-Key',
@@ -53,7 +53,7 @@ return [
 
     'exposed_headers' => [
         'X-RateLimit-Limit',
-        'X-RateLimit-Remaining', 
+        'X-RateLimit-Remaining',
         'X-RateLimit-Reset',
     ],
 

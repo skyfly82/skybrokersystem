@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ComplaintTopic;
+use Illuminate\Database\Seeder;
 
 class ComplaintTopicsSeeder extends Seeder
 {
@@ -79,7 +79,7 @@ class ComplaintTopicsSeeder extends Seeder
                 'is_active' => true,
                 'customer_visible' => true,
                 'requires_attachment' => false,
-            ]
+            ],
         ];
 
         foreach ($topics as $topic) {

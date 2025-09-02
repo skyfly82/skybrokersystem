@@ -21,7 +21,7 @@ class ShipmentsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $customer = $request->user();
-        
+
         $query = $customer->shipments()->with(['courierService'])
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);
@@ -39,7 +39,7 @@ class ShipmentsController extends Controller
                 'current_page' => $shipments->currentPage(),
                 'total' => $shipments->total(),
                 'per_page' => $shipments->perPage(),
-            ]
+            ],
         ]);
     }
 
@@ -54,12 +54,12 @@ class ShipmentsController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ShipmentResource($shipment),
-                'message' => 'Shipment created successfully'
+                'message' => 'Shipment created successfully',
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
@@ -67,10 +67,10 @@ class ShipmentsController extends Controller
     public function show(string $uuid): JsonResponse
     {
         $shipment = $this->shipmentService->getShipmentByUuid($uuid);
-        
+
         return response()->json([
             'success' => true,
-            'data' => new ShipmentResource($shipment)
+            'data' => new ShipmentResource($shipment),
         ]);
     }
 
@@ -78,15 +78,15 @@ class ShipmentsController extends Controller
     {
         try {
             $tracking = $this->shipmentService->trackShipment($trackingNumber);
-            
+
             return response()->json([
                 'success' => true,
-                'data' => $tracking
+                'data' => $tracking,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 404);
         }
     }
@@ -95,15 +95,15 @@ class ShipmentsController extends Controller
     {
         try {
             $this->shipmentService->cancelShipment($shipment);
-            
+
             return response()->json([
                 'success' => true,
-                'message' => 'Shipment cancelled successfully'
+                'message' => 'Shipment cancelled successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
@@ -112,18 +112,18 @@ class ShipmentsController extends Controller
     {
         try {
             $labelUrl = $this->shipmentService->getLabelUrl($shipment->tracking_number);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
                     'label_url' => $labelUrl,
-                    'expires_at' => now()->addHours(24)->toISOString()
-                ]
+                    'expires_at' => now()->addHours(24)->toISOString(),
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }

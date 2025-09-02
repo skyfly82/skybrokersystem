@@ -23,18 +23,18 @@ class ShipmentDeliveredNotification extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         $channels = ['database'];
-        
+
         if ($notifiable->getNotificationPreference('email', 'shipment_delivered')) {
             $channels[] = 'mail';
         }
-        
+
         return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('🎉 Przesyłka dostarczona - ' . $this->shipment->tracking_number)
+            ->subject('🎉 Przesyłka dostarczona - '.$this->shipment->tracking_number)
             ->view('emails.customer.shipment-delivered', [
                 'shipment' => $this->shipment,
                 'customer' => $notifiable,
@@ -50,7 +50,7 @@ class ShipmentDeliveredNotification extends Notification implements ShouldQueue
             'courier' => $this->shipment->courierService->name,
             'recipient' => $this->shipment->recipient_data['name'],
             'delivered_at' => $this->shipment->delivered_at->toISOString(),
-            'delivery_time' => $this->shipment->created_at->diffInHours($this->shipment->delivered_at) . ' godzin',
+            'delivery_time' => $this->shipment->created_at->diffInHours($this->shipment->delivered_at).' godzin',
             'message' => "Przesyłka {$this->shipment->tracking_number} została dostarczona",
             'action_url' => route('customer.shipments.show', $this->shipment),
         ];

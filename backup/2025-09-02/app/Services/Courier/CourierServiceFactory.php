@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Courier;
 
+use App\Exceptions\CourierServiceException;
 use App\Models\CourierService;
 use App\Services\Courier\Providers\InPostService;
-use App\Exceptions\CourierServiceException;
 
 class CourierServiceFactory
 {
@@ -20,25 +20,25 @@ class CourierServiceFactory
     public function makeById(int $courierServiceId): CourierServiceInterface
     {
         $courierService = CourierService::find($courierServiceId);
-        
-        if (!$courierService) {
+
+        if (! $courierService) {
             throw new CourierServiceException("Courier service with ID {$courierServiceId} not found");
         }
-        
+
         return $this->makeByCode($courierService->code);
     }
-    
+
     /**
      * Create courier service instance by courier code
      */
     public function makeByCode(string $courierCode): CourierServiceInterface
     {
-        return match($courierCode) {
+        return match ($courierCode) {
             'inpost' => $this->inPostService,
             default => throw new CourierServiceException("Unsupported courier code: {$courierCode}")
         };
     }
-    
+
     /**
      * Get all available courier services
      */
@@ -48,7 +48,7 @@ class CourierServiceFactory
             'inpost' => $this->inPostService,
         ];
     }
-    
+
     /**
      * Check if courier code is supported
      */

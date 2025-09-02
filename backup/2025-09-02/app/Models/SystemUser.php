@@ -15,7 +15,7 @@ class SystemUser extends Authenticatable
 
     protected $fillable = [
         'uuid', 'name', 'email', 'password', 'role', 'is_active',
-        'last_login_at', 'last_login_ip'
+        'last_login_at', 'last_login_ip',
     ];
 
     protected $hidden = [
@@ -32,9 +32,9 @@ class SystemUser extends Authenticatable
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
         });

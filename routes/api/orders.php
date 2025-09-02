@@ -16,7 +16,7 @@ Route::middleware(['api.key'])->prefix('orders')->name('api.orders.')->group(fun
     Route::get('/{order}', [OrderController::class, 'show'])->name('show');
     Route::put('/{order}', [OrderController::class, 'update'])->name('update');
     Route::delete('/{order}', [OrderController::class, 'destroy'])->name('destroy');
-    
+
     // Order status management
     Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])->name('update-status');
     Route::post('/{order}/cancel', [OrderController::class, 'cancel'])->name('cancel');

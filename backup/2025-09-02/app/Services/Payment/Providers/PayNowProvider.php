@@ -10,14 +10,16 @@ use Illuminate\Support\Facades\Http;
 class PayNowProvider implements PaymentProviderInterface
 {
     private string $apiUrl;
+
     private string $apiKey;
+
     private string $signatureKey;
 
     public function __construct()
     {
         $config = config('payments.providers.paynow');
-        $this->apiUrl = $config['sandbox'] 
-            ? ($config['sandbox_api_url'] ?? $config['api_url']) 
+        $this->apiUrl = $config['sandbox']
+            ? ($config['sandbox_api_url'] ?? $config['api_url'])
             : $config['api_url'];
         $this->apiKey = $config['api_key'] ?? '';
         $this->signatureKey = $config['signature_key'] ?? '';
@@ -26,7 +28,7 @@ class PayNowProvider implements PaymentProviderInterface
     public function createPayment(Payment $payment): array
     {
         $payload = [
-            'amount' => (int)($payment->amount * 100), // PayNow expects amount in grosz
+            'amount' => (int) ($payment->amount * 100), // PayNow expects amount in grosz
             'currency' => $payment->currency,
             'externalId' => $payment->uuid,
             'description' => $payment->description,
@@ -44,10 +46,10 @@ class PayNowProvider implements PaymentProviderInterface
             'Api-Key' => $this->apiKey,
             'Content-Type' => 'application/json',
             'Signature' => $this->generateSignature($payload),
-        ])->post($this->apiUrl . '/v1/payments', $payload);
+        ])->post($this->apiUrl.'/v1/payments', $payload);
 
-        if (!$response->successful()) {
-            throw new \Exception('PayNow API Error: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \Exception('PayNow API Error: '.$response->body());
         }
 
         $data = $response->json();
@@ -59,7 +61,7 @@ class PayNowProvider implements PaymentProviderInterface
             'metadata' => [
                 'paynow_payment_id' => $data['paymentId'],
                 'created_at' => now()->toISOString(),
-            ]
+            ],
         ];
     }
 
@@ -67,9 +69,9 @@ class PayNowProvider implements PaymentProviderInterface
     {
         $response = Http::withHeaders([
             'Api-Key' => $this->apiKey,
-        ])->get($this->apiUrl . "/v1/payments/{$externalId}/status");
+        ])->get($this->apiUrl."/v1/payments/{$externalId}/status");
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception('PayNow status check failed');
         }
 
@@ -84,7 +86,7 @@ class PayNowProvider implements PaymentProviderInterface
     public function refundPayment(Payment $payment, float $amount): array
     {
         $payload = [
-            'amount' => (int)($amount * 100),
+            'amount' => (int) ($amount * 100),
             'reason' => 'Customer refund request',
         ];
 
@@ -92,10 +94,10 @@ class PayNowProvider implements PaymentProviderInterface
             'Api-Key' => $this->apiKey,
             'Content-Type' => 'application/json',
             'Signature' => $this->generateSignature($payload),
-        ])->post($this->apiUrl . "/v1/payments/{$payment->external_id}/refunds", $payload);
+        ])->post($this->apiUrl."/v1/payments/{$payment->external_id}/refunds", $payload);
 
-        if (!$response->successful()) {
-            throw new \Exception('PayNow refund failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \Exception('PayNow refund failed: '.$response->body());
         }
 
         $data = $response->json();
@@ -110,7 +112,7 @@ class PayNowProvider implements PaymentProviderInterface
     public function handleWebhook(array $data): array
     {
         // Verify webhook signature
-        if (!$this->verifyWebhookSignature($data)) {
+        if (! $this->verifyWebhookSignature($data)) {
             throw new \Exception('Invalid webhook signature');
         }
 
@@ -124,6 +126,7 @@ class PayNowProvider implements PaymentProviderInterface
     private function generateSignature(array $data): string
     {
         $dataString = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
         return base64_encode(hash_hmac('sha256', $dataString, $this->signatureKey, true));
     }
 
@@ -131,13 +134,13 @@ class PayNowProvider implements PaymentProviderInterface
     {
         $receivedSignature = request()->header('Signature');
         $expectedSignature = $this->generateSignature($data);
-        
+
         return hash_equals($expectedSignature, $receivedSignature);
     }
 
     private function mapStatus(string $paynowStatus): string
     {
-        return match($paynowStatus) {
+        return match ($paynowStatus) {
             'NEW', 'PENDING' => 'pending',
             'CONFIRMED' => 'completed',
             'REJECTED', 'ERROR' => 'failed',

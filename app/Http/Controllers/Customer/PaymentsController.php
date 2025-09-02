@@ -18,7 +18,7 @@ class PaymentsController extends Controller
     public function index(Request $request)
     {
         $customer = auth()->user()->customer;
-        
+
         $query = $customer->payments()
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);
@@ -35,7 +35,7 @@ class PaymentsController extends Controller
     public function show(Payment $payment)
     {
         $this->authorize('view', $payment);
-        
+
         $payment->load(['payable', 'transaction']);
 
         return view('customer.payments.show', compact('payment'));
@@ -44,38 +44,39 @@ class PaymentsController extends Controller
     public function create(Request $request)
     {
         $customer = auth()->user()->customer;
-        
+
         // Handle order payment (new workflow)
         if ($request->has('order_id')) {
             $order = $customer->orders()->findOrFail($request->order_id);
-            
-            if (!$order->canBePaid()) {
+
+            if (! $order->canBePaid()) {
                 return redirect()->route('customer.orders.show', $order)
                     ->with('error', 'To zamówienie nie może być opłacone.');
             }
-            
+
             return view('customer.payments.create', compact('order'));
         }
-        
+
         // Handle single shipment payment
         if ($request->has('shipment_id')) {
             $shipment = $customer->shipments()->findOrFail($request->shipment_id);
+
             return view('customer.payments.create', compact('shipment'));
         }
-        
+
         // Handle bulk shipment payment
         if ($request->has('shipment_ids')) {
             $shipmentIds = explode(',', $request->shipment_ids);
             $shipments = $customer->shipments()->whereIn('id', $shipmentIds)->get();
-            
+
             if ($shipments->isEmpty()) {
                 return redirect()->route('customer.shipments.index')
                     ->with('error', 'Nie znaleziono przesyłek do płatności.');
             }
-            
+
             return view('customer.payments.create', compact('shipments'));
         }
-        
+
         return redirect()->route('customer.shipments.index')
             ->with('error', 'Brak przesyłek do płatności.');
     }
@@ -86,7 +87,7 @@ class PaymentsController extends Controller
             'payment_method' => 'required|in:balance,deferred,online',
             'order_id' => 'sometimes|exists:orders,id',
             'shipment_id' => 'sometimes|exists:shipments,id',
-            'shipment_ids' => 'sometimes|string'
+            'shipment_ids' => 'sometimes|string',
         ]);
 
         $customer = auth()->user()->customer;
@@ -97,7 +98,7 @@ class PaymentsController extends Controller
             if ($request->has('order_id')) {
                 return $this->processOrderPayment($request, $customer, $user);
             }
-            
+
             // Get shipments (legacy workflow)
             $shipments = collect();
             if ($request->has('shipment_id')) {
@@ -126,20 +127,20 @@ class PaymentsController extends Controller
             if ($paymentMethod === 'balance') {
                 // Check if customer has enough balance
                 if ($customer->current_balance < $totalAmount) {
-                    return back()->withErrors(['error' => 'Niewystarczające saldo na koncie. Dostępne: ' . number_format($customer->current_balance, 2) . ' PLN']);
+                    return back()->withErrors(['error' => 'Niewystarczające saldo na koncie. Dostępne: '.number_format($customer->current_balance, 2).' PLN']);
                 }
 
                 // Process payment from balance
                 foreach ($shipments as $shipment) {
                     // Deduct balance using customer method with transaction details
                     $transaction = $customer->deductBalance(
-                        $shipment->total_price, 
-                        'Płatność za przesyłkę: ' . ($shipment->tracking_number ?: $shipment->id),
+                        $shipment->total_price,
+                        'Płatność za przesyłkę: '.($shipment->tracking_number ?: $shipment->id),
                         null, // payment_id
                         $shipment->id, // transactionable_id
                         'App\\Models\\Shipment' // transactionable_type
                     );
-                    
+
                     $shipment->update(['status' => 'created']); // Use correct status
                 }
 
@@ -150,19 +151,19 @@ class PaymentsController extends Controller
                 // Check credit limit
                 $availableCredit = $customer->current_balance + ($customer->credit_limit ?? 0);
                 if ($availableCredit < $totalAmount) {
-                    return back()->withErrors(['error' => 'Przekroczono dostępny limit kredytowy. Dostępne: ' . number_format($availableCredit, 2) . ' PLN']);
+                    return back()->withErrors(['error' => 'Przekroczono dostępny limit kredytowy. Dostępne: '.number_format($availableCredit, 2).' PLN']);
                 }
 
-                if (!$customer->credit_limit) {
+                if (! $customer->credit_limit) {
                     return back()->withErrors(['error' => 'Płatność odroczona nie jest dostępna - brak przyznanego limitu kredytowego']);
                 }
 
                 // Process deferred payment
                 foreach ($shipments as $shipment) {
                     $shipment->update(['status' => 'created']); // Use correct status
-                    
+
                     // Create deferred payment transaction
-                    $transaction = new \App\Models\Transaction();
+                    $transaction = new \App\Models\Transaction;
                     $transaction->uuid = \Illuminate\Support\Str::uuid();
                     $transaction->customer_id = $customer->id;
                     $transaction->payment_id = null;
@@ -172,7 +173,7 @@ class PaymentsController extends Controller
                     $transaction->amount = $shipment->total_price;
                     $transaction->balance_before = $customer->current_balance;
                     $transaction->balance_after = $customer->current_balance; // Balance unchanged for deferred
-                    $transaction->description = 'Płatność odroczona za przesyłkę: ' . ($shipment->tracking_number ?: $shipment->id);
+                    $transaction->description = 'Płatność odroczona za przesyłkę: '.($shipment->tracking_number ?: $shipment->id);
                     $transaction->save();
                 }
 
@@ -190,11 +191,11 @@ class PaymentsController extends Controller
                     'amount' => $totalAmount,
                     'currency' => 'PLN',
                     'status' => 'pending',
-                    'description' => 'Płatność za ' . $shipments->count() . ' przesyłek',
+                    'description' => 'Płatność za '.$shipments->count().' przesyłek',
                     'provider_data' => [
-                        'shipment_ids' => $shipments->pluck('id')->toArray()
+                        'shipment_ids' => $shipments->pluck('id')->toArray(),
                     ],
-                    'expires_at' => now()->addHours(24)
+                    'expires_at' => now()->addHours(24),
                 ]);
 
                 return redirect()->route('payment.simulate', $payment->uuid);
@@ -203,7 +204,7 @@ class PaymentsController extends Controller
             return back()->withErrors(['error' => 'Nieznany sposób płatności.']);
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Wystąpił błąd podczas przetwarzania płatności: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Wystąpił błąd podczas przetwarzania płatności: '.$e->getMessage()]);
         }
     }
 
@@ -216,7 +217,7 @@ class PaymentsController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:10|max:10000',
-            'method' => 'required|in:card,bank_transfer,blik,simulation'
+            'method' => 'required|in:card,bank_transfer,blik,simulation',
         ]);
 
         try {
@@ -240,28 +241,28 @@ class PaymentsController extends Controller
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
-    
+
     /**
      * Process payment for an order (new workflow)
      */
     private function processOrderPayment(Request $request, $customer, $user)
     {
         $order = $customer->orders()->findOrFail($request->order_id);
-        
-        if (!$order->canBePaid()) {
+
+        if (! $order->canBePaid()) {
             return back()->withErrors(['error' => 'To zamówienie nie może być opłacone.']);
         }
-        
+
         $paymentMethod = $request->payment_method;
         $totalAmount = $order->total_amount;
-        
+
         \DB::beginTransaction();
-        
+
         try {
             if ($paymentMethod === 'balance') {
                 // Check if customer has enough balance
                 if ($customer->current_balance < $totalAmount) {
-                    return back()->withErrors(['error' => 'Niewystarczające saldo na koncie. Dostępne: ' . number_format($customer->current_balance, 2) . ' PLN']);
+                    return back()->withErrors(['error' => 'Niewystarczające saldo na koncie. Dostępne: '.number_format($customer->current_balance, 2).' PLN']);
                 }
 
                 // Create payment record for the order
@@ -276,28 +277,28 @@ class PaymentsController extends Controller
                     'amount' => $totalAmount,
                     'currency' => 'PLN',
                     'status' => 'completed',
-                    'description' => 'Płatność za zamówienie: ' . $order->order_number,
-                    'completed_at' => now()
+                    'description' => 'Płatność za zamówienie: '.$order->order_number,
+                    'completed_at' => now(),
                 ]);
 
                 // Process payment for each shipment in the order
                 foreach ($order->shipments as $shipment) {
                     // Deduct balance using customer method with transaction details
                     $transaction = $customer->deductBalance(
-                        $shipment->total_price, 
-                        'Płatność za przesyłkę w zamówieniu: ' . $order->order_number,
+                        $shipment->total_price,
+                        'Płatność za przesyłkę w zamówieniu: '.$order->order_number,
                         $payment->id, // payment_id
                         $shipment->id, // transactionable_id
                         'App\\Models\\Shipment' // transactionable_type
                     );
-                    
+
                     // Update shipment status to PAID (not just created)
                     $shipment->update(['status' => 'paid']);
                 }
 
                 // Mark order as paid
                 $order->markAsPaid();
-                
+
                 \DB::commit();
 
                 return redirect()->route('customer.orders.show', $order)
@@ -307,10 +308,10 @@ class PaymentsController extends Controller
                 // Check credit limit
                 $availableCredit = $customer->current_balance + ($customer->credit_limit ?? 0);
                 if ($availableCredit < $totalAmount) {
-                    return back()->withErrors(['error' => 'Przekroczono dostępny limit kredytowy. Dostępne: ' . number_format($availableCredit, 2) . ' PLN']);
+                    return back()->withErrors(['error' => 'Przekroczono dostępny limit kredytowy. Dostępne: '.number_format($availableCredit, 2).' PLN']);
                 }
 
-                if (!$customer->credit_limit) {
+                if (! $customer->credit_limit) {
                     return back()->withErrors(['error' => 'Płatność odroczona nie jest dostępna - brak przyznanego limitu kredytowego']);
                 }
 
@@ -326,14 +327,14 @@ class PaymentsController extends Controller
                     'amount' => $totalAmount,
                     'currency' => 'PLN',
                     'status' => 'completed',
-                    'description' => 'Płatność odroczona za zamówienie: ' . $order->order_number,
-                    'completed_at' => now()
+                    'description' => 'Płatność odroczona za zamówienie: '.$order->order_number,
+                    'completed_at' => now(),
                 ]);
 
                 // Process deferred payment for each shipment
                 foreach ($order->shipments as $shipment) {
                     // Create deferred payment transaction (no balance deduction)
-                    $transaction = new \App\Models\Transaction();
+                    $transaction = new \App\Models\Transaction;
                     $transaction->uuid = \Illuminate\Support\Str::uuid();
                     $transaction->customer_id = $customer->id;
                     $transaction->payment_id = $payment->id;
@@ -343,16 +344,16 @@ class PaymentsController extends Controller
                     $transaction->amount = $shipment->total_price;
                     $transaction->balance_before = $customer->current_balance;
                     $transaction->balance_after = $customer->current_balance; // Balance unchanged for deferred
-                    $transaction->description = 'Płatność odroczona za przesyłkę w zamówieniu: ' . $order->order_number;
+                    $transaction->description = 'Płatność odroczona za przesyłkę w zamówieniu: '.$order->order_number;
                     $transaction->save();
-                    
+
                     // Update shipment status to PAID
                     $shipment->update(['status' => 'paid']);
                 }
 
                 // Mark order as paid
                 $order->markAsPaid();
-                
+
                 \DB::commit();
 
                 return redirect()->route('customer.orders.show', $order)
@@ -371,21 +372,23 @@ class PaymentsController extends Controller
                     'amount' => $totalAmount,
                     'currency' => 'PLN',
                     'status' => 'pending',
-                    'description' => 'Płatność online za zamówienie: ' . $order->order_number,
-                    'expires_at' => now()->addHours(24)
+                    'description' => 'Płatność online za zamówienie: '.$order->order_number,
+                    'expires_at' => now()->addHours(24),
                 ]);
-                
+
                 \DB::commit();
 
                 return redirect()->route('payment.simulate', $payment->uuid);
             }
 
             \DB::rollBack();
+
             return back()->withErrors(['error' => 'Nieznany sposób płatności.']);
 
         } catch (\Exception $e) {
             \DB::rollBack();
-            return back()->withErrors(['error' => 'Wystąpił błąd podczas przetwarzania płatności: ' . $e->getMessage()]);
+
+            return back()->withErrors(['error' => 'Wystąpił błąd podczas przetwarzania płatności: '.$e->getMessage()]);
         }
     }
 }

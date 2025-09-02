@@ -25,10 +25,10 @@ class NotificationsController extends Controller
                 'id' => 2,
                 'title' => 'System Update',
                 'message' => 'System maintenance completed successfully',
-                'type' => 'success', 
+                'type' => 'success',
                 'read' => true,
                 'created_at' => now()->subHours(2),
-            ]
+            ],
         ]);
 
         return view('admin.notifications.index', compact('notifications'));
@@ -50,7 +50,7 @@ class NotificationsController extends Controller
                 'subject' => 'Your shipment has been delivered',
                 'type' => 'sms',
                 'status' => 'active',
-            ]
+            ],
         ]);
 
         return view('admin.notifications.templates', compact('templates'));
@@ -68,7 +68,7 @@ class NotificationsController extends Controller
 
     public function editTemplate($template)
     {
-        return view('admin.notifications.edit-template', ['template' => (object)[
+        return view('admin.notifications.edit-template', ['template' => (object) [
             'id' => $template,
             'name' => 'Sample Template',
             'subject' => 'Sample Subject',

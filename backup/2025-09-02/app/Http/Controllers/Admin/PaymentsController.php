@@ -20,12 +20,12 @@ class PaymentsController extends Controller
             ],
             [
                 'id' => 2,
-                'uuid' => 'PAY-002', 
+                'uuid' => 'PAY-002',
                 'amount' => 89.50,
                 'status' => 'pending',
                 'customer_name' => 'Another Corp',
                 'created_at' => now()->subHours(3),
-            ]
+            ],
         ];
 
         return view('admin.payments.index', compact('payments'));
@@ -33,9 +33,9 @@ class PaymentsController extends Controller
 
     public function show($payment)
     {
-        $payment = (object)[
+        $payment = (object) [
             'id' => $payment,
-            'uuid' => 'PAY-' . str_pad($payment, 3, '0', STR_PAD_LEFT),
+            'uuid' => 'PAY-'.str_pad($payment, 3, '0', STR_PAD_LEFT),
             'amount' => 199.99,
             'status' => 'completed',
             'customer_name' => 'Test Company',

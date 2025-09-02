@@ -7,6 +7,6 @@ namespace App\Services\Notification\Channels;
 interface NotificationChannelInterface
 {
     public function send(string $recipient, string $subject, string $content, array $data = []): bool;
-    
+
     public function sendTest(string $recipient, string $subject, string $content): bool;
 }

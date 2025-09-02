@@ -16,20 +16,20 @@ class CheckApiKey
         $header = config('map.api.header', 'X-API-Key');
         $key = $request->header($header) ?? $request->query('api_key');
 
-        if (!$key) {
+        if (! $key) {
             return response()->json(['success' => false, 'error' => 'API key is required'], 401);
         }
 
         $apiKey = ApiKey::where('key', $key)->first();
-        if (!$apiKey || !$apiKey->isActive()) {
+        if (! $apiKey || ! $apiKey->isActive()) {
             return response()->json(['success' => false, 'error' => 'Invalid API key'], 401);
         }
 
-        if (!$apiKey->hasScope($requiredScope)) {
+        if (! $apiKey->hasScope($requiredScope)) {
             return response()->json(['success' => false, 'error' => 'Insufficient scope'], 403);
         }
 
-        if (!$apiKey->withinLimits()) {
+        if (! $apiKey->withinLimits()) {
             return response()->json(['success' => false, 'error' => 'Rate limit exceeded'], 429);
         }
 
@@ -39,7 +39,7 @@ class CheckApiKey
         }
 
         $apiKey->registerHit();
+
         return $next($request);
     }
 }
-

@@ -12,7 +12,7 @@ class NotificationTemplate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'type', 'subject', 'content', 'variables', 'is_active'
+        'name', 'type', 'subject', 'content', 'variables', 'is_active',
     ];
 
     protected $casts = [
@@ -28,22 +28,22 @@ class NotificationTemplate extends Model
     public function renderContent(array $variables = []): string
     {
         $content = $this->content;
-        
+
         foreach ($variables as $key => $value) {
             $content = str_replace("{{$key}}", $value, $content);
         }
-        
+
         return $content;
     }
 
     public function renderSubject(array $variables = []): string
     {
         $subject = $this->subject;
-        
+
         foreach ($variables as $key => $value) {
             $subject = str_replace("{{$key}}", $value, $subject);
         }
-        
+
         return $subject;
     }
 }

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
 use App\Http\Requests\Admin\StoreCustomerRequest;
 use App\Http\Requests\Admin\UpdateCustomerRequest;
-use App\Notifications\CustomerApproved;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class CustomersController extends Controller
@@ -18,8 +17,8 @@ class CustomersController extends Controller
         $query = Customer::with(['primaryUser'])
             ->when($request->search, function ($query, $search) {
                 return $query->where('company_name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
-                            ->orWhere('nip', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%");
             })
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);
@@ -40,7 +39,7 @@ class CustomersController extends Controller
     public function show(Customer $customer)
     {
         $customer->load([
-            'users', 
+            'users',
             'shipments' => function ($query) {
                 $query->latest()->limit(10);
             },
@@ -49,7 +48,7 @@ class CustomersController extends Controller
             },
             'transactions' => function ($query) {
                 $query->latest()->limit(10);
-            }
+            },
         ]);
 
         $stats = [
@@ -106,6 +105,7 @@ class CustomersController extends Controller
     {
         if ($customer->isEmailVerified()) {
             $customer->update(['status' => 'active']);
+
             return back()->with('success', 'Klient został zatwierdzony pomyślnie.');
         }
 
@@ -122,7 +122,7 @@ class CustomersController extends Controller
     public function regenerateApiKey(Customer $customer)
     {
         $customer->update([
-            'api_key' => 'sk_' . \Str::random(48)
+            'api_key' => 'sk_'.\Str::random(48),
         ]);
 
         return back()->with('success', 'Klucz API został wygenerowany ponownie.');
@@ -132,11 +132,11 @@ class CustomersController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'description' => 'nullable|string|max:255'
+            'description' => 'nullable|string|max:255',
         ]);
 
         $customer->addBalance(
-            $request->amount, 
+            $request->amount,
             $request->description ?? 'Manual balance adjustment by admin'
         );
 

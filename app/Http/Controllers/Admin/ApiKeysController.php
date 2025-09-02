@@ -14,6 +14,7 @@ class ApiKeysController extends Controller
     public function index()
     {
         $keys = ApiKey::orderByDesc('created_at')->paginate(20);
+
         return view('admin.settings.api', compact('keys'));
     }
 
@@ -29,7 +30,7 @@ class ApiKeysController extends Controller
 
         // Generate unique key with prefix
         do {
-            $key = 'map_' . Str::random(40);
+            $key = 'map_'.Str::random(40);
         } while (ApiKey::where('key', $key)->exists());
 
         $apiKey = ApiKey::create([
@@ -45,7 +46,7 @@ class ApiKeysController extends Controller
     public function revoke(ApiKey $apiKey)
     {
         $apiKey->update(['status' => 'revoked']);
+
         return back()->with('success', 'Klucz został unieważniony.');
     }
 }
-

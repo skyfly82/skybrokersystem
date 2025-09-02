@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CmsPage;
 use App\Models\CmsMedia;
 use App\Models\CmsNotificationBanner;
+use App\Models\CmsPage;
 use Illuminate\View\View;
 
 class MarketingDashboardController extends Controller
@@ -29,26 +29,26 @@ class MarketingDashboardController extends Controller
                 'total' => CmsNotificationBanner::count(),
                 'active' => CmsNotificationBanner::active()->count(),
                 'scheduled' => CmsNotificationBanner::where('is_active', true)
-                             ->where('start_date', '>', now())
-                             ->count(),
-            ]
+                    ->where('start_date', '>', now())
+                    ->count(),
+            ],
         ];
 
         $recentPages = CmsPage::with('creator')
-                             ->orderBy('updated_at', 'desc')
-                             ->limit(5)
-                             ->get();
+            ->orderBy('updated_at', 'desc')
+            ->limit(5)
+            ->get();
 
         $recentMedia = CmsMedia::with('uploader')
-                              ->orderBy('created_at', 'desc')
-                              ->limit(6)
-                              ->get();
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
 
         $activeBanners = CmsNotificationBanner::active()
-                                             ->with('creator')
-                                             ->ordered()
-                                             ->limit(3)
-                                             ->get();
+            ->with('creator')
+            ->ordered()
+            ->limit(3)
+            ->get();
 
         return view('admin.cms.dashboard', compact(
             'stats',
@@ -63,10 +63,10 @@ class MarketingDashboardController extends Controller
         if ($size === 0) {
             return '0 B';
         }
-        
+
         $units = ['B', 'KB', 'MB', 'GB'];
         $factor = floor(log($size, 1024));
-        
-        return round($size / pow(1024, $factor), 2) . ' ' . $units[$factor];
+
+        return round($size / pow(1024, $factor), 2).' '.$units[$factor];
     }
 }

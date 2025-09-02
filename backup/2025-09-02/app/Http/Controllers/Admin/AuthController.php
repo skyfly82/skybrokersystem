@@ -27,7 +27,7 @@ class AuthController extends Controller
 
         if (Auth::guard('system_user')->attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-            
+
             // Update last login if user exists
             if ($user = Auth::guard('system_user')->user()) {
                 $user->update([

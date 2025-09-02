@@ -17,7 +17,7 @@ class Transaction extends Model
     protected $fillable = [
         'uuid', 'customer_id', 'payment_id', 'transactionable_type', 'transactionable_id',
         'type', 'amount', 'currency', 'balance_before', 'balance_after',
-        'description', 'metadata'
+        'description', 'metadata',
     ];
 
     protected $casts = [
@@ -30,9 +30,9 @@ class Transaction extends Model
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
         });
@@ -66,6 +66,7 @@ class Transaction extends Model
     public function getFormattedAmountAttribute(): string
     {
         $prefix = $this->isCredit() ? '+' : '-';
-        return $prefix . number_format($this->amount, 2) . ' ' . $this->currency;
+
+        return $prefix.number_format($this->amount, 2).' '.$this->currency;
     }
 }

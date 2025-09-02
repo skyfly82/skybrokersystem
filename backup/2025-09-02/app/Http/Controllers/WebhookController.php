@@ -6,8 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomerComplaint;
 use App\Models\CustomerServiceIntegration;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
@@ -16,41 +16,42 @@ class WebhookController extends Controller
     {
         try {
             $payload = $request->all();
-            
+
             Log::info('Freshdesk webhook received', $payload);
 
-            if (!$this->validateFreshdeskSignature($request)) {
+            if (! $this->validateFreshdeskSignature($request)) {
                 Log::warning('Invalid Freshdesk webhook signature');
+
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
 
             $eventType = $request->header('X-Freshworks-Webhook-Event-Type');
-            
+
             switch ($eventType) {
                 case 'ticket_created':
                     $this->handleFreshdeskTicketCreated($payload);
                     break;
-                    
+
                 case 'ticket_updated':
                     $this->handleFreshdeskTicketUpdated($payload);
                     break;
-                    
+
                 case 'note_created':
                     $this->handleFreshdeskNoteCreated($payload);
                     break;
-                    
+
                 default:
                     Log::info("Unhandled Freshdesk event type: {$eventType}");
             }
 
             return response()->json(['status' => 'success']);
-            
+
         } catch (\Exception $e) {
-            Log::error('Freshdesk webhook error: ' . $e->getMessage(), [
+            Log::error('Freshdesk webhook error: '.$e->getMessage(), [
                 'exception' => $e,
-                'payload' => $request->all()
+                'payload' => $request->all(),
             ]);
-            
+
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
@@ -59,37 +60,38 @@ class WebhookController extends Controller
     {
         try {
             $payload = $request->all();
-            
+
             Log::info('Freshcaller webhook received', $payload);
 
-            if (!$this->validateFreshcallerSignature($request)) {
+            if (! $this->validateFreshcallerSignature($request)) {
                 Log::warning('Invalid Freshcaller webhook signature');
+
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
 
             $eventType = $request->header('X-Freshworks-Webhook-Event-Type');
-            
+
             switch ($eventType) {
                 case 'call_completed':
                     $this->handleFreshcallerCallCompleted($payload);
                     break;
-                    
+
                 case 'call_recording_ready':
                     $this->handleFreshcallerRecordingReady($payload);
                     break;
-                    
+
                 default:
                     Log::info("Unhandled Freshcaller event type: {$eventType}");
             }
 
             return response()->json(['status' => 'success']);
-            
+
         } catch (\Exception $e) {
-            Log::error('Freshcaller webhook error: ' . $e->getMessage(), [
+            Log::error('Freshcaller webhook error: '.$e->getMessage(), [
                 'exception' => $e,
-                'payload' => $request->all()
+                'payload' => $request->all(),
             ]);
-            
+
             return response()->json(['error' => 'Internal server error'], 500);
         }
     }
@@ -97,21 +99,21 @@ class WebhookController extends Controller
     private function validateFreshdeskSignature(Request $request): bool
     {
         $integration = CustomerServiceIntegration::where('service_name', 'freshdesk')
-                                                 ->where('is_active', true)
-                                                 ->first();
-        
-        if (!$integration || !$integration->webhook_secret) {
+            ->where('is_active', true)
+            ->first();
+
+        if (! $integration || ! $integration->webhook_secret) {
             return false;
         }
 
         $signature = $request->header('X-Freshworks-Webhook-Signature');
-        if (!$signature) {
+        if (! $signature) {
             return false;
         }
 
         $expectedSignature = base64_encode(hash_hmac(
-            'sha256', 
-            $request->getContent(), 
+            'sha256',
+            $request->getContent(),
             $integration->webhook_secret,
             true
         ));
@@ -122,21 +124,21 @@ class WebhookController extends Controller
     private function validateFreshcallerSignature(Request $request): bool
     {
         $integration = CustomerServiceIntegration::where('service_name', 'freshcaller')
-                                                 ->where('is_active', true)
-                                                 ->first();
-        
-        if (!$integration || !$integration->webhook_secret) {
+            ->where('is_active', true)
+            ->first();
+
+        if (! $integration || ! $integration->webhook_secret) {
             return false;
         }
 
         $signature = $request->header('X-Freshworks-Webhook-Signature');
-        if (!$signature) {
+        if (! $signature) {
             return false;
         }
 
         $expectedSignature = base64_encode(hash_hmac(
-            'sha256', 
-            $request->getContent(), 
+            'sha256',
+            $request->getContent(),
             $integration->webhook_secret,
             true
         ));
@@ -147,19 +149,19 @@ class WebhookController extends Controller
     private function handleFreshdeskTicketCreated(array $payload): void
     {
         $ticket = $payload['ticket'] ?? null;
-        if (!$ticket) {
+        if (! $ticket) {
             return;
         }
 
         // Try to find existing complaint by external reference
         $complaint = CustomerComplaint::where('freshdesk_ticket_id', $ticket['id'])->first();
-        
+
         if ($complaint) {
             $complaint->update([
                 'freshdesk_data' => $payload,
                 'status' => $this->mapFreshdeskStatus($ticket['status']),
             ]);
-            
+
             Log::info("Updated complaint {$complaint->complaint_number} from Freshdesk ticket {$ticket['id']}");
         } else {
             Log::info("No matching complaint found for Freshdesk ticket {$ticket['id']}");
@@ -169,12 +171,12 @@ class WebhookController extends Controller
     private function handleFreshdeskTicketUpdated(array $payload): void
     {
         $ticket = $payload['ticket'] ?? null;
-        if (!$ticket) {
+        if (! $ticket) {
             return;
         }
 
         $complaint = CustomerComplaint::where('freshdesk_ticket_id', $ticket['id'])->first();
-        
+
         if ($complaint) {
             $updates = [
                 'freshdesk_data' => $payload,
@@ -188,7 +190,7 @@ class WebhookController extends Controller
             }
 
             $complaint->update($updates);
-            
+
             Log::info("Updated complaint {$complaint->complaint_number} from Freshdesk ticket update");
         }
     }
@@ -197,23 +199,23 @@ class WebhookController extends Controller
     {
         $note = $payload['note'] ?? null;
         $ticket = $payload['ticket'] ?? null;
-        
-        if (!$note || !$ticket) {
+
+        if (! $note || ! $ticket) {
             return;
         }
 
         $complaint = CustomerComplaint::where('freshdesk_ticket_id', $ticket['id'])->first();
-        
-        if ($complaint && !$note['private']) {
+
+        if ($complaint && ! $note['private']) {
             // Add public note as a message to complaint
             $complaint->messages()->create([
                 'sender_type' => 'admin',
                 'sender_id' => 1, // Default system user
                 'message' => $note['body_text'] ?? $note['body'],
                 'is_internal' => false,
-                'created_at' => $note['created_at'] ?? now()
+                'created_at' => $note['created_at'] ?? now(),
             ]);
-            
+
             Log::info("Added note to complaint {$complaint->complaint_number} from Freshdesk");
         }
     }
@@ -221,7 +223,7 @@ class WebhookController extends Controller
     private function handleFreshcallerCallCompleted(array $payload): void
     {
         $call = $payload['call'] ?? null;
-        if (!$call) {
+        if (! $call) {
             return;
         }
 
@@ -230,7 +232,7 @@ class WebhookController extends Controller
             'call_id' => $call['id'],
             'caller_number' => $call['caller_number'] ?? null,
             'duration' => $call['duration'] ?? null,
-            'call_type' => $call['call_type'] ?? null
+            'call_type' => $call['call_type'] ?? null,
         ]);
 
         // Future: Could automatically create complaint from call if configured
@@ -239,13 +241,13 @@ class WebhookController extends Controller
     private function handleFreshcallerRecordingReady(array $payload): void
     {
         $call = $payload['call'] ?? null;
-        if (!$call) {
+        if (! $call) {
             return;
         }
 
         Log::info('Freshcaller recording ready', [
             'call_id' => $call['id'],
-            'recording_url' => $call['recording_url'] ?? null
+            'recording_url' => $call['recording_url'] ?? null,
         ]);
 
         // Future: Could attach recording to related complaint

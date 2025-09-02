@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Requests/Admin/UpdateCustomerRequest.php
 
 declare(strict_types=1);

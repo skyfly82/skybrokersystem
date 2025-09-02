@@ -19,12 +19,12 @@ class TrackUserActivity
         // Track login activity if user just authenticated
         if (Auth::guard('customer_user')->check()) {
             $user = Auth::guard('customer_user')->user();
-            
+
             // Update last login information
-            if (!$user->last_login_at || $user->last_login_at->diffInMinutes(now()) > 30) {
+            if (! $user->last_login_at || $user->last_login_at->diffInMinutes(now()) > 30) {
                 $user->update([
                     'last_login_at' => now(),
-                    'last_login_ip' => $request->ip()
+                    'last_login_ip' => $request->ip(),
                 ]);
 
                 // Log the login event
@@ -33,26 +33,26 @@ class TrackUserActivity
                     'auditable_id' => $user->id,
                     'user_type' => 'customer_user',
                     'user_id' => $user->id,
-                    'user_name' => $user->first_name . ' ' . $user->last_name,
+                    'user_name' => $user->first_name.' '.$user->last_name,
                     'user_email' => $user->email,
                     'event' => 'login',
                     'old_values' => null,
                     'new_values' => ['login_time' => now()->toISOString()],
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->header('User-Agent'),
-                    'description' => 'User logged in successfully'
+                    'description' => 'User logged in successfully',
                 ]);
             }
         }
 
         if (Auth::guard('system_user')->check()) {
             $user = Auth::guard('system_user')->user();
-            
+
             // Update last login information
-            if (!$user->last_login_at || $user->last_login_at->diffInMinutes(now()) > 30) {
+            if (! $user->last_login_at || $user->last_login_at->diffInMinutes(now()) > 30) {
                 $user->update([
                     'last_login_at' => now(),
-                    'last_login_ip' => $request->ip()
+                    'last_login_ip' => $request->ip(),
                 ]);
 
                 // Log the login event
@@ -68,7 +68,7 @@ class TrackUserActivity
                     'new_values' => ['login_time' => now()->toISOString()],
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->header('User-Agent'),
-                    'description' => 'System user logged in successfully'
+                    'description' => 'System user logged in successfully',
                 ]);
             }
         }

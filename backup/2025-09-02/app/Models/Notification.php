@@ -15,7 +15,7 @@ class Notification extends Model
 
     protected $fillable = [
         'uuid', 'notifiable_type', 'notifiable_id', 'type', 'channel',
-        'data', 'title', 'message', 'read_at', 'sent_at', 'status', 'failure_reason'
+        'data', 'title', 'message', 'read_at', 'sent_at', 'status', 'failure_reason',
     ];
 
     protected $casts = [
@@ -27,9 +27,9 @@ class Notification extends Model
     protected static function boot(): void
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
-            if (!$model->uuid) {
+            if (! $model->uuid) {
                 $model->uuid = Str::uuid();
             }
         });

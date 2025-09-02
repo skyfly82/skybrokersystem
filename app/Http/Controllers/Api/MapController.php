@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CourierPoint;
-use App\Models\CourierService;
 use Illuminate\Http\Request;
 
 class MapController extends Controller
@@ -17,17 +16,17 @@ class MapController extends Controller
 
         // Filters
         if ($request->filled('courier_codes')) {
-            $codes = is_array($request->courier_codes) ? $request->courier_codes : explode(',', (string)$request->courier_codes);
+            $codes = is_array($request->courier_codes) ? $request->courier_codes : explode(',', (string) $request->courier_codes);
             $query->whereHas('courierService', fn ($q) => $q->whereIn('code', $codes));
         }
 
         if ($request->filled('courier_ids')) {
-            $ids = is_array($request->courier_ids) ? $request->courier_ids : explode(',', (string)$request->courier_ids);
+            $ids = is_array($request->courier_ids) ? $request->courier_ids : explode(',', (string) $request->courier_ids);
             $query->whereIn('courier_service_id', $ids);
         }
 
         if ($request->filled('types')) {
-            $types = is_array($request->types) ? $request->types : explode(',', (string)$request->types);
+            $types = is_array($request->types) ? $request->types : explode(',', (string) $request->types);
             $query->whereIn('type', $types);
         }
 
@@ -38,7 +37,7 @@ class MapController extends Controller
         }
 
         if ($request->filled('q')) {
-            $q = (string)$request->q;
+            $q = (string) $request->q;
             $query->where(function ($sub) use ($q) {
                 $sub->where('name', 'like', "%{$q}%")
                     ->orWhere('city', 'like', "%{$q}%")
@@ -83,14 +82,14 @@ class MapController extends Controller
             'meta' => [
                 'count' => $points->count(),
                 'limit' => $limit,
-            ]
+            ],
         ]);
     }
 
     public function show(string $idOrCode)
     {
         $point = CourierPoint::with('courierService')
-            ->when(is_numeric($idOrCode), fn ($q) => $q->where('id', (int)$idOrCode), fn ($q) => $q->where('code', $idOrCode))
+            ->when(is_numeric($idOrCode), fn ($q) => $q->where('id', (int) $idOrCode), fn ($q) => $q->where('code', $idOrCode))
             ->firstOrFail();
 
         return response()->json([
@@ -108,7 +107,7 @@ class MapController extends Controller
                     'type' => 'Feature',
                     'geometry' => [
                         'type' => 'Point',
-                        'coordinates' => [(float)$p->longitude, (float)$p->latitude],
+                        'coordinates' => [(float) $p->longitude, (float) $p->latitude],
                     ],
                     'properties' => [
                         'id' => $p->id,
@@ -124,4 +123,3 @@ class MapController extends Controller
         ];
     }
 }
-

@@ -15,10 +15,10 @@ class ApiKeyMiddleware
     {
         $apiKey = $request->header('X-API-Key') ?? $request->get('api_key');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             return response()->json([
                 'success' => false,
-                'error' => 'API key is required'
+                'error' => 'API key is required',
             ], 401);
         }
 
@@ -26,16 +26,16 @@ class ApiKeyMiddleware
             ->where('status', 'active')
             ->first();
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json([
                 'success' => false,
-                'error' => 'Invalid API key'
+                'error' => 'Invalid API key',
             ], 401);
         }
 
         // Set customer as authenticated user
         $request->setUserResolver(fn () => $customer);
-        
+
         return $next($request);
     }
 }
