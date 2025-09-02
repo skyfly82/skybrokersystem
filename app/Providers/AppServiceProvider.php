@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Cel: Główny dostawca usług aplikacji z rejestracją serwisów
+ * Moduł: Core
+ * Odpowiedzialny: Claude-Code
+ * Data: 2025-09-02
+ */
+
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -7,6 +14,16 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+
+// Service Contracts
+use App\Services\Contracts\Auth\AuthServiceInterface;
+use App\Services\Contracts\Orders\OrderServiceInterface;
+use App\Services\Contracts\Payments\PaymentServiceInterface;
+
+// Service Implementations
+use App\Services\Auth\AuthService;
+use App\Services\Orders\OrderService;
+use App\Services\Payments\PaymentService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +36,21 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('files', function () {
             return new Filesystem();
         });
+
+        // Register service layer bindings
+        $this->registerServiceBindings();
+    }
+
+    /**
+     * Register service layer interface->implementation bindings
+     */
+    private function registerServiceBindings(): void
+    {
+        $this->app->bind(AuthServiceInterface::class, AuthService::class);
+        $this->app->bind(OrderServiceInterface::class, OrderService::class);
+        
+        // PaymentService will be created in next step
+        // $this->app->bind(PaymentServiceInterface::class, PaymentService::class);
     }
 
     /**
