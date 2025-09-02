@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'version' => env('APP_VERSION', '6.0.0'),
+    'version' => env('APP_VERSION', '1.0.0'),
     'build' => env('APP_BUILD', 'dev'),
     'release_date' => '2024-01-15',
     'environment' => env('APP_ENV', 'local'),

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**SkyBrokerSystem v6** is a Laravel 11-based courier brokerage platform that manages shipments, payments, and integrations with multiple courier services. The system serves two main user types: system administrators and customers, each with dedicated panels and APIs.
+**SkyBrokerSystem v1.0.0** is a Laravel 12-based courier brokerage platform that manages shipments, payments, and integrations with multiple courier services. The system serves two main user types: system administrators and customers, each with dedicated panels and APIs.
 
 ## Development Commands
 

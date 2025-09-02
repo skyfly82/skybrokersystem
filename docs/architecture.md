@@ -1,8 +1,8 @@
-# SkyBrokerSystem v6 - Architektura Systemu
+# SkyBrokerSystem v1.0.0 - Architektura Systemu
 
 ## Przegląd Architektury
 
-SkyBrokerSystem v6 został zrefaktoryzowany w ramach upgradu do Laravel 12 i implementuje architekturę Modular Monolith opartą na zasadach SOLID i wzorcach projektowych.
+SkyBrokerSystem v1.0.0 został zrefaktoryzowany w ramach upgradu do Laravel 12 i implementuje architekturę Modular Monolith opartą na zasadach SOLID i wzorcach projektowych.
 
 ## Główne Komponenty
 
@@ -124,7 +124,7 @@ POST   /api/v1/payments        # Nowa płatność
     "data": {},
     "meta": {
         "timestamp": "2025-09-02T12:00:00Z",
-        "version": "6.0.0"
+        "version": "1.0.0"
     }
 }
 ```
@@ -233,6 +233,6 @@ jobs:
 
 ---
 
-**Wersja dokumentacji**: 6.0.0  
+**Wersja dokumentacji**: 1.0.0  
 **Ostatnia aktualizacja**: 2025-09-02  
 **Odpowiedzialny**: sky_fly82

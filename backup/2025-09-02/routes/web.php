@@ -719,7 +719,7 @@ Route::prefix('api/public')->name('api.public.')->group(function () {
         return response()->json([
             'status' => 'operational',
             'timestamp' => now(),
-            'version' => '6.0.0',
+            'version' => '1.0.0',
         ]);
     })->name('status');
 });
@@ -735,7 +735,7 @@ Route::get('/health', function () {
         'status' => 'ok',
         'timestamp' => now(),
         'service' => 'SkyBrokerSystem',
-        'version' => '6.0.0',
+        'version' => '1.0.0',
     ]);
 })->name('health');
 

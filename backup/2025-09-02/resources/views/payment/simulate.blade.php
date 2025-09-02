@@ -154,7 +154,7 @@
                     <!-- Footer -->
                     <div class="mt-6 text-center">
                         <p class="text-xs text-gray-500">
-                            SkyBrokerSystem v6.0 - Środowisko testowe
+                            SkyBrokerSystem v1.0.0 - Środowisko testowe
                         </p>
                     </div>
                 </div>

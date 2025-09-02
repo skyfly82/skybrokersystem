@@ -15,7 +15,7 @@ Route::get('/health', function () {
     return response()->json([
         'status' => 'ok',
         'timestamp' => now()->toISOString(),
-        'version' => config('app.version', '6.0'),
+        'version' => config('app.version', '1.0.0'),
     ]);
 });
 
