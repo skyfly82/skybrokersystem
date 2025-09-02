@@ -1,141 +1,92 @@
-# SkyBrokerSystem 📦✈️
+# SkyBrokerSystem
 
-![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel)
-![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=for-the-badge&logo=php)
-![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=for-the-badge&logo=mysql)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/skyfly82/skybrokersystem/laravel.yml?branch=main)
+![Code Style](https://img.shields.io/badge/code%20style-pint-brightgreen)
+![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue)
+![Laravel Version](https://img.shields.io/badge/laravel-12.x-orange)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-Zaawansowana platforma brokerska do zarządzania przesyłkami kurierskimi, zbudowana w oparciu o framework Laravel 11. System umożliwia kompleksową obsługę klientów, zarządzanie przesyłkami oraz integrację z API firm kurierskich.
+**SkyBrokerSystem** to nowoczesna platforma do zarządzania przesyłkami kurierskimi, zbudowana na frameworku **Laravel 12**. System implementuje architekturę **Modularnego Monolitu**, zapewniając wysoką skalowalność, bezpieczeństwo i łatwość w utrzymaniu.
 
-## Spis Treści
+## Główne Funkcjonalności
 
-1.  [Opis Projektu](#opis-projektu)
-2.  [Główne Funkcjonalności](#główne-funkcjonalności)
-3.  [Stos Technologiczny](#stos-technologiczny)
-4.  [Instalacja i Uruchomienie](#instalacja-i-uruchomienie)
-5.  [Konfiguracja](#konfiguracja)
-6.  [Testowanie](#testowanie)
-7.  [Licencja](#licencja)
+-   **Zarządzanie Przesyłkami**: Tworzenie, śledzenie i zarządzanie przesyłkami od wielu dostawców.
+-   **Integracje z Kurierami**: Modułowa architektura pozwala na łatwe dodawanie nowych firm kurierskich (obecnie zintegrowany InPost).
+-   **Przetwarzanie Płatności**: Wsparcie dla wielu bramek płatniczych (PayNow, Stripe) oraz trybu symulacyjnego.
+-   **Panel Administracyjny**: Kompleksowy panel do zarządzania klientami, zamówieniami, płatnościami i ustawieniami systemu.
+-   **Panel Klienta**: Intuicyjny interfejs dla klientów do zarządzania własnymi przesyłkami i płatnościami.
+-   **RESTful API**: Bezpieczne API do integracji z zewnętrznymi systemami, chronione kluczami API oraz tokenami Sanctum.
+-   **System Powiadomień**: Wielokanałowe powiadomienia (Email, SMS) dla kluczowych zdarzeń w systemie.
 
----
+## Architektura i Stos Technologiczny
 
-### Opis Projektu
+System został zaprojektowany z myślą o najlepszych praktykach i nowoczesnych wzorcach projektowych.
 
-**SkyBrokerSystem** to nowoczesne rozwiązanie dla firm pośredniczących w usługach kurierskich. Aplikacja została zaprojektowana z myślą o skalowalności i wydajności, oferując dwa główne panele:
-* **Panel Administracyjny:** do zarządzania całym systemem, klientami, usługami kurierskimi i finansami.
-* **Panel Klienta:** intuicyjny interfejs dla klientów do nadawania i śledzenia przesyłek, zarządzania użytkownikami oraz generowania raportów.
+-   **Backend**: PHP 8.2+, Laravel 12
+-   **Frontend**: Blade, Tailwind CSS, Alpine.js
+-   **Baza Danych**: MySQL / PostgreSQL (z kluczami głównymi **UUID v7**)
+-   **Cache/Kolejki**: Redis
+-   **Architektura**: Modularny Monolit, Warstwa Usług (Service Layer), "Chude" Kontrolery.
 
----
+## Wymagania
 
-### Główne Funkcjonalności
+-   PHP >= 8.2
+-   Composer 2.x
+-   Node.js >= 16.x
+-   Baza danych (MySQL >= 8.0 lub PostgreSQL >= 13)
+-   Redis
 
-✅ **Panel Administracyjny:**
-* Dashboard ze statystykami systemu.
-* Zarządzanie klientami (firmami) i ich limitami kredytowymi.
-* Przegląd wszystkich przesyłek w systemie.
-* Zarządzanie usługami kurierskimi i ich konfiguracją.
-* System ról i uprawnień dla administratorów.
+## Instalacja i Uruchomienie
 
-✅ **Panel Klienta:**
-* Dashboard ze statystykami przesyłek danego klienta.
-* Proces tworzenia nowej przesyłki z wyceną i wyborem kuriera.
-* Śledzenie statusu przesyłek w czasie rzeczywistym.
-* Możliwość drukowania etykiet i anulowania przesyłek.
-* Zarządzanie użytkownikami w ramach konta firmowego.
-* Podstawowe raportowanie.
+Poniższe kroki opisują proces instalacji w środowisku serwerowym (bez Dockera).
 
-✅ **API:**
-* RESTful API dla klientów do integracji z ich własnymi systemami (np. e-commerce).
-* Bezpieczny dostęp oparty o klucze API.
+1.  **Klonowanie repozytorium**
+    ```bash
+    git clone [https://github.com/skyfly82/skybrokersystem.git](https://github.com/skyfly82/skybrokersystem.git)
+    cd skybrokersystem
+    ```
 
----
+2.  **Instalacja zależności PHP**
+    ```bash
+    composer install --no-dev --optimize-autoloader
+    ```
 
-### Stos Technologiczny
+3.  **Konfiguracja środowiska**
+    ```bash
+    cp .env.example .env
+    ```
+    Następnie skonfiguruj plik `.env`, uzupełniając dane dostępowe do bazy danych, Redis oraz adres URL aplikacji (`APP_URL`).
 
-* **Backend:** Laravel 11, PHP 8.x
-* **Frontend:** Blade, Tailwind CSS, JavaScript (Alpine.js)
-* **Baza Danych:** MySQL 8
-* **Serwer:** Nginx (zalecany)
-* **Narzędzia:** Composer, Vite, NPM
+4.  **Generowanie klucza aplikacji**
+    ```bash
+    php artisan key:generate
+    ```
 
-### Moduł Map (OSM)
+5.  **Migracje i dane startowe**
+    ```bash
+    php artisan migrate --seed
+    ```
 
-Nowy mikroserwis Mapy udostępnia API punktów kurierskich oraz panel admina do zarządzania:
+6.  **Dowiązanie katalogu storage**
+    ```bash
+    php artisan storage:link
+    ```
 
-- Endpoints: `GET /api/map/points`, `GET /api/map/points/{id|code}` (wymaga nagłówka `X-API-Key`)
-- Import punktów z CSV: `php artisan points:import path/to.csv --courier=inpost --type=parcel_locker --delimiter=; --header`
-- Admin: `Admin -> Courier Points` (CRUD)
-- Konfiguracja: `config/map.php` (tiles OSM, rate limits, cache)
+7.  **Instalacja zależności i budowanie frontendu**
+    ```bash
+    npm install
+    npm run build
+    ```
 
-#### Szybki start (migracje + seed)
+8.  **Optymalizacja na produkcję**
+    ```bash
+    php artisan optimize
+    ```
 
-1) Uruchom migracje i seedy:
+Po wykonaniu tych kroków aplikacja powinna być dostępna pod skonfigurowanym adresem URL.
 
-```
-php artisan migrate
-php artisan db:seed --class=CourierPointsSeeder
-```
+## Testowanie
 
-2) Wygeneruj klucz API z zakresem `map.read` (np. w Tinker):
-
-```
-php artisan tinker
->>> $k = new App\\Models\\ApiKey(['key' => 'map_demo_key', 'scopes' => ['map.read'], 'status' => 'active']);
->>> $k->save();
-```
-
-3) Wywołania API (curl):
-
-```
-# Lista punktów w bbox (Warszawa), tylko InPost, paczkomaty
-curl -H "X-API-Key: map_demo_key" \
-  "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&courier_codes[]=inpost&types[]=parcel_locker&limit=100"
-
-# Format GeoJSON
-curl -H "X-API-Key: map_demo_key" \
-  "http://185.213.25.106/api/map/points?bbox=52.0,20.8,52.5,21.3&format=geojson"
-
-# Szczegóły punktu po kodzie
-curl -H "X-API-Key: map_demo_key" \
-  "http://185.213.25.106/api/map/points/WAW01234"
-```
-
-4) Panel admina: `admin/courier-points` (CRUD + import CSV).
-
----
-
-### Instalacja i Uruchomienie
-
-Aby uruchomić projekt lokalnie, postępuj zgodnie z poniższymi krokami:
-
-**1. Wymagania wstępne:**
-* PHP 8.2+
-* Composer
-* Node.js & NPM
-* Serwer bazy danych MySQL
-
-**2. Kroki instalacyjne:**
-
+Do uruchomienia testów jednostkowych i funkcjonalnych służy następująca komenda:
 ```bash
-# 1. Sklonuj repozytorium
-git clone [https://github.com/skyfly82/skybrokersystem.git](https://github.com/skyfly82/skybrokersystem.git)
-cd skybrokersystem
-
-# 2. Zainstaluj zależności PHP
-composer install
-
-# 3. Zainstaluj zależności JavaScript
-npm install
-
-# 4. Skopiuj plik konfiguracyjny .env
-cp .env.example .env
-
-# 5. Wygeneruj klucz aplikacji
-php artisan key:generate
-
-# 6. Uruchom migracje i seedery (jeśli istnieją)
-# (Upewnij się, że skonfigurowałeś bazę danych w pliku .env)
-php artisan migrate --seed
-
-# 7. Skompiluj zasoby frontendowe
-npm run dev
+php artisan test
