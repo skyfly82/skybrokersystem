@@ -4,20 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <!-- SEO Meta Tags -->
     <title>@yield('title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))</title>
     <meta name="description" content="@yield('description', __('common.hero_description'))">
     <meta name="keywords" content="@yield('keywords', 'courier, brokerage, shipping, logistics, InPost, payments, tracking, przesyłki, kurierzy, logistyka')">
     <meta name="author" content="SkyBrokerSystem">
     <meta name="robots" content="@yield('robots', 'index, follow')">
-    
+
     <!-- Language and Regional -->
     <meta name="language" content="{{ app()->getLocale() }}">
     <link rel="alternate" hreflang="pl" href="{{ url('/language/pl') }}">
     <link rel="alternate" hreflang="en" href="{{ url('/language/en') }}">
     <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ request()->url() }}">
@@ -26,21 +26,21 @@
     <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
     <meta property="og:locale" content="{{ str_replace('-', '_', app()->getLocale()) }}">
     <meta property="og:site_name" content="SkyBrokerSystem">
-    
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ request()->url() }}">
     <meta property="twitter:title" content="@yield('twitter_title', 'SkyBrokerSystem - ' . __('common.professional_courier') . ' ' . __('common.brokerage_platform'))">
     <meta property="twitter:description" content="@yield('twitter_description', __('common.hero_description'))">
     <meta property="twitter:image" content="@yield('twitter_image', asset('images/twitter-image.jpg'))">
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="@yield('canonical', request()->url())">
 
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
@@ -86,11 +86,11 @@
     <!-- Custom Styles -->
     <style>
         [x-cloak] { display: none !important; }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -98,7 +98,7 @@
     </style>
 
     @stack('styles')
-    
+
     <!-- Structured Data (JSON-LD) -->
     @stack('structured-data')
 </head>
@@ -108,7 +108,7 @@
     </div>
 
     @stack('scripts')
-    
+
     <!-- Google Analytics (placeholder) -->
     @if(config('services.google_analytics.id'))
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.id') }}"></script>

@@ -758,3 +758,22 @@ Route::prefix('admin/webhooks')->name('admin.webhooks.')->middleware(['auth:syst
     Route::post('/freshdesk', [\App\Http\Controllers\WebhookController::class, 'freshdeskWebhook'])->name('freshdesk');
     Route::post('/freshcaller', [\App\Http\Controllers\WebhookController::class, 'freshcallerWebhook'])->name('freshcaller');
 });
+
+
+Route::get('/test', function () {
+    return view('test');
+});
+
+
+Route::get('/force-clear', function () {
+    $path = resource_path('views/home.blade.php');
+    if (function_exists('opcache_invalidate')) {
+        if (opcache_invalidate($path, true)) {
+            return 'OPcache dla home.blade.php został wyczyszczony! Spróbuj teraz wejść na stronę główną.';
+        } else {
+            return 'Nie udało się wyczyścić OPcache. Sprawdź uprawnienia.';
+        }
+    } else {
+        return 'Funkcja opcache_invalidate() nie jest dostępna.';
+    }
+});
