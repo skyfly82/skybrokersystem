@@ -18,6 +18,7 @@ use App\Http\Middleware\MarketingMiddleware;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\CheckApiKey;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Exceptions\Handler;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -55,6 +56,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global middleware
         $middleware->web(append: [
             SetLocale::class,
+            SecurityHeadersMiddleware::class,
+        ]);
+        
+        $middleware->api(append: [
+            SecurityHeadersMiddleware::class,
         ]);
 
         // Rejestracja middleware aliasów

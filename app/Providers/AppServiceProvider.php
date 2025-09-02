@@ -58,14 +58,51 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Define default API rate limiter used by `throttle:api`
+        $this->configureRateLimiting();
+    }
+
+    /**
+     * Configure rate limiting for API endpoints
+     */
+    private function configureRateLimiting(): void
+    {
+        // Default API rate limiter
         RateLimiter::for('api', function (Request $request) {
-            $perMinute = (int) (config('map.api.rate_limit_per_minute') ?? 60);
-            // Prefer API key as identifier if present, fallback to IP
-            $apiKey = $request->header(config('map.api.header', 'X-API-Key'))
-                ?? (string) $request->query('api_key');
-            $key = $apiKey ?: $request->ip();
-            return Limit::perMinute($perMinute)->by($key);
+            $perMinute = 60;
+            $perHour = 1000;
+            
+            // Use API key or IP for identification
+            $apiKey = $request->header('X-API-Key');
+            $key = $apiKey ? "api-key:{$apiKey}" : "ip:{$request->ip()}";
+            
+            return [
+                Limit::perMinute($perMinute)->by($key),
+                Limit::perHour($perHour)->by($key),
+            ];
+        });
+
+        // Strict rate limiting for authentication endpoints
+        RateLimiter::for('auth', function (Request $request) {
+            return [
+                Limit::perMinute(5)->by($request->ip()),
+                Limit::perHour(20)->by($request->ip()),
+            ];
+        });
+
+        // More lenient limits for authenticated users
+        RateLimiter::for('authenticated', function (Request $request) {
+            $userId = $request->user()?->id;
+            $key = $userId ? "user:{$userId}" : "ip:{$request->ip()}";
+            
+            return [
+                Limit::perMinute(120)->by($key),
+                Limit::perHour(2000)->by($key),
+            ];
+        });
+
+        // No limits for webhooks from trusted sources
+        RateLimiter::for('webhooks', function (Request $request) {
+            return Limit::none();
         });
     }
 }
