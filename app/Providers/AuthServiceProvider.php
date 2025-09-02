@@ -3,7 +3,7 @@
 /**
  * Cel: Provider dla uwierzytelniania i autoryzacji z policies
  * Moduł: Auth
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

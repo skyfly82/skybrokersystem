@@ -3,7 +3,7 @@
 /**
  * Cel: Główny dostawca usług aplikacji z rejestracją serwisów
  * Moduł: Core
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

@@ -3,7 +3,7 @@
 /**
  * Cel: Request validation dla tworzenia zamówień
  * Moduł: Orders
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

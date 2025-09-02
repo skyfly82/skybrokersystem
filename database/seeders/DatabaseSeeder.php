@@ -3,7 +3,7 @@
 /**
  * Cel: Główny seeder bazy danych z danymi testowymi
  * Moduł: Database
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

@@ -3,7 +3,7 @@
 /**
  * Cel: API routes for payment processing
  * Moduł: Payments
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

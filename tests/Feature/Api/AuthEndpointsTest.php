@@ -3,7 +3,7 @@
 /**
  * Cel: Smoke tests dla endpointów uwierzytelniania
  * Moduł: Tests
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

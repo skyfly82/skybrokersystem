@@ -3,7 +3,7 @@
 /**
  * Cel: Chudy kontroler API dla zarządzania zamówieniami
  * Moduł: Orders
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

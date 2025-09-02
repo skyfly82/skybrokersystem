@@ -3,7 +3,7 @@
 /**
  * Cel: Konfiguracja CORS dla bezpiecznego API
  * Moduł: Security
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

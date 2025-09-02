@@ -3,7 +3,7 @@
 /**
  * Cel: Główny punkt wejścia dla API - zawiera tylko podstawowe trasy
  * Moduł: Core API
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

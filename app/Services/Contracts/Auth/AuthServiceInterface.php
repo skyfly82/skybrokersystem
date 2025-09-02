@@ -3,7 +3,7 @@
 /**
  * Cel: Kontrakt dla serwisu uwierzytelniania
  * Moduł: Auth
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

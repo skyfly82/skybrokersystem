@@ -3,7 +3,7 @@
 /**
  * Cel: Request validation dla logowania
  * Moduł: Auth
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

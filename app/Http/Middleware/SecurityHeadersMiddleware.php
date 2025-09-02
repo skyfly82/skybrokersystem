@@ -3,7 +3,7 @@
 /**
  * Cel: Middleware dodający nagłówki bezpieczeństwa HTTP
  * Moduł: Security
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

@@ -3,7 +3,7 @@
 /**
  * Cel: API routes for courier services management
  * Moduł: Couriers
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

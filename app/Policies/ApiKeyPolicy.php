@@ -3,7 +3,7 @@
 /**
  * Cel: Policy dla autoryzacji operacji na kluczach API
  * Moduł: Auth
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

@@ -3,7 +3,7 @@
 /**
  * Cel: Bootstrap aplikacji z modularnym routingiem
  * Moduł: Core
- * Odpowiedzialny: Claude-Code
+ * Odpowiedzialny: sky_fly82
  * Data: 2025-09-02
  */
 

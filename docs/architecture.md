@@ -235,4 +235,4 @@ jobs:
 
 **Wersja dokumentacji**: 6.0.0  
 **Ostatnia aktualizacja**: 2025-09-02  
-**Odpowiedzialny**: Claude-Code
+**Odpowiedzialny**: sky_fly82
