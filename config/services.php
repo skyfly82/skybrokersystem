@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    'freshdesk' => [
+        'api_url' => env('FRESHDESK_API_URL'),
+        'api_key' => env('FRESHDESK_API_KEY'),
+        'webhook_secret' => env('FRESHDESK_WEBHOOK_SECRET'),
+        'enabled' => env('FRESHDESK_ENABLED', false),
+    ],
+
+    'freshcaller' => [
+        'api_url' => env('FRESHCALLER_API_URL'),
+        'api_key' => env('FRESHCALLER_API_KEY'),
+        'webhook_secret' => env('FRESHCALLER_WEBHOOK_SECRET'),
+        'enabled' => env('FRESHCALLER_ENABLED', false),
+    ],
+
 ];

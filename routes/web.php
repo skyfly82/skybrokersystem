@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ShipmentsController as AdminShipmentsController;
 use App\Http\Controllers\Admin\PaymentsController as AdminPaymentsController;
 use App\Http\Controllers\Admin\NotificationsController as AdminNotificationsController;
 use App\Http\Controllers\Admin\UsersController as AdminUsersController;
+use App\Http\Controllers\Admin\WebhookSettingsController as AdminWebhookSettingsController;
 use App\Http\Controllers\Customer\AuthController as CustomerAuthController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\ShipmentsController as CustomerShipmentsController;
@@ -202,6 +203,93 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/verification', [AdminSystemSettingsController::class, 'updateVerification'])->name('verification.update');
             Route::post('/test-email', [AdminSystemSettingsController::class, 'testEmail'])->name('test-email');
             
+            Route::get('/pricing', function () { 
+                return view('admin.settings.pricing.index', [
+                    'title' => 'Cenniki',
+                    'description' => 'Zarządzanie cenami i taryfami'
+                ]); 
+            })->name('pricing');
+            
+            Route::get('/pricing/create', function () { 
+                return view('admin.settings.pricing.create', [
+                    'title' => 'Nowy cennik',
+                    'description' => 'Utwórz nowy cennik'
+                ]); 
+            })->name('pricing.create');
+            
+            Route::get('/pricing/{id}/edit', function ($id) { 
+                return view('admin.settings.pricing.edit', [
+                    'title' => 'Edycja cennika',
+                    'description' => 'Edytuj istniejący cennik',
+                    'pricing_id' => $id
+                ]); 
+            })->name('pricing.edit');
+            
+            Route::get('/pricing/{id}/preview', function ($id) { 
+                return view('admin.settings.pricing.preview', [
+                    'title' => 'Podgląd cennika',
+                    'description' => 'Podgląd cennika',
+                    'pricing_id' => $id
+                ]); 
+            })->name('pricing.preview');
+            
+            Route::post('/pricing', function () {
+                return redirect()->route('admin.settings.pricing')->with('success', 'Cennik został utworzony pomyślnie');
+            })->name('pricing.store');
+            
+            Route::put('/pricing/{id}', function ($id) {
+                return redirect()->route('admin.settings.pricing.edit', $id)->with('success', 'Cennik został zaktualizowany pomyślnie');
+            })->name('pricing.update');
+            
+            // Negotiated Pricing Routes
+            Route::get('/pricing/negotiated', function () {
+                return view('admin.settings.pricing.negotiated', [
+                    'title' => 'Cenniki negocjowane',
+                    'description' => 'Indywidualne umowy cenowe z klientami'
+                ]);
+            })->name('pricing.negotiated');
+            
+            Route::get('/pricing/negotiated/create', function () {
+                return view('admin.settings.pricing.create-negotiated', [
+                    'title' => 'Nowy cennik negocjowany',
+                    'description' => 'Utwórz indywidualną umowę cenową'
+                ]);
+            })->name('pricing.negotiated.create');
+            
+            Route::post('/pricing/negotiated', function () {
+                return redirect()->route('admin.settings.pricing.negotiated')->with('success', 'Cennik negocjowany został utworzony');
+            })->name('pricing.negotiated.store');
+            
+            // Pallet/Freight Pricing Routes
+            Route::get('/pricing/pallet/{courier}/edit', function ($courier) {
+                return view('admin.settings.pricing.pallet-edit', [
+                    'title' => 'Konfiguracja cenowa - ' . ucfirst($courier),
+                    'courier' => $courier
+                ]);
+            })->name('pricing.pallet.edit');
+            
+            Route::put('/pricing/pallet/{courier}', function ($courier) {
+                return redirect()->route('admin.settings.pricing.pallet.edit', $courier)->with('success', 'Macierz paletowa została zaktualizowana');
+            })->name('pricing.pallet.update');
+            
+            Route::get('/pricing/pallet/negotiated/{customer}', function ($customer) {
+                return view('admin.settings.pricing.pallet-negotiated', [
+                    'title' => 'Cennik negocjowany - Transport paletowy',
+                    'customer' => $customer
+                ]);
+            })->name('pricing.pallet.negotiated');
+            
+            Route::post('/pricing/pallet/negotiated', function () {
+                return redirect()->route('admin.settings.pricing.negotiated')->with('success', 'Cennik paletowy został wynegocjowany');
+            })->name('pricing.pallet.negotiated.store');
+            
+            Route::get('/couriers', function () { 
+                return view('admin.settings.couriers.index', [
+                    'title' => 'Konfiguracja kurierów',
+                    'description' => 'Zarządzanie kurierami i ich konfiguracją'
+                ]); 
+            })->name('couriers');
+            
             Route::get('/courier', function () { 
                 return view('admin.settings.courier', [
                     'title' => 'Courier Settings',
@@ -223,6 +311,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ]); 
             })->name('notifications');
             
+            Route::put('/notifications', function () {
+                return redirect()->route('admin.settings.notifications')->with('success', 'Notification settings updated successfully');
+            })->name('notifications.update');
+            
             Route::get('/security', function () { 
                 return view('admin.settings.security', [
                     'title' => 'Security Settings',
@@ -243,6 +335,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
                     'description' => 'System maintenance and updates'
                 ]); 
             })->name('maintenance');
+
+            // Webhook Settings
+            Route::prefix('webhooks')->name('webhooks.')->group(function () {
+                Route::get('/', [AdminWebhookSettingsController::class, 'index'])->name('index');
+                Route::post('/', [AdminWebhookSettingsController::class, 'store'])->name('store');
+                Route::put('/{service}', [AdminWebhookSettingsController::class, 'update'])->name('update');
+                Route::delete('/{service}', [AdminWebhookSettingsController::class, 'destroy'])->name('destroy');
+                Route::post('/{service}/generate-secret', [AdminWebhookSettingsController::class, 'generateSecret'])->name('generate-secret');
+                Route::post('/{service}/test', [AdminWebhookSettingsController::class, 'test'])->name('test');
+            });
         });
         
         // Employees Management (Admin and Super Admin)
@@ -652,8 +754,8 @@ Route::get('/map', function () {
 Route::fallback(function () {
     return response()->view('errors.404', [], 404);
 });
-// Public webhook endpoints (no authentication)
-Route::prefix("webhooks")->name("webhooks.")->group(function () {
+// Secured webhook endpoints moved to admin area
+Route::prefix("admin/webhooks")->name("admin.webhooks.")->middleware(['auth:system_user', 'admin'])->group(function () {
     Route::post("/freshdesk", [\App\Http\Controllers\WebhookController::class, "freshdeskWebhook"])->name("freshdesk");
     Route::post("/freshcaller", [\App\Http\Controllers\WebhookController::class, "freshcallerWebhook"])->name("freshcaller");
 });

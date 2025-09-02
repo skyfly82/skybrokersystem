@@ -347,7 +347,29 @@
                                                 <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
                                             </svg>
                                             <span class="ml-4 text-sm font-medium text-gray-900">
-                                                @yield('page-title', 'Strona')
+                                                @php
+                                                    $routeName = request()->route()->getName();
+                                                    $pageTitle = '';
+                                                    
+                                                    if (str_contains($routeName, 'customer.shipments')) {
+                                                        $pageTitle = 'Zarządzanie Przesyłkami';
+                                                    } elseif (str_contains($routeName, 'customer.payments')) {
+                                                        $pageTitle = 'Płatności i Finanse';
+                                                    } elseif (str_contains($routeName, 'customer.profile')) {
+                                                        $pageTitle = 'Profil Firmy';
+                                                    } elseif (str_contains($routeName, 'customer.users')) {
+                                                        $pageTitle = 'Zarządzanie Użytkownikami';
+                                                    } elseif (str_contains($routeName, 'customer.complaints')) {
+                                                        $pageTitle = 'Reklamacje';
+                                                    } elseif (str_contains($routeName, 'customer.reports')) {
+                                                        $pageTitle = 'Raporty';
+                                                    } elseif (str_contains($routeName, 'customer.api')) {
+                                                        $pageTitle = 'Integracja API';
+                                                    } else {
+                                                        $pageTitle = 'Panel Klienta';
+                                                    }
+                                                @endphp
+                                                {{ $pageTitle }}
                                             </span>
                                         </div>
                                     </li>

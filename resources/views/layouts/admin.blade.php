@@ -132,7 +132,33 @@
                                                 <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
                                             </svg>
                                             <span class="ml-4 text-sm font-medium text-gray-900">
-                                                @yield('page-title', 'Strona')
+                                                @php
+                                                    $routeName = request()->route()->getName();
+                                                    $pageTitle = '';
+                                                    
+                                                    if (str_contains($routeName, 'admin.customers')) {
+                                                        $pageTitle = 'Zarządzanie Klientami';
+                                                    } elseif (str_contains($routeName, 'admin.shipments')) {
+                                                        $pageTitle = 'Zarządzanie Przesyłkami';
+                                                    } elseif (str_contains($routeName, 'admin.payments')) {
+                                                        $pageTitle = 'Zarządzanie Płatnościami';
+                                                    } elseif (str_contains($routeName, 'admin.notifications')) {
+                                                        $pageTitle = 'Powiadomienia';
+                                                    } elseif (str_contains($routeName, 'admin.employees')) {
+                                                        $pageTitle = 'Zarządzanie Pracownikami';
+                                                    } elseif (str_contains($routeName, 'admin.settings')) {
+                                                        $pageTitle = 'Ustawienia Systemowe';
+                                                    } elseif (str_contains($routeName, 'admin.customer-service')) {
+                                                        $pageTitle = 'Obsługa Klienta';
+                                                    } elseif (str_contains($routeName, 'admin.couriers')) {
+                                                        $pageTitle = 'Konfiguracja Kurierów';
+                                                    } elseif (str_contains($routeName, 'admin.reports')) {
+                                                        $pageTitle = 'Raporty i Analityka';
+                                                    } else {
+                                                        $pageTitle = 'Panel Administracyjny';
+                                                    }
+                                                @endphp
+                                                {{ $pageTitle }}
                                             </span>
                                         </div>
                                     </li>
