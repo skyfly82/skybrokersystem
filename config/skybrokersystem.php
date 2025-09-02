@@ -126,6 +126,47 @@ return [
         'webhook_timeout' => 30, // seconds
         'api_timeout' => 60, // seconds
         'retry_attempts' => 3,
+
+        // Courier-specific configurations
+        'inpost' => [
+            'api_url' => env('INPOST_API_URL', 'https://api-shipx-pl.easypack24.net'),
+            'sandbox_url' => env('INPOST_SANDBOX_URL', 'https://sandbox-api-shipx-pl.easypack24.net'),
+            'token' => env('INPOST_API_TOKEN'),
+            'organization_id' => env('INPOST_ORGANIZATION_ID'),
+            'sandbox' => env('INPOST_SANDBOX', true),
+            'services' => [
+                'standard' => 'inpost_standard',
+                'express' => 'inpost_express',
+                'pobranie' => 'inpost_cod',
+            ],
+        ],
+
+        'dhl' => [
+            'wsdl_url' => env('DHL_WSDL_URL', 'https://dhl24.com.pl/webapi2?wsdl'),
+            'sandbox_url' => env('DHL_SANDBOX_URL', 'https://sandbox.dhl24.com.pl/webapi2?wsdl'),
+            'username' => env('DHL_USERNAME'),
+            'password' => env('DHL_PASSWORD'),
+            'account_number' => env('DHL_ACCOUNT_NUMBER'),
+            'sandbox' => env('DHL_SANDBOX', true),
+            'services' => [
+                'standard' => 'DHL_STANDARD',
+                'express' => 'DHL_EXPRESS',
+                'evening' => 'DHL_EVENING',
+                'saturday' => 'DHL_SATURDAY',
+                'pallet' => 'DHL_PALLET',
+            ],
+            'label_formats' => [
+                'pdf' => 'BLP',
+                'zpl' => 'BLP_ZPL',
+                'a4' => 'LBLP',
+            ],
+            'special_services' => [
+                'cod' => 'COD',
+                'insurance' => 'UBEZP',
+                'saturday_delivery' => 'SOBOTA',
+                'evening_delivery' => 'WIECZOR',
+            ],
+        ],
     ],
 
     /*

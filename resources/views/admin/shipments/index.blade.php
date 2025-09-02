@@ -134,7 +134,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $shipment->cost_data ? number_format($shipment->cost_data['gross'], 2) . ' PLN' : 'N/A' }}
+                                {{ $shipment->total_price > 0 ? number_format($shipment->total_price, 2) . ' PLN' : 'N/A' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $shipment->created_at->format('d.m.Y H:i') }}

@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <!-- Aktywni kurierze -->
+    <!-- Aktywni kurierzy -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
         <!-- InPost -->
         <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-400">
@@ -46,7 +46,7 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <dt class="font-medium text-gray-500">API Status</dt>
@@ -65,7 +65,7 @@
                         <dd class="mt-1 text-gray-900">1,234 / miesiąc</dd>
                     </div>
                 </div>
-                
+
                 <div class="mt-6 flex space-x-3">
                     <a href="#" class="text-sm text-blue-600 hover:text-blue-500 font-medium">
                         Konfiguruj →
@@ -101,7 +101,7 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <dt class="font-medium text-gray-500">API Status</dt>
@@ -120,7 +120,7 @@
                         <dd class="mt-1 text-gray-900">0 / miesiąc</dd>
                     </div>
                 </div>
-                
+
                 <div class="mt-6 flex space-x-3">
                     <a href="#" class="text-sm text-blue-600 hover:text-blue-500 font-medium">
                         Konfiguruj →
@@ -151,7 +151,7 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <dt class="font-medium text-gray-500">API Status</dt>
@@ -170,13 +170,68 @@
                         <dd class="mt-1 text-gray-900">0 / miesiąc</dd>
                     </div>
                 </div>
-                
+
                 <div class="mt-6 flex space-x-3">
                     <a href="#" class="text-sm text-blue-600 hover:text-blue-500 font-medium">
                         Konfiguruj →
                     </a>
                     <a href="#" class="text-sm text-gray-600 hover:text-gray-500">
                         Testy API →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- DHL -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-400">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-10 w-10 bg-red-600 rounded-lg flex items-center justify-center">
+                                <span class="text-white font-bold text-sm">DHL</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">DHL</h3>
+                            <p class="text-sm text-gray-500">Express & Palety</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Aktywny
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <dt class="font-medium text-gray-500">API Status</dt>
+                        <dd class="mt-1 text-green-600">Połączony</dd>
+                    </div>
+                    <div>
+                        <dt class="font-medium text-gray-500">Usługi</dt>
+                        <dd class="mt-1 text-gray-900">7 aktywnych</dd>
+                    </div>
+                    <div>
+                        <dt class="font-medium text-gray-500">Ostatnia sync</dt>
+                        <dd class="mt-1 text-gray-900">1 min temu</dd>
+                    </div>
+                    <div>
+                        <dt class="font-medium text-gray-500">Przesyłki</dt>
+                        <dd class="mt-1 text-gray-900">567 / miesiąc</dd>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex space-x-3">
+                    <a href="{{ route('admin.settings.couriers.dhl.config') }}" class="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                        Konfiguruj →
+                    </a>
+                    <a href="{{ route('admin.settings.couriers.dhl.test') }}" class="text-sm text-gray-600 hover:text-gray-500">
+                        Testy API →
+                    </a>
+                    <a href="{{ route('admin.settings.couriers.dhl.stats') }}" class="text-sm text-gray-600 hover:text-gray-500">
+                        Statystyki →
                     </a>
                 </div>
             </div>
@@ -245,11 +300,11 @@
         </div>
     </div>
 
-    <!-- Dostępni kurierze do dodania -->
+    <!-- Dostępni kurierzy do dodania -->
     <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Dostępni kurierze do dodania
+                Dostępni kurierzy do dodania
             </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div class="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors">
@@ -263,7 +318,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors">
                     <div class="flex items-center">
                         <div class="h-8 w-8 bg-blue-600 rounded flex items-center justify-center">
@@ -275,7 +330,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors">
                     <div class="flex items-center">
                         <div class="h-8 w-8 bg-red-600 rounded flex items-center justify-center">
@@ -287,7 +342,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors">
                     <div class="flex items-center">
                         <div class="h-8 w-8 bg-purple-600 rounded flex items-center justify-center">

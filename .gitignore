@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Ignorowanie dokumentacji integracji
+/docs/integracje/
+docs/intergacje/DHL/

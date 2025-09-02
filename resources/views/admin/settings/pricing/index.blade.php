@@ -251,6 +251,77 @@
                     </div>
                 </div>
             </div>
+
+            <!-- DHL Matrix -->
+            <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-red-500">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 bg-red-600 rounded-lg flex items-center justify-center mr-3">
+                                <span class="text-white font-bold text-sm">DHL</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900">DHL Express</h4>
+                                <p class="text-sm text-gray-500">Macierz wagowo-strefowa międzynarodowa</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Aktywna
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-3 mb-4 text-xs">
+                        <div class="text-center">
+                            <div class="font-medium text-gray-500">Waga/Strefa</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-medium text-gray-500">UE-1</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-medium text-gray-500">UE-2</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-medium text-gray-500">Świat-1</div>
+                        </div>
+                        
+                        <div class="text-center font-medium">0.5kg</div>
+                        <div class="text-center">45.00 zł</div>
+                        <div class="text-center">52.00 zł</div>
+                        <div class="text-center">85.00 zł</div>
+                        
+                        <div class="text-center font-medium">1.0kg</div>
+                        <div class="text-center">58.00 zł</div>
+                        <div class="text-center">68.00 zł</div>
+                        <div class="text-center">125.00 zł</div>
+                        
+                        <div class="text-center font-medium">2.0kg</div>
+                        <div class="text-center">75.00 zł</div>
+                        <div class="text-center">89.00 zł</div>
+                        <div class="text-center">185.00 zł</div>
+                    </div>
+                    
+                    <div class="border-t pt-3">
+                        <div class="text-xs text-gray-500 mb-2">Dopłaty:</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div>• Paliwo: 15.2%</div>
+                            <div>• Bezpieczeństwo: 0.75%</div>
+                            <div>• Remote area: +35.00 zł</div>
+                            <div>• Dokumenty: -15%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-xs text-gray-500">
+                            Ostatnia aktualizacja: 2024-09-02 10:15
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="{{ route('admin.settings.pricing.edit', 'dhl-express') }}" class="text-sm text-blue-600 hover:text-blue-500 font-medium">
+                                Konfiguruj →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

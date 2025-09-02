@@ -6,12 +6,14 @@ namespace App\Services\Courier;
 
 use App\Exceptions\CourierServiceException;
 use App\Models\CourierService;
+use App\Services\Courier\Providers\DhlService;
 use App\Services\Courier\Providers\InPostService;
 
 class CourierServiceFactory
 {
     public function __construct(
-        private InPostService $inPostService
+        private InPostService $inPostService,
+        private DhlService $dhlService
     ) {}
 
     /**
@@ -35,6 +37,7 @@ class CourierServiceFactory
     {
         return match ($courierCode) {
             'inpost' => $this->inPostService,
+            'dhl' => $this->dhlService,
             default => throw new CourierServiceException("Unsupported courier code: {$courierCode}")
         };
     }
@@ -46,6 +49,7 @@ class CourierServiceFactory
     {
         return [
             'inpost' => $this->inPostService,
+            'dhl' => $this->dhlService,
         ];
     }
 
@@ -54,6 +58,6 @@ class CourierServiceFactory
      */
     public function isSupported(string $courierCode): bool
     {
-        return in_array($courierCode, ['inpost']);
+        return in_array($courierCode, ['inpost', 'dhl']);
     }
 }

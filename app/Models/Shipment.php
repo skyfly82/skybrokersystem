@@ -157,6 +157,11 @@ class Shipment extends Model
 
     public function getTotalPriceAttribute(): float
     {
+        // Return 0 if cost_data is null
+        if (! $this->cost_data) {
+            return 0.0;
+        }
+
         // Try different possible keys for total cost
         if (isset($this->cost_data['total'])) {
             return (float) $this->cost_data['total'];
@@ -191,7 +196,7 @@ class Shipment extends Model
 
     public function getTotalCost(): float
     {
-        return $this->cost_data['gross'] ?? 0.0;
+        return $this->cost_data['gross'] ?? $this->total_price ?? 0.0;
     }
 
     public function statusHistory(): MorphMany

@@ -214,8 +214,8 @@
 
                         <!-- Cost -->
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            @if($shipment->cost_data)
-                                {{ number_format($shipment->cost_data['gross'] ?? 0, 2) }} PLN
+                            @if($shipment->total_price > 0)
+                                {{ number_format($shipment->total_price, 2) }} PLN
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif

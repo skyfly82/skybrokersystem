@@ -217,6 +217,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             })->name('pricing.create');
 
             Route::get('/pricing/{id}/edit', function ($id) {
+                if ($id === 'dhl-express') {
+                    return view('admin.settings.pricing.dhl-edit', [
+                        'title' => 'Konfiguracja DHL Express',
+                        'description' => 'Macierz cenowa DHL Express',
+                        'pricing_id' => $id,
+                    ]);
+                }
+
                 return view('admin.settings.pricing.edit', [
                     'title' => 'Edycja cennika',
                     'description' => 'Edytuj istniejący cennik',
@@ -288,6 +296,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
                     'description' => 'Zarządzanie kurierami i ich konfiguracją',
                 ]);
             })->name('couriers');
+
+            // DHL Settings Routes
+            Route::prefix('couriers/dhl')->name('couriers.dhl.')->group(function () {
+                Route::get('/config', [App\Http\Controllers\Admin\DhlSettingsController::class, 'config'])->name('config');
+                Route::put('/config', [App\Http\Controllers\Admin\DhlSettingsController::class, 'updateConfig'])->name('config.update');
+                Route::get('/test', [App\Http\Controllers\Admin\DhlSettingsController::class, 'test'])->name('test');
+                Route::get('/stats', [App\Http\Controllers\Admin\DhlSettingsController::class, 'stats'])->name('stats');
+            });
 
             Route::get('/courier', function () {
                 return view('admin.settings.courier', [
@@ -759,11 +775,9 @@ Route::prefix('admin/webhooks')->name('admin.webhooks.')->middleware(['auth:syst
     Route::post('/freshcaller', [\App\Http\Controllers\WebhookController::class, 'freshcallerWebhook'])->name('freshcaller');
 });
 
-
 Route::get('/test', function () {
     return view('test');
 });
-
 
 Route::get('/force-clear', function () {
     $path = resource_path('views/home.blade.php');
