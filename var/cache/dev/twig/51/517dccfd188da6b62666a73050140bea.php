@@ -1,0 +1,344 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+use Twig\TemplateWrapper;
+
+/* home.html.twig */
+class __TwigTemplate_7df0e0c261e4ffe3c8f98ca0ff2b4a24 extends Template
+{
+    private Source $source;
+    /**
+     * @var array<string, Template>
+     */
+    private array $macros = [];
+
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->source = $this->getSourceContext();
+
+        $this->parent = false;
+
+        $this->blocks = [
+        ];
+    }
+
+    protected function doDisplay(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_5a27a8ba21ca79b61932376b2fa922d2 = $this->extensions["Symfony\\Bundle\\WebProfilerBundle\\Twig\\WebProfilerExtension"];
+        $__internal_5a27a8ba21ca79b61932376b2fa922d2->enter($__internal_5a27a8ba21ca79b61932376b2fa922d2_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "home.html.twig"));
+
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "home.html.twig"));
+
+        // line 1
+        yield "<!DOCTYPE html>
+<html lang=\"pl\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>SkyBroker – Start</title>
+    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
+    <link href=\"https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Mulish:wght@400;600;700;800&display=swap\" rel=\"stylesheet\">
+    <style>
+        :root {
+            --primary: #2F7DFF; /* Sky wave blue */
+            --primary-600: #2568d6;
+            --primary-50: #EEF5FF;
+            --text: #0C0212;   /* Black coal */
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --bg: #FFFFFF;     /* Pure white */
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Mulish', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg);
+            color: var(--text); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+        h1, h2, h3, h4, h5, h6, .link strong { font-family: 'Be Vietnam Pro', 'Mulish', Arial, sans-serif; }
+        .container { 
+            background: #fff; 
+            padding: 28px; 
+            border-radius: 16px; 
+            box-shadow: 0 12px 40px rgba(15,23,42,0.08);
+            border: 1px solid var(--border);
+            max-width: 980px; 
+            width: 100%;
+        }
+        .brand { display:flex; align-items:center; gap:10px; margin-bottom: 16px; }
+        .brand-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--primary); }
+        h1 { font-size: 1.6em; margin-bottom: 8px; }
+        .subtitle { color: var(--muted); margin-bottom: 16px; }
+        .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+        .link { background: #fff; padding: 18px; border-radius: 10px; text-decoration: none; color: var(--text); border: 1px solid var(--border); transition: all .15s ease; text-align: center; }
+        .link:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .section { background:#fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 16px; }
+        .section h3 { color: var(--text); margin-bottom: 10px; font-size: 1.05em; }
+        .features { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:10px; }
+        .feature { background:#fff; border:1px solid var(--border); border-radius:10px; padding:12px; }
+        .version { text-align:center; margin-top: 18px; color: var(--muted); font-size: .9em; }
+    </style>
+</head>
+<body>
+    <div class=\"container\">
+        <div class=\"brand\">
+            <div class=\"brand-badge\"></div>
+            <h1>SkyBroker</h1>
+        </div>
+        <p class=\"subtitle\">Wybierz obszar, aby rozpocząć</p>
+
+        <div class=\"links\">
+            <a href=\"/v2/login/customer\" class=\"link\">
+                <strong>🔐 Logowanie klienta</strong><br>
+                <small>Konto klienta</small>
+            </a>
+            <a href=\"/v2/login/admin\" class=\"link\">
+                <strong>🛡️ Logowanie administratora</strong><br>
+                <small>Panel administracyjny</small>
+            </a>
+            <a href=\"/v2/register\" class=\"link\">
+                <strong>📝 Rejestracja</strong><br>
+                <small>Załóż nowe konto</small>
+            </a>
+            <a href=\"/v2/forgot\" class=\"link\">
+                <strong>🔁 Reset hasła</strong><br>
+                <small>Odzyskaj dostęp</small>
+            </a>
+            <a href=\"/v2/dashboard\" class=\"link\">
+                <strong>📊 Dashboard</strong><br>
+                <small>Panel użytkownika</small>
+            </a>
+            <a href=\"/v2/health\" class=\"link\">
+                <strong>❤️ Health Check</strong><br>
+                <small>System status</small>
+            </a>
+            <a href=\"/v2/\" class=\"link\">
+                <strong>🔗 API Info</strong><br>
+                <small>JSON endpoints</small>
+            </a>
+            <a href=\"/v2/_profiler\" class=\"link\">
+                <strong>🛠️ Profiler</strong><br>
+                <small>Debug tools</small>
+            </a>
+            <a href=\"/v2/api/docs\" class=\"link\">
+                <strong>📚 API Docs</strong><br>
+                <small>Documentation</small>
+            </a>
+            <a href=\"/mailhog/\" class=\"link\">
+                <strong>📧 MailHog</strong><br>
+                <small>Email testing</small>
+            </a>
+        </div>
+
+        <div class=\"section\">
+            <h3>Funkcje</h3>
+            <div class=\"features\">
+                <div class=\"feature\">Wielopoziomowe uwierzytelnianie (Customer + System)</div>
+                <div class=\"feature\">Zabezpieczenia JWT z tokenami 1-godzinnymi</div>
+                <div class=\"feature\">System zaproszeń dla użytkowników firmowych</div>
+                <div class=\"feature\">Wsparcie dla wielu firm klientów</div>
+                <div class=\"feature\">Logowanie bezpieczeństwa i aktywności</div>
+                <div class=\"feature\">Architektura API-First z OpenAPI</div>
+            </div>
+        </div>
+
+        <div class=\"section\">
+            <h3>Endpointy</h3>
+            <div class=\"features\">
+                <div class=\"feature\"><strong>POST</strong> /api/v1/customer/login</div>
+                <div class=\"feature\"><strong>POST</strong> /api/v1/system/login</div>
+                <div class=\"feature\"><strong>POST</strong> /api/v1/registration/register</div>
+                <div class=\"feature\"><strong>GET</strong> /api/v1/customer/profile</div>
+                <div class=\"feature\"><strong>GET</strong> /api/v1/customer/company-users</div>
+                <div class=\"feature\"><strong>POST</strong> /api/v1/customer/invitations/send</div>
+            </div>
+        </div>
+
+        <div class=\"version\">v2.0.0‑dev • Symfony 7.x</div>
+    </div>
+</body>
+</html>
+";
+        
+        $__internal_5a27a8ba21ca79b61932376b2fa922d2->leave($__internal_5a27a8ba21ca79b61932376b2fa922d2_prof);
+
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getTemplateName(): string
+    {
+        return "home.html.twig";
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getDebugInfo(): array
+    {
+        return array (  48 => 1,);
+    }
+
+    public function getSourceContext(): Source
+    {
+        return new Source("<!DOCTYPE html>
+<html lang=\"pl\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>SkyBroker – Start</title>
+    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
+    <link href=\"https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Mulish:wght@400;600;700;800&display=swap\" rel=\"stylesheet\">
+    <style>
+        :root {
+            --primary: #2F7DFF; /* Sky wave blue */
+            --primary-600: #2568d6;
+            --primary-50: #EEF5FF;
+            --text: #0C0212;   /* Black coal */
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --bg: #FFFFFF;     /* Pure white */
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Mulish', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg);
+            color: var(--text); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+        h1, h2, h3, h4, h5, h6, .link strong { font-family: 'Be Vietnam Pro', 'Mulish', Arial, sans-serif; }
+        .container { 
+            background: #fff; 
+            padding: 28px; 
+            border-radius: 16px; 
+            box-shadow: 0 12px 40px rgba(15,23,42,0.08);
+            border: 1px solid var(--border);
+            max-width: 980px; 
+            width: 100%;
+        }
+        .brand { display:flex; align-items:center; gap:10px; margin-bottom: 16px; }
+        .brand-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--primary); }
+        h1 { font-size: 1.6em; margin-bottom: 8px; }
+        .subtitle { color: var(--muted); margin-bottom: 16px; }
+        .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+        .link { background: #fff; padding: 18px; border-radius: 10px; text-decoration: none; color: var(--text); border: 1px solid var(--border); transition: all .15s ease; text-align: center; }
+        .link:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .section { background:#fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 16px; }
+        .section h3 { color: var(--text); margin-bottom: 10px; font-size: 1.05em; }
+        .features { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:10px; }
+        .feature { background:#fff; border:1px solid var(--border); border-radius:10px; padding:12px; }
+        .version { text-align:center; margin-top: 18px; color: var(--muted); font-size: .9em; }
+    </style>
+</head>
+<body>
+    <div class=\"container\">
+        <div class=\"brand\">
+            <div class=\"brand-badge\"></div>
+            <h1>SkyBroker</h1>
+        </div>
+        <p class=\"subtitle\">Wybierz obszar, aby rozpocząć</p>
+
+        <div class=\"links\">
+            <a href=\"/v2/login/customer\" class=\"link\">
+                <strong>🔐 Logowanie klienta</strong><br>
+                <small>Konto klienta</small>
+            </a>
+            <a href=\"/v2/login/admin\" class=\"link\">
+                <strong>🛡️ Logowanie administratora</strong><br>
+                <small>Panel administracyjny</small>
+            </a>
+            <a href=\"/v2/register\" class=\"link\">
+                <strong>📝 Rejestracja</strong><br>
+                <small>Załóż nowe konto</small>
+            </a>
+            <a href=\"/v2/forgot\" class=\"link\">
+                <strong>🔁 Reset hasła</strong><br>
+                <small>Odzyskaj dostęp</small>
+            </a>
+            <a href=\"/v2/dashboard\" class=\"link\">
+                <strong>📊 Dashboard</strong><br>
+                <small>Panel użytkownika</small>
+            </a>
+            <a href=\"/v2/health\" class=\"link\">
+                <strong>❤️ Health Check</strong><br>
+                <small>System status</small>
+            </a>
+            <a href=\"/v2/\" class=\"link\">
+                <strong>🔗 API Info</strong><br>
+                <small>JSON endpoints</small>
+            </a>
+            <a href=\"/v2/_profiler\" class=\"link\">
+                <strong>🛠️ Profiler</strong><br>
+                <small>Debug tools</small>
+            </a>
+            <a href=\"/v2/api/docs\" class=\"link\">
+                <strong>📚 API Docs</strong><br>
+                <small>Documentation</small>
+            </a>
+            <a href=\"/mailhog/\" class=\"link\">
+                <strong>📧 MailHog</strong><br>
+                <small>Email testing</small>
+            </a>
+        </div>
+
+        <div class=\"section\">
+            <h3>Funkcje</h3>
+            <div class=\"features\">
+                <div class=\"feature\">Wielopoziomowe uwierzytelnianie (Customer + System)</div>
+                <div class=\"feature\">Zabezpieczenia JWT z tokenami 1-godzinnymi</div>
+                <div class=\"feature\">System zaproszeń dla użytkowników firmowych</div>
+                <div class=\"feature\">Wsparcie dla wielu firm klientów</div>
+                <div class=\"feature\">Logowanie bezpieczeństwa i aktywności</div>
+                <div class=\"feature\">Architektura API-First z OpenAPI</div>
+            </div>
+        </div>
+
+        <div class=\"section\">
+            <h3>Endpointy</h3>
+            <div class=\"features\">
+                <div class=\"feature\"><strong>POST</strong> /api/v1/customer/login</div>
+                <div class=\"feature\"><strong>POST</strong> /api/v1/system/login</div>
+                <div class=\"feature\"><strong>POST</strong> /api/v1/registration/register</div>
+                <div class=\"feature\"><strong>GET</strong> /api/v1/customer/profile</div>
+                <div class=\"feature\"><strong>GET</strong> /api/v1/customer/company-users</div>
+                <div class=\"feature\"><strong>POST</strong> /api/v1/customer/invitations/send</div>
+            </div>
+        </div>
+
+        <div class=\"version\">v2.0.0‑dev • Symfony 7.x</div>
+    </div>
+</body>
+</html>
+", "home.html.twig", "/var/www/skybrokersystem_v2/templates/home.html.twig");
+    }
+}

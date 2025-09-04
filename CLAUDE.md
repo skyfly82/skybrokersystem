@@ -4,91 +4,114 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**SkyBrokerSystem** is a **Laravel 12-based** courier brokerage platform built on a **Modular Monolith** architecture. It manages shipments, payments, and integrations with multiple courier services. The system serves two main user types: system administrators and customers, each with dedicated panels and APIs.
+SkyBrokerSystem v2 is a complete rewrite of a courier brokerage platform, migrating from Laravel to **Symfony 7.3** with modern PHP practices. This is currently in **early development phase** with only basic project structure established.
 
-## Development Commands (Server Environment)
+## Architecture & Design Principles
 
-### Environment Setup
-1.  **Clone repository**: `git clone git@github.com:skyfly82/skybrokersystem.git`
-2.  **Install dependencies**: `composer install`
-3.  **Create environment file**: `cp .env.example .env`
-4.  **Configure `.env`**: Set database credentials, application URL, and other required keys.
-5.  **Generate app key**: `php artisan key:generate`
-6.  **Run migrations and seeders**: `php artisan migrate --seed`
-7.  **Link storage**: `php artisan storage:link`
+The project follows **Domain-Driven Design (DDD)** with these architectural patterns:
+- **Clean Architecture** with distinct layers
+- **CQRS** pattern for complex operations  
+- **Event-driven communication**
+- **API-First development** with OpenAPI documentation
+- **Hexagonal Architecture**
+- **Microservices-ready structure**
 
-### PHP/Laravel Commands
-- **Install dependencies**: `composer install`
-- **Run migrations**: `php artisan migrate`
-- **Fresh migrations with seeding**: `php artisan migrate:fresh --seed`
-- **Run seeders**: `php artisan seed`
-- **Clear caches**: `php artisan optimize:clear` (clears config, route, view, and application cache)
-- **Optimize for production**: `php artisan optimize` (caches configs and routes)
+## Core Business Domains
 
-### Frontend Commands  
-- **Install NPM dependencies**: `npm install`
-- **Build for development**: `npm run dev` (also watches for changes)
-- **Build for production**: `npm run build`
+The system is organized around these primary domains:
+1. **User Management** - Multi-guard authentication (System users, Customer users)
+2. **Customer Management** - Companies and individual customers
+3. **Order Processing** - Shipments, orders, status tracking
+4. **Courier Integration** - InPost, DHL API integrations
+5. **Payment Processing** - PayNow, Stripe transactions
+6. **Notification System** - SMS, Email, Push notifications
+7. **CMS & Content** - Pages, media, banners
+8. **Reporting & Analytics** - Dashboards and statistics
 
-### Testing
-- **Run tests**: `php artisan test`
-- **Run with coverage**: `php artisan test --coverage`
-- **Code Style Check**: `vendor/bin/pint --test`
-- **Fix Code Style**: `vendor/bin/pint`
-- **Testing framework**: PHPUnit
+## Technology Stack
 
-## Architecture Overview
+- **Backend**: Symfony 7.3, PHP 8.3+, Doctrine ORM
+- **Frontend**: React 18+ or Vue.js 3+ with TypeScript (planned)
+- **Database**: MySQL/MariaDB 8.0+ (migrated from PostgreSQL)
+- **Cache**: Redis
+- **Queue**: Symfony Messenger
+- **API**: RESTful with OpenAPI 3.0 documentation
+- **Container**: Docker with docker-compose
 
-### Multi-Guard Authentication System
-The system uses Laravel's multi-guard authentication with two separate user types:
-- **System Users** (`system_user` guard): Admin panel access with roles (admin, super_admin, marketing).
-- **Customer Users** (`customer_user` guard): Customer panel access with company association.
+## Development Status
 
-### Service Layer Architecture
-The system follows a service-oriented architecture with logic encapsulated in dedicated services:
-- **Courier Services (`app/Services/Courier/`)**: Integrations with courier APIs (e.g., InPost).
-- **Payment Services (`app/Services/Payment/`)**: Manages payment providers (PayNow, Stripe, Simulation).
-- **SMS Services (`app/Services/SMS/`)**: Handles sending SMS via different providers (Twilio, SmsApi).
-- **Notification Service (`app/Services/Notification/`)**: Orchestrates multi-channel notifications.
+✅ **Symfony 7.3 Environment Ready**: Symfony 7.3 application is fully set up with webapp pack installed and MySQL/MariaDB 8.0 database configuration. Main application moved from /v2/ to / (Laravel legacy moved to /laravel/).
 
-### Modular Route Structure
-Routes are organized by domain in the `routes/api/` directory and loaded dynamically.
-- `routes/api/auth.php`
-- `routes/api/couriers.php`
-- `routes/api/orders.php`
-- `routes/api/payments.php`
+### Implementation Phases
+1. **Phase 1**: Foundation & Authentication (4-6 weeks) - *In Progress*
+2. **Phase 2**: Core Business Logic (8-10 weeks) - *Planned*
+3. **Phase 3**: Frontend & UI (6-8 weeks) - *Planned*
+4. **Phase 4**: Advanced Features (4-6 weeks) - *Planned*
 
-### Validation and Authorization
-- **Form Requests**: All write-operations in controllers use dedicated Form Requests for validation.
-- **Policies**: Fine-grained authorization is handled by Policies (e.g., `ShipmentPolicy`, `OrderPolicy`).
+## Development Commands
 
-### Middleware
-- **Global**: `SecurityHeadersMiddleware`, `RateLimitMiddleware`.
-- **Route-Specific**: `AdminMiddleware`, `CustomerActiveMiddleware`, `ApiKeyMiddleware`.
+The Symfony 7.3 application is now set up and ready for development:
 
-### Database
-- **Primary Keys**: All models use **UUID v7** for primary keys to improve performance and scalability.
-- **Migrations**: Atomic migrations located in `database/migrations/`.
+```bash
+# Basic Symfony commands
+composer install                           # Install dependencies
+php bin/console about                      # Show environment info
+php bin/console debug:router               # List all routes
+php bin/console cache:clear                # Clear cache
+php bin/console doctrine:migrations:migrate # Run database migrations (when DB is set up)
 
-### Configuration System
-Central configuration in `config/skybrokersystem.php` covers:
-- Service providers (couriers, payments, SMS)
-- Security settings, timeouts, and feature flags
-- API rate limiting and authentication details
+# Development server
+# Main application runs at http://185.213.25.106/
+# Legacy Laravel system available at http://185.213.25.106/laravel/
 
-## Important Development Notes
+# Testing
+php bin/phpunit                            # Run test suite
+php bin/phpunit tests/                     # Run specific test directory
 
-### API Key Management
-- Customer API keys use the `sk_` prefix.
-- API rate limiting is configured for **60 requests/minute** and **1000 requests/hour**.
+# Code generation (MakerBundle)
+php bin/console make:controller            # Create new controller
+php bin/console make:entity                # Create new entity
+php bin/console make:form                  # Create form class
+php bin/console make:command               # Create console command
 
-### Code Quality
-- **Laravel Pint** is used for enforcing a consistent code style. Run `vendor/bin/pint` to format code.
-- **PHPStan** is used for static analysis to find potential bugs.
+# Database management
+php bin/console doctrine:database:create   # Create database
+php bin/console doctrine:schema:update --force # Update database schema
+php bin/console doctrine:fixtures:load     # Load test data
 
-### Security Considerations
-- Multi-guard authentication prevents privilege escalation between user types.
-- API keys and Sanctum tokens provide layered security for the API.
-- All external inputs must be validated through Form Requests.
+# API & Debugging
+php bin/console debug:container            # Show services
+php bin/console debug:config               # Show configuration
+php bin/console messenger:consume async   # Process message queue
+```
 
-This architecture provides a scalable foundation for courier brokerage operations with a clear separation of concerns and extensive integration capabilities.
+## API Endpoints
+
+Currently available endpoints:
+- `GET http://185.213.25.106/` - API welcome message and information
+- `GET http://185.213.25.106/health` - Health check endpoint
+- `GET http://185.213.25.106/_profiler` - Symfony Web Profiler (dev environment)
+- `GET http://185.213.25.106/laravel/` - Legacy Laravel system
+
+## Migration Context
+
+This project replaces a Laravel-based system with these components:
+- **44 Controllers** → Symfony Controllers/Actions
+- **28 Models** → Doctrine Entities  
+- **113+ Blade Templates** → React/Vue.js Components
+- **19 Service Classes** → Domain Services
+- **40 Database Migrations** → Doctrine Migrations
+
+## Key Integration Points
+
+- **InPost API** - Polish courier service integration
+- **DHL API** - International courier service
+- **PayNow** - Polish payment system
+- **Stripe** - International payment processing
+
+## References
+
+- Original Laravel system: [skyfly82/skybrokersystem](https://github.com/skyfly82/skybrokersystem)
+- Detailed implementation plan: `IMPLEMENTATION_PLAN.md`
+- No Docker will be used - we work on http://185.213.25.106/ directly
+- Legacy Laravel system preserved at http://185.213.25.106/laravel/

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja — SkyBroker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#2F7DFF;--primary-600:#2568d6;--primary-50:#EEF5FF;--text:#0C0212;--muted:#64748b;--border:#e5e7eb;--bg:#fff}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Mulish',system-ui,-apple-system,'Segoe UI',Roboto;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+        h1,.btn{font-family:'Be Vietnam Pro','Mulish',Arial,sans-serif}
+        .wrap{width:100%;max-width:640px;margin:0 auto}
+        .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+        .brand{display:flex;gap:10px;align-items:center}
+        .dot{width:22px;height:22px;border-radius:6px;background:var(--primary)}
+        .grid{display:grid;grid-template-columns:1fr;gap:0;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(15,23,42,.06);overflow:hidden;max-width:640px;margin:0 auto}
+        .main{padding:22px}
+        .types{display:grid;grid-template-columns:1fr;gap:8px;margin:12px 0}
+        .type{border:1.5px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;cursor:pointer;transition:border .15s ease, background .15s ease}
+        .type.active{border-color:var(--primary);background:#F5F9FF}
+        .type svg{width:20px;height:20px}
+        .stepper{display:flex;gap:10px;align-items:center;margin-bottom:18px}
+        .step{display:flex;gap:8px;align-items:center;color:var(--muted)}
+        .step-circle{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8em}
+        .step.active{color:var(--primary)}
+        .step.active .step-circle{border-color:var(--primary);background:var(--primary);color:#fff}
+        .line{height:2px;flex:1;background:var(--border)}
+        .line.active{background:var(--primary)}
+        .form-group{margin-bottom:16px}
+        label{display:block;margin-bottom:8px;font-weight:600}
+        input,select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px}
+        input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-50)}
+        .invalid{border-color:#b91c1c !important; box-shadow:0 0 0 4px rgba(185,28,28,.15) !important}
+        .btn{width:100%;padding:12px;border-radius:10px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-weight:700}
+        .btn:hover{background:var(--primary-600)}
+        .btn-sec{background:#fff;color:var(--text);border:1px solid var(--border)}
+        .btn-sec:hover{border-color:var(--primary);color:var(--primary)}
+        .sso{display:grid;grid-template-columns:1fr;gap:8px}
+        .btn-sso{display:flex;align-items:center;justify-content:center;gap:10px}
+        .btn-sso svg{width:18px;height:18px}
+        @media(max-width:600px){.grid{display:block;max-width:420px}.sso{grid-template-columns:1fr}}
+        @media(min-width:520px){ .types{grid-template-columns:repeat(2,1fr)} }
+        @media(min-width:600px){ .sso{grid-template-columns:repeat(3,1fr)} }
+        .alert{display:none;margin-bottom:12px;padding:12px;border-radius:10px}
+        .alert-danger{background:#FEF2F2;color:#b91c1c;border:1px solid #fecaca}
+        .alert-success{background:#E8FFF1;color:#0f9d58;border:1px solid #b7f7cd}
+        .help{font-size:.85em;color:var(--muted);margin-top:6px}
+        .strength{height:6px;border-radius:6px;background:#F1F5F9;overflow:hidden;margin-top:8px}
+        .strength-bar{height:100%;width:0%;background:#f43f5e;transition:width .2s ease,background .2s ease}
+        .consents{margin-top:8px;font-size:.9em;color:var(--muted)}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top"><div class="brand"><div class="dot"></div><strong>SkyBroker</strong></div><a href="/v2/web" style="color:var(--muted);text-decoration:none">Powrót</a></div>
+        <div class="grid">
+            <section class="main">
+                <div class="stepper">
+                    <div class="step active" id="s1"><div class="step-circle">1</div> Konto</div>
+                    <div class="line" id="l1"></div>
+                    <div class="step" id="s2"><div class="step-circle">2</div> Dane</div>
+                    <div class="line" id="l2"></div>
+                    <div class="step" id="s3"><div class="step-circle">3</div> Gotowe</div>
+                </div>
+                <div id="ok" class="alert alert-success"></div>
+                <div id="err" class="alert alert-danger"></div>
+                <form id="regForm">
+                    <div id="step1">
+                        <div class="sso">
+                            <button class="btn btn-sec btn-sso" type="button" onclick="sso('google')">
+                                <svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2h10.1c.1.6.2 1.1.2 1.8 0 6-4 10.2-10.3 10.2A10.8 10.8 0 0 1 1.7 12 10.8 10.8 0 0 1 12 1.8c2.9 0 5.4 1 7.2 2.7l-2.9 2.8C15 6 13.6 5.5 12 5.5 8.6 5.5 5.9 8.3 5.9 12s2.7 6.5 6.1 6.5c3.1 0 5.1-1.8 5.5-4.2h-5.5v-4z"/></svg>
+                                Google
+                            </button>
+                            <button class="btn btn-sec btn-sso" type="button" onclick="sso('facebook')">
+                                <svg viewBox="0 0 24 24"><path fill="#1877F2" d="M22 12.1C22 6.6 17.5 2 12 2S2 6.6 2 12.1c0 5 3.7 9.1 8.5 9.9v-7H8.1v-2.9h2.4V9.9c0-2.4 1.4-3.8 3.6-3.8 1 0 2 .2 2 .2v2.3h-1.1c-1.1 0-1.5.7-1.5 1.4v1.7h2.6l-.4 2.9h-2.2v7C18.3 21.2 22 17 22 12.1z"/></svg>
+                                Facebook
+                            </button>
+                            <button class="btn btn-sec btn-sso" type="button" onclick="sso('apple')">
+                                <svg viewBox="0 0 24 24"><path d="M16.2 1.9c0 1-.4 2-1.1 2.7-.7.8-1.8 1.3-2.7 1.2-.1-1 .3-2 .9-2.7.7-.8 1.9-1.3 2.9-1.2zM20.6 17.3c-.5 1.1-.8 1.6-1.5 2.6-1 1.5-2.3 3.3-4 3.3-1.5 0-1.9-1-3.7-1-1.8 0-2.3 1-3.7 1-1.7 0-3-1.7-4-3.1C1 17.6.6 13 .8 12.6c.2-.1 2.9-.1 4.1 2 1 1.6 1.8 3.4 3.2 3.3 1.3 0 1.7-.9 3.4-.9 1.7 0 2 .9 3.4.9 1.4 0 2.2-1.6 3.2-3.2.8-1.3 1.1-2 1.6-3.4-4.2-1.7-4.8-7.7-1-9.8 0 0 2.5 3.2.2 7.2-.5.8-1.2 1.5-2 2 .7.2 2.5.8 3.5 2.6z" fill="#000"/></svg>
+                                Apple
+                            </button>
+                        </div>
+                        <div class="form-group" style="margin-top:12px">
+                            <label>Typ klienta</label>
+                            <div class="types">
+                                <div class="type" id="typeBusiness" data-val="business">
+                                    <svg viewBox="0 0 24 24" fill="#2F7DFF"><path d="M3 3h18v6H3V3zm2 2v2h14V5H5zm-2 6h18v10H3V11zm2 2v6h14v-6H5z"/></svg>
+                                    <div>
+                                        <strong>Firma</strong>
+                                        <div class="help">Rejestracja konta B2B</div>
+                                    </div>
+                                </div>
+                                <div class="type" id="typeIndividual" data-val="individual">
+                                    <svg viewBox="0 0 24 24" fill="#2F7DFF"><path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/></svg>
+                                    <div>
+                                        <strong>Osoba prywatna</strong>
+                                        <div class="help">Konto indywidualne</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="ctype" value="">
+                        </div>
+                        <div id="biz" style="display:none">
+                            <div class="form-group">
+                                <label for="country">Kraj (NIP/VAT UE)</label>
+                                <select id="country"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="nip">NIP</label>
+                                <input id="nip" placeholder="np. 123-456-32-18">
+                                <div class="help" id="nipHelp"></div>
+                            </div>
+                            <label style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+                                <input type="checkbox" id="unreg"> Działalność nierejestrowana
+                            </label>
+                        </div>
+                        <div class="form-group" id="emailWrap">
+                            <label for="email">Adres email</label>
+                            <input id="email" type="email" required>
+                            <div class="help" id="emailHelp"></div>
+                        </div>
+                        <div class="form-group" id="passwordWrap">
+                            <label for="password">Hasło</label>
+                            <input id="password" type="password" required minlength="6">
+                            <div class="strength"><div class="strength-bar" id="pwbar"></div></div>
+                            <div class="help">Min. 8 znaków, wielka litera, cyfra i symbol.</div>
+                        </div>
+                        <button class="btn" type="button" id="next">Dalej</button>
+                        <div style="margin-top:8px;text-align:center">
+                            <a href="/v2/login" style="text-decoration:none;color:#2568d6;font-weight:700">Masz konto? Zaloguj się</a>
+                        </div>
+                    </div>
+                    <div id="step2" style="display:none">
+                        <div class="form-group"><label for="first">Imię</label><input id="first" required></div>
+                        <div class="form-group"><label for="last">Nazwisko</label><input id="last" required></div>
+                        <div class="form-group" id="companyWrap" style="display:none"><label for="company">Nazwa firmy</label><input id="company"></div>
+                        <div class="form-group"><label for="phone">Telefon</label><input id="phone" type="tel" required></div>
+                        <div class="consents"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="rodo" required> <span>Wyrażam zgodę na przetwarzanie danych osobowych zgodnie z polityką prywatności w celu założenia konta.</span></label></div>
+                        <button class="btn" type="submit">Zarejestruj się</button>
+                        <button class="btn btn-sec" type="button" id="back">Wstecz</button>
+                    </div>
+                </form>
+            </section>
+            
+        </div>
+    </div>
+    <script>
+        const API_BASE='/v2/api/v1';
+        const EU=[{code:'PL',name:'Polska'},{code:'DE',name:'Niemcy'},{code:'FR',name:'Francja'},{code:'IT',name:'Włochy'},{code:'ES',name:'Hiszpania'},{code:'PT',name:'Portugalia'},{code:'NL',name:'Holandia'},{code:'BE',name:'Belgia'},{code:'LU',name:'Luksemburg'},{code:'AT',name:'Austria'},{code:'CZ',name:'Czechy'},{code:'SK',name:'Słowacja'},{code:'HU',name:'Węgry'},{code:'RO',name:'Rumunia'},{code:'BG',name:'Bułgaria'},{code:'HR',name:'Chorwacja'},{code:'SI',name:'Słowenia'},{code:'LT',name:'Litwa'},{code:'LV',name:'Łotwa'},{code:'EE',name:'Estonia'},{code:'SE',name:'Szwecja'},{code:'FI',name:'Finlandia'},{code:'DK',name:'Dania'},{code:'IE',name:'Irlandia'},{code:'CY',name:'Cypr'},{code:'MT',name:'Malta'},{code:'GR',name:'Grecja'}];
+        let token=null;
+        let ssoProvider=null;
+        function sso(p){ ssoProvider=p; // UI hint
+            document.querySelectorAll('.btn-sso').forEach(b=>b.style.borderColor='var(--border)');
+            const map={google:0,facebook:1,apple:2}; const idx=map[p]; const btns=document.querySelectorAll('.btn-sso'); if(btns[idx]) btns[idx].style.borderColor='var(--primary)';
+            // If business + SSO, NIP becomes mandatory; hide email/password inputs for SSO
+            document.getElementById('emailWrap').style.display='none';
+            document.getElementById('passwordWrap').style.display='none';
+        }
+        // Populate countries
+        const csel=document.getElementById('country'); if(csel){ EU.forEach(c=>{const o=document.createElement('option');o.value=c.code;o.textContent=c.name;csel.appendChild(o)}); csel.value='PL'; }
+        // Type tiles selection
+        const typeInput=document.getElementById('ctype');
+        function setType(val){ typeInput.value=val; const biz = val==='business'; document.getElementById('biz').style.display=biz?'block':'none'; document.getElementById('companyWrap').style.display=biz?'block':'none'; }
+        function activateTile(id){ document.getElementById('typeBusiness').classList.remove('active'); document.getElementById('typeIndividual').classList.remove('active'); document.getElementById(id).classList.add('active'); }
+        document.getElementById('typeBusiness').addEventListener('click',()=>{ activateTile('typeBusiness'); setType('business'); });
+        document.getElementById('typeIndividual').addEventListener('click',()=>{ activateTile('typeIndividual'); setType('individual'); });
+        // NIP formatter and validator for PL
+        const nipInput=document.getElementById('nip'); const nipHelp=document.getElementById('nipHelp');
+        function normalizeDigits(v){ return (v||'').replace(/[^0-9]/g,''); }
+        function formatPlNip(d){ if(d.length<=3) return d; if(d.length<=6) return d.slice(0,3)+'-'+d.slice(3); if(d.length<=8) return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6); return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6,8)+'-'+d.slice(8,10); }
+        function isValidPlNipFormat(v){ const raw=normalizeDigits(v); if(raw.length!==10) return false; return /^\d{10}$/.test(raw); }
+        function applyNipValidation(){ const country=(document.getElementById('country').value||'').toUpperCase(); const val=nipInput.value; const raw=normalizeDigits(val); nipHelp.textContent=''; nipInput.classList.remove('invalid'); if(country!=='PL'){ return true; } if(!raw){ return true; } if(!isValidPlNipFormat(val)){ nipHelp.textContent='Błędnie wprowadzony numer PL NIP.'; nipInput.classList.add('invalid'); return false; } return true; }
+        nipInput.addEventListener('input', ()=>{ const country=(csel.value||'').toUpperCase(); if(country==='PL'){ let raw=normalizeDigits(nipInput.value).slice(0,10); // limit to 10
+            // auto format when 10 digits
+            nipInput.value = formatPlNip(raw); }
+            applyNipValidation();
+        });
+        csel.addEventListener('change', ()=>{ nipInput.classList.remove('invalid'); nipHelp.textContent=''; });
+        // Password strength
+        document.getElementById('password').addEventListener('input',function(){
+            const v=this.value||''; let s=0; if(v.length>=8)s++; if(/[A-Z]/.test(v))s++; if(/[0-9]/.test(v))s++; if(/[^A-Za-z0-9]/.test(v))s++; const p=[0,25,50,75,100][s]; const bar=document.getElementById('pwbar'); bar.style.width=p+'%'; bar.style.background=s<=2?'#f43f5e':(s===3?'#f59e0b':'#10b981');
+        });
+        // Email availability
+        let t; document.getElementById('email').addEventListener('input',function(){ clearTimeout(t); const email=this.value.trim(); const help=document.getElementById('emailHelp'); help.textContent=''; if(!email) return; t=setTimeout(async()=>{ try{ const r=await fetch(`${API_BASE}/registration/check-email`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}); const d=await r.json(); help.textContent=d.available?'Email dostępny':'Email zajęty'; help.style.color=d.available?'#0f9d58':'#b91c1c'; }catch(_){ } },400);});
+        // Next (step1)
+        document.getElementById('next').addEventListener('click',async()=>{
+            const ctype=typeInput.value; const email=document.getElementById('email').value.trim(); const password=document.getElementById('password').value; const nip=document.getElementById('nip').value.trim(); const country=document.getElementById('country').value; const unreg=document.getElementById('unreg').checked; const err=document.getElementById('err'); const ok=document.getElementById('ok'); err.style.display='none'; ok.style.display='none';
+            if(!ctype){ err.textContent='Wybierz typ klienta'; err.style.display='block'; return; }
+            // SSO: jeśli firma, NIP obowiązkowy
+            if(ctype==='business' && !unreg && (country||'').toUpperCase()==='PL'){
+                if(!nip){ err.textContent='Podaj NIP lub zaznacz „Działalność nierejestrowana”'; err.style.display='block'; nipInput.classList.add('invalid'); return; }
+                if(!applyNipValidation()){ return; }
+            }
+            // Wymagania email/hasło tylko gdy brak SSO
+            if(!ssoProvider){
+                if(!email || !password){ err.textContent='Podaj email i hasło lub wybierz SSO'; err.style.display='block'; return; }
+            }
+            try{ const payload={email: ssoProvider? (email||null): email, password: ssoProvider? null: password, customerType:ctype, nip: nip||null, country, unregisteredBusiness: unreg, ssoProvider};
+                const r=await fetch(`${API_BASE}/registration/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const d=await r.json(); if(r.ok&&d.success){ token=d.token; document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block'; document.getElementById('s1').classList.remove('active'); document.getElementById('s2').classList.add('active'); document.getElementById('l1').classList.add('active');
+                    // GUS lookup (PL business, not unregistered)
+                    if(ctype==='business' && (country||'').toUpperCase()==='PL' && !unreg){ try{ const gr=await fetch(`${API_BASE}/registration/gus-lookup`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nip, country, unregisteredBusiness: unreg})}); const gd=await gr.json(); if(gd && gd.company && gd.company.name && !document.getElementById('company').value){ document.getElementById('company').value = gd.company.name; } }catch(_){} }
+                } else { err.textContent=d.message||'Błąd rejestracji (krok 1)'; err.style.display='block'; }
+            }catch(ex){ err.textContent='Błąd połączenia: '+ex.message; err.style.display='block'; }
+        });
+        // Back
+        document.getElementById('back').addEventListener('click',()=>{ document.getElementById('step2').style.display='none'; document.getElementById('step1').style.display='block'; document.getElementById('s2').classList.remove('active'); document.getElementById('s1').classList.add('active'); document.getElementById('l1').classList.remove('active'); });
+        // Submit (step2)
+        document.getElementById('regForm').addEventListener('submit',async(e)=>{
+            e.preventDefault(); const ctype=document.getElementById('ctype').value; const email=document.getElementById('email').value.trim(); const password=document.getElementById('password').value; const first=document.getElementById('first').value.trim(); const last=document.getElementById('last').value.trim(); const company=document.getElementById('company').value.trim(); const phone=document.getElementById('phone').value.trim(); const rodo=document.getElementById('rodo').checked; const err=document.getElementById('err'); const ok=document.getElementById('ok'); err.style.display='none'; ok.style.display='none';
+            if(ctype==='business' && !company){ err.textContent='Nazwa firmy jest wymagana'; err.style.display='block'; return; }
+            if(!rodo){ err.textContent='Akceptuj zgodę RODO'; err.style.display='block'; return; }
+            try{ const r=await fetch(`${API_BASE}/registration/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password,firstName:first,lastName:last,phone,customerType:ctype,companyName:company||null,token})}); const d=await r.json(); if(r.ok){ ok.textContent='Rejestracja zakończona. Możesz się zalogować.'; ok.style.display='block'; setTimeout(()=>location.href='/v2/login',1500); } else { err.textContent=d.message||'Błąd rejestracji (krok 2)'; err.style.display='block'; }
+            }catch(ex){ err.textContent='Błąd połączenia: '+ex.message; err.style.display='block'; }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+Pytania - WebAPI DHL24
+Poniżej znajdą Państwo najczęściej zadawane pytania dotyczące integracji DHL z WebAPI DHL24.
+
+
+1. Dlaczego otrzymuję na sandboxie komunikat „Nieprawidłowe dane autoryzacyjne”, pomimo, iż otrzymaliśmy dane autoryzacyjne do WebAPI od pracownika działu Integracji Systemów?
+
+Środowisko testowe ma inny adres WSDL, niż środowisko produkcyjne. W przypadku sandboxa jest to https://sandbox.dhl24.com.pl/webapi2 (WSDL https://dhl24.com.pl/webapi2 dotyczy środowiska produkcyjnego i wymaga oddzielnych danych autoryzacyjnych).
+
+
+
+2. W jaki sposób zdefiniować przesyłkę „za pobraniem”?
+Przesyłkę „za pobraniem” definiujemy w  sekcji <specialServices>:
+
+
+Rysunek 1. Wycinek z dokumentacji metody createShipment - https://dhl24.com.pl/webapi2/doc/info.html?id=createShipment
+
+Przesyłka „za pobraniem” może zostać zdefiniowana na 2 sposoby:
+
+Sposób pierwszy
+<billing>
+         <shippingPaymentType>SHIPPER</shippingPaymentType>
+         <billingAccountNumber>numer SAP nadawcy</billingAccountNumber>
+         <paymentType>BANK_TRANSFER</paymentType>
+         <costsCenter></costsCenter>
+</billing>
+<specialServices>
+          <item>
+              <serviceType>COD</serviceType>
+              <serviceValue>115</serviceValue>
+              <textInstruction></textInstruction>
+              <collectOnDeliveryForm>BANK_TRANSFER</collectOnDeliveryForm>
+          </item>
+           <item>
+               <serviceType>UBEZP</serviceType>
+               <serviceValue>115</serviceValue>
+               <textInstruction></textInstruction>
+               <collectOnDeliveryForm></collectOnDeliveryForm>
+           </item>
+</specialServices>
+
+Przy takiej konfiguracji, koszty transportu ponosi nadawca (uwzględniając własne stawki).
+Zakładając, że nadawca płaci za przesyłkę 15 zł, a towar kosztuje 100, w CollectOnDeliveryValue powinna zostać wprowadzona kwota 115 zł (i taką kwotę zapłaci odbiorca).
+Należy pamiętać, że każda przesyłka „za pobraniem”, musi być ubezpieczona przynajmniej na kwotę pobrania.
+
+Sposób drugi
+<billing>
+         <shippingPaymentType>RECEIVER</shippingPaymentType>
+         <billingAccountNumber>numer SAP nadawcy</billingAccountNumber>
+         <paymentType>CASH</paymentType>
+         <costsCenter></costsCenter>
+</billing>
+<specialServices>
+          <item>
+              <serviceType>COD</serviceType>
+              <serviceValue>115</serviceValue>
+              <textInstruction></textInstruction>
+              <collectOnDeliveryForm>BANK_TRANSFER</collectOnDeliveryForm>
+          </item>
+           <item>
+               <serviceType>UBEZP</serviceType>
+               <serviceValue>115</serviceValue>
+               <textInstruction></textInstruction>
+               <collectOnDeliveryForm></collectOnDeliveryForm>
+           </item>
+</specialServices>
+
+Przy takiej konfiguracji, odbiorca ponosi pełny koszt transportu (nieuwzględniający żadnych rabatów).
+Zakładając, że towar kosztuje 100 zł i wprowadzimy w CollectOnDeliveryValue(„100”), to kurier pobierze od odbiorcy 100 zł i zwróci na konto nadawcy, ale dodatkowo odbiorca będzie musiał ponieść pełny koszt dostawy (np. 60 zł).
+
+
+
+3. Posiadam umowę na tzw. „stały zbiór”. W jaki sposób mogę go zadeklarować podczas tworzenia przesyłki?
+To zależy od używanej metody do tworzenia przesyłek:
+1. W przypadku metody createShipment ustawiamy parametr dropOffType na REGULAR_PICKUP
+2. Natomiast w metodzie createShipments ustawiamy <skipRestrictionCheck>TRUE</skipRestrictionCheck>
+
+
+
+4. W jaki sposób możemy uzyskać dostęp do WebAPI (środowisko produkcyjne lub testowe - sandbox)?
+Należy przekazać informację o wybranym środowisku oraz o loginie do DHL24, który ma uzyskać dostęp do WebAPI, na adres pl.cim@dhl.com. Jeżeli nie posiadają Państwo konta, proszę użyć opcji "zarejestruj" – nasze WebAPI jest powiązane z wybranym loginem w DHL24, więc przesyłki utworzone z jego wykorzystaniem, pojawią się również w DHL24).
+W przypadku:
+- środowiska testowego – https://sandbox.dhl24.com.pl/ (konto proszę zarejestrować jako gotówkowe, później dodamy do niego testowy numer klienta),
+- środowiska produkcyjnego – www.dhl24.com.pl.
+Jeżeli potrzebują Państwo dostępu do środowiska testowego i produkcyjnego, to należy posiadać / zarejestrować dwa konta (są one niezależne od siebie).
+Po otrzymaniu loginu (wraz z numerem klienta w DHL - w przypadku dostępu produkcyjnego), dołożymy do niego dostęp do WebAPI."
+
+
+
+5. Po uzupełnieniu wszystkich danych w sekcji "preaviso" i próbie wygenerowanie przesyłki, pojawia się komunikat "Parametr Numer telefonu odbiorcy preawizacji musi być nieujemną liczbą całkowitą".
+Numer telefonu musi być podany w postaci 9 cyfr (bez żadnych dodatkowych znaków).
+
+
+
+6. Korzystamy z API do weryfikacji statusów przesyłek. Niektóre metody wymagają loginu i hasła - jak uzyskać te dane?
+Proszę skontaktować się z Działem Integracji Systemów Informatycznych, pod adresem pl.cim@dhl.com
+
+
+
+7. "błędne dane autoryzacyjne" przy próbie wywołania dowolnej metody w środowisku testowym.
+Należy zaktualizować adres WSDL na https://sandbox.dhl24.com.pl/webapi2 (odnosi się do serwera produkcyjnego).
+
+
+
+8. Przy próbie wygenerowania przesyłki, zwracany jest komunikat "Błędy walidacji zamówienia: W zadanych godzinach realizacji przybycie kuriera jest niemożliwe"
+W przypadku WebAPI (jak również bezpośrednio w aplikacji DHL24), przy każdym zamówieniu kuriera sprawdzane są restrykcje na kodzie pocztowym nadawcy. Jeżeli zwracany jest taki komunikat, oznacza to, że wybrany jest błędny przedział godzinowy (np. godzina „do” jest już poza godzinami przyjazdu kuriera lub nie jest zachowany 2 godzinny przedział od-do).
+Restrykcje można sprawdzić poprzez WebAPI metodą getPostalCodeServices.
+
+
+
+9. Czym się różnią poszczególne formaty wydruku etykiet?
+LP jest starym formatem listu przewozowego, z którego powoli się wycofujemy (drukowany na A4), etykieta BLP PDF – format dostosowany do drukarek termicznych (10x17 cm), ale może też być wydrukowana na kartkach A4 (w przypadku A4, lepiej sprawdza się format LBLP), etykieta LBLP(A4) PDF – to etykieta BLP, dostosowana do A4 - jest wyrównana do lewego górnego rogu (dla drukarek laserowych), etykieta BLP ZPL – etykieta w formacie ZPL (dla drukarek zebra).
+
+
+
+10. „Nieprawidlowe dane autoryzacyjne" przy próbie integracji DHL24 z systemem zewnętrznym.
+Aby zintegrować DHL24 z systemem zewnętrznym, należy wprowadzić dane autoryzacyjne do WebAPI DHL24, a nie te, które są do logowania. Aby uzyskać dostęp do WebAPI, samodzielnie należy po zalogowaniu do konta w zakładce MOJE DANE (w górnym rogu kliknięcie w ikonkę użytkownika), przejść do zakładki KLUCZE API tutaj klikając przyciski generuj uzyskamy klucxe API V2 oraz API PS ewentualnie  skontaktować się bezpośrednio z Działem Integracji Systemów Informatycznych, pod adresem pl.cim@dhl.com
+
+
+
+11. Czy po zmianie loginu w DHL24, mój dostęp do WebAPI nadal będzie aktywny?
+Tak.
+
+
+
+12. W jaki sposób wygenerować potwierdzenie nadania przesyłek?
+Należy skorzystać z metody getPnp - https://dhl24.com.pl/webapi2/doc/info.html?id=getPnp
+
+
+
+13. Przy próbie wygenerowania przesyłki, zwracany jest komunikat "Został użyty nieautoryzowany numer klienta".
+Należy podać numer klienta SAP, który znajduje się na powiązanym koncie w DHL24.
+
+
+
+14. Czy na etykiecie mogą znajdować się dodatkowe informacje?
+Na etykiecie mogą pojawić się dodatkowe informacje i np. przy metodzie createShipment. W sekcji Billing mamy: <costsCenter>TEST pole MPK</costsCenter>
+Jest to 20 znaków do wykorzystania – jest na wydruku etykiety jak i może być na załączniku do FV za transport. Mamy jeszcze takie wartości:
+<content>zawartosc111</content> - zawartość jest drukowana na etykiecie - string(30)
+<comment>test</comment> Uwagi do przesyłki są na etykiecie, w danych elektronicznych i na potwierdzenie nadania przesyłek - string(100)"

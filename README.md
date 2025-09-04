@@ -1,92 +1,66 @@
-# SkyBrokerSystem
+# SkyBrokerSystem v2
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/skyfly82/skybrokersystem/laravel.yml?branch=main)
-![Code Style](https://img.shields.io/badge/code%20style-pint-brightgreen)
-![PHP Version](https://img.shields.io/badge/php-%3E%3D8.2-blue)
-![Laravel Version](https://img.shields.io/badge/laravel-12.x-orange)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+Modern courier brokerage platform built with Symfony 7.3 and modern PHP practices.
 
-**SkyBrokerSystem** to nowoczesna platforma do zarządzania przesyłkami kurierskimi, zbudowana na frameworku **Laravel 12**. System implementuje architekturę **Modularnego Monolitu**, zapewniając wysoką skalowalność, bezpieczeństwo i łatwość w utrzymaniu.
+## Project Overview
 
-## Główne Funkcjonalności
+This is a complete rewrite of the original Laravel-based SkyBrokerSystem, now built on:
+- **Symfony 7.3** - Latest stable PHP framework
+- **Doctrine ORM** - Enterprise-grade data management with MySQL/MariaDB 8.0
+- **API-First Architecture** - RESTful APIs with OpenAPI documentation
+- **Modern Frontend** - React/Vue.js SPA (planned)
+- **Production-Ready** - Direct deployment without Docker
 
--   **Zarządzanie Przesyłkami**: Tworzenie, śledzenie i zarządzanie przesyłkami od wielu dostawców.
--   **Integracje z Kurierami**: Modułowa architektura pozwala na łatwe dodawanie nowych firm kurierskich (obecnie zintegrowany InPost).
--   **Przetwarzanie Płatności**: Wsparcie dla wielu bramek płatniczych (PayNow, Stripe) oraz trybu symulacyjnego.
--   **Panel Administracyjny**: Kompleksowy panel do zarządzania klientami, zamówieniami, płatnościami i ustawieniami systemu.
--   **Panel Klienta**: Intuicyjny interfejs dla klientów do zarządzania własnymi przesyłkami i płatnościami.
--   **RESTful API**: Bezpieczne API do integracji z zewnętrznymi systemami, chronione kluczami API oraz tokenami Sanctum.
--   **System Powiadomień**: Wielokanałowe powiadomienia (Email, SMS) dla kluczowych zdarzeń w systemie.
+## Development Status
 
-## Architektura i Stos Technologiczny
+🚧 **Under Development** - This project is currently being developed in phases:
 
-System został zaprojektowany z myślą o najlepszych praktykach i nowoczesnych wzorcach projektowych.
+### Phase 1: Core & Authentication (In Progress)
+- [x] Symfony 7.3 project setup
+- [x] MySQL/MariaDB 8.0 database configuration
+- [x] Project structure migration (main app at /, Laravel legacy at /laravel/)
+- [ ] Multi-guard authentication system
+- [ ] Base entities and repositories
+- [ ] API foundation with OpenAPI docs
 
--   **Backend**: PHP 8.2+, Laravel 12
--   **Frontend**: Blade, Tailwind CSS, Alpine.js
--   **Baza Danych**: MySQL / PostgreSQL (z kluczami głównymi **UUID v7**)
--   **Cache/Kolejki**: Redis
--   **Architektura**: Modularny Monolit, Warstwa Usług (Service Layer), "Chude" Kontrolery.
+### Phase 2: Business Logic (Planned)
+- [ ] Courier service integrations (InPost, DHL)
+- [ ] Order management system
+- [ ] Payment processing
+- [ ] Shipment tracking
 
-## Wymagania
+### Phase 3: Frontend & UI (Planned)
+- [ ] React/Vue.js admin panel
+- [ ] Customer dashboard
+- [ ] Mobile-responsive design
+- [ ] Real-time notifications
 
--   PHP >= 8.2
--   Composer 2.x
--   Node.js >= 16.x
--   Baza danych (MySQL >= 8.0 lub PostgreSQL >= 13)
--   Redis
+### Phase 4: Advanced Features (Planned)
+- [ ] Analytics and reporting
+- [ ] CMS functionality
+- [ ] Performance optimization
+- [ ] Monitoring and logging
 
-## Instalacja i Uruchomienie
+## Architecture
 
-Poniższe kroki opisują proces instalacji w środowisku serwerowym (bez Dockera).
+This project follows Domain-Driven Design (DDD) principles with:
+- Clean architecture layers
+- CQRS pattern for complex operations
+- Event-driven communication
+- Microservices-ready structure
 
-1.  **Klonowanie repozytorium**
-    ```bash
-    git clone [https://github.com/skyfly82/skybrokersystem.git](https://github.com/skyfly82/skybrokersystem.git)
-    cd skybrokersystem
-    ```
+## System Architecture
 
-2.  **Instalacja zależności PHP**
-    ```bash
-    composer install --no-dev --optimize-autoloader
-    ```
+### Current Deployment
+- **Main Application**: http://185.213.25.106/ (Symfony 7.3)
+- **Legacy System**: http://185.213.25.106/laravel/ (Original Laravel system)
+- **Database**: MySQL/MariaDB 8.0
+- **PHP**: 8.3+
 
-3.  **Konfiguracja środowiska**
-    ```bash
-    cp .env.example .env
-    ```
-    Następnie skonfiguruj plik `.env`, uzupełniając dane dostępowe do bazy danych, Redis oraz adres URL aplikacji (`APP_URL`).
+## Original System
 
-4.  **Generowanie klucza aplikacji**
-    ```bash
-    php artisan key:generate
-    ```
+The original Laravel-based system can be found at [skyfly82/skybrokersystem](https://github.com/skyfly82/skybrokersystem) and is preserved at `/laravel/` path.
 
-5.  **Migracje i dane startowe**
-    ```bash
-    php artisan migrate --seed
-    ```
+## License
 
-6.  **Dowiązanie katalogu storage**
-    ```bash
-    php artisan storage:link
-    ```
-
-7.  **Instalacja zależności i budowanie frontendu**
-    ```bash
-    npm install
-    npm run build
-    ```
-
-8.  **Optymalizacja na produkcję**
-    ```bash
-    php artisan optimize
-    ```
-
-Po wykonaniu tych kroków aplikacja powinna być dostępna pod skonfigurowanym adresem URL.
-
-## Testowanie
-
-Do uruchomienia testów jednostkowych i funkcjonalnych służy następująca komenda:
-```bash
-php artisan test
+Proprietary - All rights reserved.

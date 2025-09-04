@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie administratora — SkyBroker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary:#2F7DFF; --primary-600:#2568d6; --primary-50:#EEF5FF; --text:#0C0212; --muted:#64748b; --border:#e5e7eb; --bg:#FFFFFF; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Mulish',system-ui,-apple-system,'Segoe UI',Roboto;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+        h1,.btn{font-family:'Be Vietnam Pro','Mulish',Arial,sans-serif}
+        .container{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 12px 40px rgba(15,23,42,.08);width:100%;max-width:560px;padding:28px}
+        .brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+        .dot{width:22px;height:22px;border-radius:6px;background:var(--primary)}
+        .form-group{margin-bottom:16px}
+        label{display:block;margin-bottom:8px;font-weight:600}
+        input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px}
+        input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-50)}
+        .btn{width:100%;padding:14px;border-radius:10px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-weight:700}
+        .btn:hover{background:var(--primary-600)}
+        .links{display:flex;gap:10px;justify-content:space-between;margin-top:10px}
+        .alink{color:var(--muted);text-decoration:none}
+        .alink:hover{color:var(--primary)}
+        .alert{display:none;margin-bottom:12px;padding:12px;border-radius:10px}
+        .alert-danger{background:#FEF2F2;color:#b91c1c;border:1px solid #fecaca}
+        .alert-success{background:#E8FFF1;color:#0f9d58;border:1px solid #b7f7cd}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="brand"><div class="dot"></div><strong>SkyBroker</strong></div>
+        <h1 style="margin-bottom:8px; font-size:1.4em">Logowanie administratora</h1>
+        <div id="error" class="alert alert-danger"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Adres email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <input type="password" id="password" required>
+            </div>
+            <button class="btn" type="submit">Zaloguj się</button>
+            <div class="links">
+                <a class="alink" href="/v2/login/customer">Logowanie klienta</a>
+                <a class="alink" href="/v2/web">Powrót</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        const API_BASE = '/v2/api/v1';
+        document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const err = document.getElementById('error');
+            err.style.display = 'none';
+            if(!email || !password){ err.textContent='Uzupełnij pola'; err.style.display='block'; return; }
+            try{
+                const endpoint = `${API_BASE}/system/login`;
+                const r = await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+                const ct = r.headers.get('content-type')||''; if(!ct.includes('json')) throw new Error('Zła odpowiedź');
+                const data = await r.json();
+                if(r.ok && data.success){
+                    localStorage.setItem('jwt_token', data.token);
+                    localStorage.setItem('user_type', 'system');
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                    location.href = '/v2/dashboard?type=system';
+                } else {
+                    err.textContent = data.message || 'Błędne dane logowania'; err.style.display='block';
+                }
+            }catch(ex){ err.textContent = 'Błąd połączenia: '+ex.message; err.style.display='block'; }
+        });
+    </script>
+</body>
+</html>
+

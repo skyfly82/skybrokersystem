@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie klienta — SkyBroker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary:#2F7DFF; --primary-600:#2568d6; --primary-50:#EEF5FF; --text:#0C0212; --muted:#64748b; --border:#e5e7eb; --bg:#FFFFFF; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Mulish',system-ui,-apple-system,'Segoe UI',Roboto;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+        h1,.btn{font-family:'Be Vietnam Pro','Mulish',Arial,sans-serif}
+        .container{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 12px 40px rgba(15,23,42,.08);width:100%;max-width:560px;padding:28px}
+        .brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+        .dot{width:22px;height:22px;border-radius:6px;background:var(--primary)}
+        .form-group{margin-bottom:16px}
+        label{display:block;margin-bottom:8px;font-weight:600}
+        input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px}
+        input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-50)}
+        .btn{width:100%;padding:14px;border-radius:10px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-weight:700}
+        .btn:hover{background:var(--primary-600)}
+        .sso{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+        .btn-sso{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:var(--text);border:1px solid var(--border)}
+        .btn-sso:hover{border-color:var(--primary);color:var(--primary)}
+        .btn-sso svg{width:18px;height:18px}
+        .links{display:flex;gap:10px;justify-content:space-between;margin-top:10px}
+        .alink{color:var(--muted);text-decoration:none}
+        .alink:hover{color:var(--primary)}
+        .alert{display:none;margin-bottom:12px;padding:12px;border-radius:10px}
+        .alert-danger{background:#FEF2F2;color:#b91c1c;border:1px solid #fecaca}
+        .alert-success{background:#E8FFF1;color:#0f9d58;border:1px solid #b7f7cd}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="brand"><div class="dot"></div><strong>SkyBroker</strong></div>
+        <h1 style="margin-bottom:8px; font-size:1.4em">Logowanie klienta</h1>
+        <div id="error" class="alert alert-danger"></div>
+        <div class="sso">
+            <button type="button" class="btn btn-sso" onclick="sso('google')">
+                <svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2h10.1c.1.6.2 1.1.2 1.8 0 6-4 10.2-10.3 10.2A10.8 10.8 0 0 1 1.7 12 10.8 10.8 0 0 1 12 1.8c2.9 0 5.4 1 7.2 2.7l-2.9 2.8C15 6 13.6 5.5 12 5.5 8.6 5.5 5.9 8.3 5.9 12s2.7 6.5 6.1 6.5c3.1 0 5.1-1.8 5.5-4.2h-5.5v-4z"/></svg>
+                Google
+            </button>
+            <button type="button" class="btn btn-sso" onclick="sso('facebook')">
+                <svg viewBox="0 0 24 24"><path fill="#1877F2" d="M22 12.1C22 6.6 17.5 2 12 2S2 6.6 2 12.1c0 5 3.7 9.1 8.5 9.9v-7H8.1v-2.9h2.4V9.9c0-2.4 1.4-3.8 3.6-3.8 1 0 2 .2 2 .2v2.3h-1.1c-1.1 0-1.5.7-1.5 1.4v1.7h2.6l-.4 2.9h-2.2v7C18.3 21.2 22 17 22 12.1z"/></svg>
+                Facebook
+            </button>
+            <button type="button" class="btn btn-sso" onclick="sso('apple')">
+                <svg viewBox="0 0 24 24"><path d="M16.2 1.9c0 1-.4 2-1.1 2.7-.7.8-1.8 1.3-2.7 1.2-.1-1 .3-2 .9-2.7.7-.8 1.9-1.3 2.9-1.2zM20.6 17.3c-.5 1.1-.8 1.6-1.5 2.6-1 1.5-2.3 3.3-4 3.3-1.5 0-1.9-1-3.7-1-1.8 0-2.3 1-3.7 1-1.7 0-3-1.7-4-3.1C1 17.6.6 13 .8 12.6c.2-.1 2.9-.1 4.1 2 1 1.6 1.8 3.4 3.2 3.3 1.3 0 1.7-.9 3.4-.9 1.7 0 2 .9 3.4.9 1.4 0 2.2-1.6 3.2-3.2.8-1.3 1.1-2 1.6-3.4-4.2-1.7-4.8-7.7-1-9.8 0 0 2.5 3.2.2 7.2-.5.8-1.2 1.5-2 2 .7.2 2.5.8 3.5 2.6z" fill="#000"/></svg>
+                Apple
+            </button>
+        </div>
+        <form id="loginForm" style="margin-top:12px">
+            <div class="form-group">
+                <label for="email">Adres email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <input type="password" id="password" required>
+            </div>
+            <button class="btn" type="submit">Zaloguj się</button>
+            <div class="links">
+                <a class="alink" href="/v2/register">Rejestracja</a>
+                <a class="alink" href="/v2/forgot">Zapomniałem hasła</a>
+                <a class="alink" href="/v2/login/admin">Logowanie administratora</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        const API_BASE = '/v2/api/v1';
+        function sso(p){ alert('SSO '+p+' w przygotowaniu'); }
+        document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const err = document.getElementById('error');
+            err.style.display = 'none';
+            if(!email || !password){ err.textContent='Uzupełnij pola'; err.style.display='block'; return; }
+            try{
+                const endpoint = `${API_BASE}/customer/login`;
+                const r = await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+                const ct = r.headers.get('content-type')||''; if(!ct.includes('json')) throw new Error('Zła odpowiedź');
+                const data = await r.json();
+                if(r.ok && data.success){
+                    localStorage.setItem('jwt_token', data.token);
+                    localStorage.setItem('user_type', 'customer');
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                    location.href = '/v2/dashboard?type=customer';
+                } else {
+                    err.textContent = data.message || 'Błędne dane logowania'; err.style.display='block';
+                }
+            }catch(ex){ err.textContent = 'Błąd połączenia: '+ex.message; err.style.display='block'; }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja i logowanie — SkyBroker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Brandbook colors */
+            --primary: #2F7DFF; /* Sky wave blue */
+            --primary-600: #2568d6;
+            --primary-50: #EEF5FF;
+            --text: #0C0212;   /* Black coal */
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --bg: #FFFFFF;     /* Pure white */
+            --success-bg: #E8FFF1;
+            --success-text: #0f9d58;
+            --danger-bg: #FEF2F2;
+            --danger-text: #b91c1c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Mulish', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--text);
+        }
+        h1, h2, h3, h4, h5, h6, .tab-button, .btn { font-family: 'Be Vietnam Pro', 'Mulish', Arial, sans-serif; }
+        .topbar { position: sticky; top:0; width:100%; max-width:980px; margin:0 auto 12px; display:flex; align-items:center; justify-content:space-between; }
+        .brand-mini { display:flex; align-items:center; gap:10px; }
+        .brand-dot { width:22px; height:22px; border-radius:6px; background: var(--primary); }
+        .support-links a { color: var(--muted); text-decoration:none; margin-left:12px; font-size:.95em }
+        .support-links a:hover { color: var(--primary); }
+
+        .auth-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+            max-width: 980px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            border: 1px solid var(--border);
+            margin: 0 auto;
+        }
+        .auth-container.mode-login { grid-template-columns: 1fr; max-width: 560px; }
+        .auth-container.mode-login .benefits { display:none; }
+        .auth-container.mode-login .stepper { display:none; }
+        .auth-container.mode-register .stepper { display:flex; }
+        .auth-sidebar { display: none; }
+        .auth-main { padding: 28px; background: #fff; }
+        .benefits { border-left: 1px solid var(--border); padding: 28px; background:#fff; }
+        .benefit { background:#fff; border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:10px; }
+        .badges { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+        .badge { border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:.85em; color: var(--muted); }
+        .auth-tabs { display: flex; margin-bottom: 28px; border-bottom: 1px solid var(--border); }
+        .tab-button {
+            flex: 1; padding: 14px; border: none; background: none; cursor: pointer;
+            font-size: 1.1em; color: var(--muted); border-bottom: 3px solid transparent; transition: all .2s ease;
+        }
+        .tab-button.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        /* Stepper */
+        .stepper { display:none; align-items:center; gap:10px; margin-bottom: 18px; }
+        .step { display:flex; align-items:center; gap:8px; color: var(--muted); }
+        .step-circle { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:.8em; }
+        .step.active { color: var(--primary); }
+        .step.active .step-circle { border-color: var(--primary); background: var(--primary); color:#fff; }
+        .step-line { height:2px; flex:1; background: var(--border); }
+        .step-line.active { background: var(--primary); }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #0f172a; font-weight: 600; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 1em;
+            transition: border-color .2s ease, box-shadow .2s ease; background: #fff;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-50);
+        }
+        .help { font-size:.85em; color: var(--muted); margin-top:6px; }
+        .field-ok { color: var(--success-text); font-size:.85em; }
+        .field-err { color: var(--danger-text); font-size:.85em; }
+        .btn { width: 100%; padding: 14px; border-radius: 10px; font-size: 1.05em; font-weight: 600; cursor: pointer; transition: all .15s ease; margin-bottom: 12px; }
+        .btn-primary { background: var(--primary); color: #fff; border: 1px solid var(--primary); }
+        .btn-primary:hover { background: var(--primary-600); transform: translateY(-1px); }
+        .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .btn-sso { display:flex; align-items:center; justify-content:center; gap:10px; }
+        .btn-sso svg { width:18px; height:18px; }
+        .alert { padding: 14px; border-radius: 10px; margin-bottom: 18px; display: none; border: 1px solid transparent; }
+        .alert-success { background: var(--success-bg); color: var(--success-text); border-color: #b7f7cd; }
+        .alert-danger { background: var(--danger-bg); color: var(--danger-text); border-color: #fecaca; }
+        .loading { display: none; text-align: center; color: var(--primary); }
+        .user-type-selector { display: flex; gap: 10px; margin-bottom: 16px; }
+        .user-type-card { flex: 1; padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; text-align: center; transition: all .2s ease; background:#fff; }
+        .user-type-card.selected { border-color: var(--primary); background: #F5F9FF; }
+        #regSteps > div { font-weight: 600; }
+        #step1Badge { background: var(--primary); color: #fff; }
+        #step2Badge { background: #eaeef6; color: #475569; }
+        .strength { height:6px; border-radius:6px; background:#F1F5F9; overflow:hidden; margin-top:8px; }
+        .strength-bar { height:100%; width:0%; background:#f43f5e; transition: width .2s ease, background .2s ease; }
+        .consents { margin-top:8px; font-size:.9em; color: var(--muted); }
+        @media (max-width: 768px) {
+            .auth-container { display:block; max-width: 420px; }
+            .auth-sidebar { padding: 20px; text-align: center; }
+            .auth-sidebar h1 { font-size: 1.8em; }
+            .benefits { border-left:none; border-top:1px solid var(--border); }
+        }
+        .sso-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+        @media (max-width: 600px) { .sso-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="brand-mini">
+            <div class="brand-dot"></div>
+            <strong>SkyBroker</strong>
+        </div>
+        <div class="support-links">
+            <a href="#" onclick="event.preventDefault(); showAlert('Napisz: support@skysystem');">Pomoc</a>
+            <a href="#" onclick="event.preventDefault(); showAlert('Infolinia: +48 123 456 789');">Kontakt</a>
+        </div>
+    </div>
+    <div id="rootAuth" class="auth-container mode-login">
+        <div class="auth-main">
+            <div class="stepper">
+                <div class="step active" id="stp1"><div class="step-circle">1</div> Konto</div>
+                <div class="step-line" id="stpline1"></div>
+                <div class="step" id="stp2"><div class="step-circle">2</div> Dane</div>
+                <div class="step-line" id="stpline2"></div>
+                <div class="step" id="stp3"><div class="step-circle">3</div> Gotowe</div>
+            </div>
+            <div class="auth-tabs">
+                <button class="tab-button active" onclick="switchTab('login')">Logowanie</button>
+                <button class="tab-button" onclick="switchTab('register')">Rejestracja</button>
+            </div>
+
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-danger" id="errorAlert"></div>
+            <div class="loading" id="loading">Przetwarzanie...</div>
+
+            <!-- Login Form -->
+            <form class="auth-form active" id="loginForm">
+                <div class="user-type-selector">
+                    <div class="user-type-card selected" onclick="selectUserType('customer', 'login')" id="loginCustomerType">
+                        <strong>Klient</strong><br>
+                        <small>Firma/Osoba prywatna</small>
+                    </div>
+                    <div class="user-type-card" onclick="selectUserType('system', 'login')" id="loginSystemType">
+                        <strong>Administrator</strong><br>
+                        <small>Panel administracyjny</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginEmail">Adres email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Hasło</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Zaloguj się</button>
+                <button type="button" class="btn btn-secondary" onclick="goHome()">Powrót do strony głównej</button>
+            </form>
+
+            <!-- Register Form (Two-step) -->
+            <form class="auth-form" id="registerForm">
+                <!-- SSO buttons -->
+                <div class="form-group sso-grid">
+                    <button type="button" class="btn btn-secondary btn-sso" onclick="sso('google')">
+                        <svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2h10.1c.1.6.2 1.1.2 1.8 0 6-4 10.2-10.3 10.2A10.8 10.8 0 0 1 1.7 12 10.8 10.8 0 0 1 12 1.8c2.9 0 5.4 1 7.2 2.7l-2.9 2.8C15 6 13.6 5.5 12 5.5 8.6 5.5 5.9 8.3 5.9 12s2.7 6.5 6.1 6.5c3.1 0 5.1-1.8 5.5-4.2h-5.5v-4z"/></svg>
+                        Google
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sso" onclick="sso('facebook')">
+                        <svg viewBox="0 0 24 24"><path fill="#1877F2" d="M22 12.1C22 6.6 17.5 2 12 2S2 6.6 2 12.1c0 5 3.7 9.1 8.5 9.9v-7H8.1v-2.9h2.4V9.9c0-2.4 1.4-3.8 3.6-3.8 1 0 2 .2 2 .2v2.3h-1.1c-1.1 0-1.5.7-1.5 1.4v1.7h2.6l-.4 2.9h-2.2v7C18.3 21.2 22 17 22 12.1z"/></svg>
+                        Facebook
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sso" onclick="sso('apple')">
+                        <svg viewBox="0 0 24 24"><path d="M16.2 1.9c0 1-.4 2-1.1 2.7-.7.8-1.8 1.3-2.7 1.2-.1-1 .3-2 .9-2.7.7-.8 1.9-1.3 2.9-1.2zM20.6 17.3c-.5 1.1-.8 1.6-1.5 2.6-1 1.5-2.3 3.3-4 3.3-1.5 0-1.9-1-3.7-1-1.8 0-2.3 1-3.7 1-1.7 0-3-1.7-4-3.1C1 17.6.6 13 .8 12.6c.2-.1 2.9-.1 4.1 2 1 1.6 1.8 3.4 3.2 3.3 1.3 0 1.7-.9 3.4-.9 1.7 0 2 .9 3.4.9 1.4 0 2.2-1.6 3.2-3.2.8-1.3 1.1-2 1.6-3.4-4.2-1.7-4.8-7.7-1-9.8 0 0 2.5 3.2.2 7.2-.5.8-1.2 1.5-2 2 .7.2 2.5.8 3.5 2.6z" fill="#000"/></svg>
+                        Apple
+                    </button>
+                </div>
+
+                <!-- STEP 1 -->
+                <div id="registerStep1">
+                    <div class="form-group">
+                        <label for="registerCustomerType">Typ klienta</label>
+                        <select id="registerCustomerType" required>
+                            <option value="">Wybierz typ klienta</option>
+                            <option value="business">Firma</option>
+                            <option value="individual">Osoba prywatna</option>
+                        </select>
+                    </div>
+
+                    <div id="businessExtra" style="display:none;">
+                        <div class="form-group">
+                            <label for="registerCountry">Kraj (NIP/VAT UE)</label>
+                            <select id="registerCountry"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerNip">NIP</label>
+                            <input type="text" id="registerNip" placeholder="np. 123-456-32-18">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:flex;align-items:center;gap:8px;">
+                                <input type="checkbox" id="unregisteredBusiness"> Działalność nierejestrowana
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerEmail">Adres email</label>
+                        <input type="email" id="registerEmail" required>
+                        <div class="help" id="emailHelp"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPassword">Hasło</label>
+                        <div style="position:relative;">
+                            <input type="password" id="registerPassword" required minlength="6" style="padding-right:44px;">
+                            <button type="button" id="togglePassword" style="position:absolute;right:6px;top:6px;padding:6px 10px;">Pokaż</button>
+                        </div>
+                        <div class="strength"><div class="strength-bar" id="pwStrength"></div></div>
+                        <div class="help">Użyj min. 8 znaków, wielkiej litery, cyfry i symbolu.</div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" id="goStep2">Dalej</button>
+                    <button type="button" class="btn btn-secondary" onclick="goHome()">Powrót do strony głównej</button>
+                </div>
+
+                <!-- STEP 2 (placeholder for next task) -->
+                <div id="registerStep2" style="display:none;">
+                    <div class="form-group">
+                        <label for="registerFirstName">Imię</label>
+                        <input type="text" id="registerFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerLastName">Nazwisko</label>
+                        <input type="text" id="registerLastName" required>
+                    </div>
+                    <div class="form-group" id="companyNameGroup" style="display:none;">
+                        <label for="registerCompanyName">Nazwa firmy</label>
+                        <input type="text" id="registerCompanyName">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone">Telefon</label>
+                        <input type="tel" id="registerPhone" required>
+                    </div>
+                    <div class="consents">
+                        <label style="display:flex; gap:8px; align-items:flex-start;">
+                            <input type="checkbox" id="consentRodo" required>
+                            <span>Wyrażam zgodę na przetwarzanie danych osobowych zgodnie z polityką prywatności w celu założenia konta.</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Zarejestruj się</button>
+                    <button type="button" class="btn btn-secondary" onclick="switchToStep1()">Wstecz</button>
+                </div>
+            </form>
+        </div>
+        <aside class="benefits">
+            <div class="benefit">
+                <strong>Szybki start</strong>
+                <div class="help">Załóż konto w 2 minuty – bez karty.</div>
+            </div>
+            <div class="benefit">
+                <strong>Bezpieczeństwo</strong>
+                <div class="help">Szyfrowanie TLS, uwierzytelnianie JWT, audyt dostępu.</div>
+                <div class="badges">
+                    <div class="badge">SSL</div>
+                    <div class="badge">RODO</div>
+                    <div class="badge">Best‑practice</div>
+                </div>
+            </div>
+            <div class="benefit">
+                <strong>Wsparcie</strong>
+                <div class="help">Pomoc 8:00–18:00, baza wiedzy, onboarding.</div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const API_BASE = '/v2/api/v1';
+        const EU_COUNTRIES = [
+            {code:'PL',name:'Polska'}, {code:'DE',name:'Niemcy'}, {code:'FR',name:'Francja'}, {code:'IT',name:'Włochy'}, {code:'ES',name:'Hiszpania'},
+            {code:'PT',name:'Portugalia'},{code:'NL',name:'Holandia'},{code:'BE',name:'Belgia'},{code:'LU',name:'Luksemburg'},{code:'AT',name:'Austria'},
+            {code:'CZ',name:'Czechy'},{code:'SK',name:'Słowacja'},{code:'HU',name:'Węgry'},{code:'RO',name:'Rumunia'},{code:'BG',name:'Bułgaria'},
+            {code:'HR',name:'Chorwacja'},{code:'SI',name:'Słowenia'},{code:'LT',name:'Litwa'},{code:'LV',name:'Łotwa'},{code:'EE',name:'Estonia'},
+            {code:'SE',name:'Szwecja'},{code:'FI',name:'Finlandia'},{code:'DK',name:'Dania'},{code:'IE',name:'Irlandia'},{code:'CY',name:'Cypr'},
+            {code:'MT',name:'Malta'},{code:'GR',name:'Grecja'}
+        ];
+        let currentUserType = 'customer';
+        let regToken = null;
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(tab + 'Form').classList.add('active');
+            
+            // Clear alerts
+            hideAlerts();
+            // Toggle layout modes
+            const root = document.getElementById('rootAuth');
+            if (root) {
+                if (tab === 'register') { root.classList.add('mode-register'); root.classList.remove('mode-login'); }
+                else { root.classList.add('mode-login'); root.classList.remove('mode-register'); }
+            }
+        }
+
+        function populateCountries() {
+            const sel = document.getElementById('registerCountry');
+            sel.innerHTML = '';
+            EU_COUNTRIES.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.code; opt.textContent = c.name;
+                sel.appendChild(opt);
+            });
+            sel.value = 'PL';
+        }
+
+        function switchToStep2() {
+            document.getElementById('registerStep1').style.display = 'none';
+            document.getElementById('registerStep2').style.display = 'block';
+            const s1 = document.getElementById('stp1'), s2 = document.getElementById('stp2');
+            const l1 = document.getElementById('stpline1');
+            if (s1 && s2 && l1) { s1.classList.remove('active'); s2.classList.add('active'); l1.classList.add('active'); }
+        }
+
+        function switchToStep1() {
+            document.getElementById('registerStep2').style.display = 'none';
+            document.getElementById('registerStep1').style.display = 'block';
+            const s1 = document.getElementById('stp1'), s2 = document.getElementById('stp2');
+            const l1 = document.getElementById('stpline1');
+            if (s1 && s2 && l1) { s2.classList.remove('active'); s1.classList.add('active'); l1.classList.remove('active'); }
+        }
+
+        function sso(provider){
+            showAlert('SSO ('+provider+') w przygotowaniu');
+        }
+
+        function selectUserType(type, context) {
+            currentUserType = type;
+            document.querySelectorAll(`#${context}CustomerType, #${context}SystemType`)
+                .forEach(card => card.classList.remove('selected'));
+            document.getElementById(`${context}${type.charAt(0).toUpperCase() + type.slice(1)}Type`)
+                .classList.add('selected');
+        }
+
+        function showAlert(message, type = 'danger') {
+            hideAlerts();
+            const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
+            const alertEl = document.getElementById(alertId);
+            alertEl.textContent = message;
+            alertEl.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideAlerts() {
+            document.getElementById('successAlert').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            // Disable all buttons
+            document.querySelectorAll('.btn').forEach(btn => btn.disabled = show);
+        }
+
+        function goHome() {
+            window.location.href = '/v2/web';
+        }
+
+        function goToDashboard(userType) {
+            window.location.href = `/v2/dashboard?type=${userType}`;
+        }
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showAlert('Proszę wypełnić wszystkie pola');
+                return;
+            }
+
+            showLoading(true);
+            hideAlerts();
+
+            try {
+                const endpoint = currentUserType === 'customer' ? 
+                    `${API_BASE}/customer/login` : 
+                    `${API_BASE}/system/login`;
+
+                console.log('Sending login request to:', endpoint);
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const textResponse = await response.text();
+                    console.error('Expected JSON but got:', textResponse.substring(0, 200));
+                    throw new Error('Serwer zwrócił nieprawidłową odpowiedź (oczekiwano JSON)');
+                }
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Save token to localStorage
+                    localStorage.setItem('jwt_token', data.token);
+                    localStorage.setItem('user_type', currentUserType);
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                    
+                    showAlert(`Zalogowano pomyślnie! Witaj ${data.user.fullName}`, 'success');
+                    
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        goToDashboard(currentUserType);
+                    }, 2000);
+                } else {
+                    showAlert(data.message || 'Błąd logowania. Sprawdź dane logowania.');
+                }
+            } catch (error) {
+                showAlert('Błąd połączenia z serwerem: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Register: Step 2 submit
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                firstName: document.getElementById('registerFirstName').value,
+                lastName: document.getElementById('registerLastName').value,
+                phone: document.getElementById('registerPhone').value,
+                customerType: document.getElementById('registerCustomerType').value,
+                companyName: document.getElementById('registerCompanyName').value || null,
+                token: regToken
+            };
+
+            // Validation
+            if (!formData.email || !formData.password || !formData.firstName || 
+                !formData.lastName || !formData.phone || !formData.customerType) {
+                showAlert('Proszę wypełnić wszystkie wymagane pola');
+                return;
+            }
+
+            if (formData.customerType === 'company' && !formData.companyName) {
+                showAlert('Nazwa firmy jest wymagana dla kont firmowych');
+                return;
+            }
+            if (!document.getElementById('consentRodo').checked) {
+                showAlert('Prosimy zaakceptować zgodę RODO.');
+                return;
+            }
+
+            showLoading(true);
+            hideAlerts();
+
+            try {
+                const response = await fetch(`${API_BASE}/registration/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && (data.success || response.status === 201)) {
+                    showAlert(`Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.`, 'success');
+                    
+                    // Clear form and switch to login
+                    document.getElementById('registerForm').reset();
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('loginEmail').value = formData.email;
+                    }, 2000);
+                } else {
+                    showAlert(data.message || 'Błąd rejestracji. Spróbuj ponownie.');
+                }
+            } catch (error) {
+                showAlert('Błąd połączenia z serwerem: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Step 1 handler
+        document.getElementById('goStep2').addEventListener('click', async function(){
+            const customerType = document.getElementById('registerCustomerType').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const nip = document.getElementById('registerNip').value.trim();
+            const country = document.getElementById('registerCountry').value;
+            const unregisteredBusiness = document.getElementById('unregisteredBusiness').checked;
+
+            if(!customerType || !email || !password){
+                showAlert('Uzupełnij typ klienta, email i hasło');
+                return;
+            }
+            if(customerType === 'business' && !unregisteredBusiness && country === 'PL' && nip === ''){
+                showAlert('Podaj NIP lub zaznacz Działalność nierejestrowana');
+                return;
+            }
+
+            showLoading(true);
+            hideAlerts();
+            try {
+                const resp = await fetch(`${API_BASE}/registration/start`, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ email, password, customerType, nip: nip || null, country, unregisteredBusiness })
+                });
+                const data = await resp.json();
+                if(resp.ok && data.success){
+                    regToken = data.token;
+                    // toggle company name visibility for step 2
+                    document.getElementById('companyNameGroup').style.display = (customerType === 'business') ? 'block' : 'none';
+                    switchToStep2();
+                } else {
+                    showAlert(data.message || 'Błąd walidacji kroku 1');
+                }
+            } catch(err){
+                showAlert('Błąd połączenia: ' + err.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // UI bindings
+        document.getElementById('registerCustomerType').addEventListener('change', function(){
+            const isBiz = this.value === 'business';
+            document.getElementById('businessExtra').style.display = isBiz ? 'block' : 'none';
+            document.getElementById('companyNameGroup').style.display = isBiz ? 'block' : 'none';
+        });
+
+        document.getElementById('togglePassword').addEventListener('click', function(){
+            const inp = document.getElementById('registerPassword');
+            if(inp.type === 'password'){ inp.type = 'text'; this.textContent = 'Ukryj'; }
+            else { inp.type = 'password'; this.textContent = 'Pokaż'; }
+        });
+
+        // Password strength meter
+        document.getElementById('registerPassword').addEventListener('input', function(){
+            const val = this.value || '';
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const pct = [0,25,50,75,100][score];
+            const bar = document.getElementById('pwStrength');
+            if (bar) {
+                bar.style.width = pct + '%';
+                bar.style.background = score <= 2 ? '#f43f5e' : (score === 3 ? '#f59e0b' : '#10b981');
+            }
+        });
+
+        // Email availability check (debounced)
+        let emailTimer;
+        document.getElementById('registerEmail').addEventListener('input', function(){
+            clearTimeout(emailTimer);
+            const email = this.value.trim();
+            const help = document.getElementById('emailHelp');
+            if (help) help.textContent = '';
+            if (!email) return;
+            emailTimer = setTimeout(async () => {
+                try {
+                    const r = await fetch(`${API_BASE}/registration/check-email`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email}) });
+                    const data = await r.json();
+                    if (help) help.innerHTML = data.available ? '<span class="field-ok">Email dostępny</span>' : '<span class="field-err">Email zajęty</span>';
+                } catch (_) {}
+            }, 400);
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            populateCountries();
+            const token = localStorage.getItem('jwt_token');
+            const userType = localStorage.getItem('user_type');
+            
+            if (token && userType) {
+                showAlert('Jesteś już zalogowany. Przekierowywanie...', 'success');
+                setTimeout(() => {
+                    goToDashboard(userType);
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyBrokerSystem v2 - Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .logout-btn {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        .stat-card {
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        .btn-info:hover {
+            background: #138496;
+        }
+        .api-test {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .api-response {
+            background: #343a40;
+            color: #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .user-details {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .nav-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">SkyBrokerSystem v2</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">Użytkownik</span>
+                <button class="logout-btn" onclick="logout()">Wyloguj</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-danger" id="errorAlert"></div>
+
+        <div class="dashboard-grid">
+            <div class="card user-details">
+                <h3>Informacje o użytkowniku</h3>
+                <div id="userDetails">
+                    <div class="loading">Ładowanie danych użytkownika...</div>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-number" id="apiStatus">✓</div>
+                <div>Status API</div>
+                <small>Połączenie aktywne</small>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('profile')">Profil</button>
+            <button class="nav-tab" onclick="switchTab('api-tests')" id="apiTestsTab">Testy API</button>
+            <button class="nav-tab" onclick="switchTab('email-test')">Email Test</button>
+            <button class="nav-tab" onclick="switchTab('company')" id="companyTab" style="display: none;">Firma</button>
+        </div>
+
+        <!-- Profile Tab -->
+        <div class="tab-content active" id="profileTab">
+            <div class="card">
+                <h3>Dane profilu</h3>
+                <div id="profileData">
+                    <div class="loading">Ładowanie profilu...</div>
+                </div>
+                <button class="btn btn-primary" onclick="refreshProfile()">Odśwież dane</button>
+            </div>
+        </div>
+
+        <!-- API Tests Tab -->
+        <div class="tab-content" id="api-testsTab">
+            <div class="card">
+                <h3>Testy API</h3>
+                <p>Przetestuj dostępne endpointy API:</p>
+                
+                <div class="api-test">
+                    <h4>Profil użytkownika</h4>
+                    <button class="btn btn-info" onclick="testAPI('profile')">GET /api/v1/{type}/profile</button>
+                    <div class="api-response" id="profileResponse"></div>
+                </div>
+
+                <div class="api-test" id="companyUsersTest" style="display: none;">
+                    <h4>Użytkownicy firmy</h4>
+                    <button class="btn btn-info" onclick="testAPI('company-users')">GET /api/v1/customer/company-users</button>
+                    <div class="api-response" id="company-usersResponse"></div>
+                </div>
+
+                <div class="api-test" id="invitationsTest" style="display: none;">
+                    <h4>Zaproszenia</h4>
+                    <button class="btn btn-info" onclick="testAPI('invitations')">GET /api/v1/customer/invitations</button>
+                    <div class="api-response" id="invitationsResponse"></div>
+                </div>
+
+                <div class="api-test" id="teamTest" style="display: none;">
+                    <h4>Zespół systemowy</h4>
+                    <button class="btn btn-info" onclick="testAPI('team')">GET /api/v1/system/team</button>
+                    <div class="api-response" id="teamResponse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Test Tab -->
+        <div class="tab-content" id="email-testTab">
+            <div class="card">
+                <h3>Testowanie emaili</h3>
+                <p>Przetestuj system wysyłania emaili:</p>
+                
+                <div class="api-test">
+                    <h4>Szybki test emaila</h4>
+                    <button class="btn btn-success" onclick="sendTestEmail()">Wyślij testowy email</button>
+                    <div class="api-response" id="quickEmailResponse"></div>
+                </div>
+
+                <div class="api-test">
+                    <h4>Spersonalizowany email</h4>
+                    <div class="form-group">
+                        <label for="emailTo">Do:</label>
+                        <input type="email" id="emailTo" placeholder="test@example.com" value="test@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailSubject">Temat:</label>
+                        <input type="text" id="emailSubject" placeholder="Test email" value="Test ze SkyBrokerSystem v2">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailMessage">Wiadomość:</label>
+                        <textarea id="emailMessage" rows="4" placeholder="Treść wiadomości">Witaj!\n\nTo jest testowa wiadomość wysłana z SkyBrokerSystem v2.\n\nSystem email działa poprawnie!</textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendCustomEmail()">Wyślij spersonalizowany email</button>
+                    <div class="api-response" id="customEmailResponse"></div>
+                </div>
+
+                <div class="api-test">
+                    <h4>MailHog - Podgląd emaili</h4>
+                    <p>Wszystkie wysłane emaile możesz zobaczyć w MailHog:</p>
+                    <a href="/mailhog/" target="_blank" class="btn btn-info">Otwórz MailHog UI</a>
+                    <small style="display: block; margin-top: 10px; color: #666;">
+                        MailHog przechwytuje wszystkie emaile wysłane z aplikacji w środowisku deweloperskim.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Tab -->
+        <div class="tab-content" id="companyTab">
+            <div class="card">
+                <h3>Zarządzanie firmą</h3>
+                <div id="companyData">
+                    <div class="loading">Ładowanie danych firmy...</div>
+                </div>
+                <button class="btn btn-success" onclick="loadCompanyUsers()">Załaduj użytkowników</button>
+                <button class="btn btn-primary" onclick="loadInvitations()">Załaduj zaproszenia</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/v2/api/v1';
+        let userType = localStorage.getItem('user_type') || 'customer';
+        let userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+        let authToken = localStorage.getItem('jwt_token');
+
+        // Check authentication on load
+        window.addEventListener('load', function() {
+            if (!authToken) {
+                window.location.href = '/v2/auth';
+                return;
+            }
+
+            // Get user type from URL if provided
+            const urlParams = new URLSearchParams(window.location.search);
+            const typeParam = urlParams.get('type');
+            if (typeParam) {
+                userType = typeParam;
+                localStorage.setItem('user_type', userType);
+            }
+
+            initializeDashboard();
+        });
+
+        function initializeDashboard() {
+            // Set user info
+            document.getElementById('userName').textContent = userData.fullName || userData.email || 'Użytkownik';
+            document.getElementById('userAvatar').textContent = (userData.fullName || 'U')[0].toUpperCase();
+
+            // Show appropriate tabs based on user type
+            if (userType === 'customer') {
+                document.getElementById('companyTab').style.display = 'block';
+                document.getElementById('companyUsersTest').style.display = 'block';
+                document.getElementById('invitationsTest').style.display = 'block';
+            } else if (userType === 'system') {
+                document.getElementById('teamTest').style.display = 'block';
+            }
+
+            loadProfile();
+            displayUserDetails();
+        }
+
+        function displayUserDetails() {
+            const detailsHtml = `
+                <p><strong>Email:</strong> ${userData.email || 'N/A'}</p>
+                <p><strong>Imię i nazwisko:</strong> ${userData.fullName || 'N/A'}</p>
+                <p><strong>Typ użytkownika:</strong> ${userType === 'customer' ? 'Klient' : 'Administrator'}</p>
+                <p><strong>Status:</strong> ${userData.status || 'N/A'}</p>
+                ${userData.customer ? `<p><strong>Firma:</strong> ${userData.customer.companyName || 'N/A'}</p>` : ''}
+                ${userData.companyRole ? `<p><strong>Rola w firmie:</strong> ${userData.companyRole}</p>` : ''}
+                ${userData.department ? `<p><strong>Dział:</strong> ${userData.department}</p>` : ''}
+                ${userData.position ? `<p><strong>Stanowisko:</strong> ${userData.position}</p>` : ''}
+            `;
+            document.getElementById('userDetails').innerHTML = detailsHtml;
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function showAlert(message, type = 'danger') {
+            const alertEl = document.getElementById('errorAlert');
+            alertEl.textContent = message;
+            alertEl.style.display = 'block';
+            
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 5000);
+        }
+
+        async function makeAuthenticatedRequest(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}/${endpoint}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.status === 401) {
+                    showAlert('Sesja wygasła. Proszę zalogować się ponownie.');
+                    setTimeout(() => {
+                        logout();
+                    }, 2000);
+                    return null;
+                }
+
+                return { response, data };
+            } catch (error) {
+                showAlert('Błąd połączenia: ' + error.message);
+                return null;
+            }
+        }
+
+        async function loadProfile() {
+            const endpoint = `${userType}/profile`;
+            const result = await makeAuthenticatedRequest(endpoint);
+            
+            if (result) {
+                const profileHtml = `
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+                document.getElementById('profileData').innerHTML = profileHtml;
+            }
+        }
+
+        async function refreshProfile() {
+            document.getElementById('profileData').innerHTML = '<div class="loading">Odświeżanie profilu...</div>';
+            await loadProfile();
+        }
+
+        async function testAPI(testType) {
+            const responseEl = document.getElementById(testType + 'Response');
+            responseEl.style.display = 'block';
+            responseEl.textContent = 'Ładowanie...';
+
+            let endpoint;
+            switch (testType) {
+                case 'profile':
+                    endpoint = `${userType}/profile`;
+                    break;
+                case 'company-users':
+                    endpoint = 'customer/company-users';
+                    break;
+                case 'invitations':
+                    endpoint = 'customer/invitations';
+                    break;
+                case 'team':
+                    endpoint = 'system/team';
+                    break;
+                default:
+                    responseEl.textContent = 'Nieznany typ testu';
+                    return;
+            }
+
+            const result = await makeAuthenticatedRequest(endpoint);
+            
+            if (result) {
+                responseEl.textContent = JSON.stringify(result.data, null, 2);
+            } else {
+                responseEl.textContent = 'Błąd podczas wykonywania żądania';
+            }
+        }
+
+        async function loadCompanyUsers() {
+            const result = await makeAuthenticatedRequest('customer/company-users');
+            if (result) {
+                const companyHtml = `
+                    <h4>Użytkownicy firmy:</h4>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+                document.getElementById('companyData').innerHTML = companyHtml;
+            }
+        }
+
+        async function loadInvitations() {
+            const result = await makeAuthenticatedRequest('customer/invitations');
+            if (result) {
+                const invitationsHtml = `
+                    <h4>Zaproszenia:</h4>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+                document.getElementById('companyData').innerHTML += invitationsHtml;
+            }
+        }
+
+        async function sendTestEmail() {
+            const responseEl = document.getElementById('quickEmailResponse');
+            responseEl.style.display = 'block';
+            responseEl.textContent = 'Wysyłanie testowego emaila...';
+
+            try {
+                const response = await fetch('/v2/test-email', {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    responseEl.textContent = `✅ ${data.message}\n\nSzczegóły:\n${JSON.stringify(data.details, null, 2)}\n\n👉 Sprawdź email w MailHog: ${data.mailhog_ui}`;
+                } else {
+                    responseEl.textContent = `❌ ${data.message}`;
+                }
+            } catch (error) {
+                responseEl.textContent = `❌ Błąd: ${error.message}`;
+            }
+        }
+
+        async function sendCustomEmail() {
+            const responseEl = document.getElementById('customEmailResponse');
+            const to = document.getElementById('emailTo').value;
+            const subject = document.getElementById('emailSubject').value;
+            const message = document.getElementById('emailMessage').value;
+
+            if (!to || !subject || !message) {
+                responseEl.style.display = 'block';
+                responseEl.textContent = '❌ Proszę wypełnić wszystkie pola';
+                return;
+            }
+
+            responseEl.style.display = 'block';
+            responseEl.textContent = 'Wysyłanie spersonalizowanego emaila...';
+
+            try {
+                const response = await fetch('/v2/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: to,
+                        subject: subject,
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    responseEl.textContent = `✅ ${data.message}\n\n👉 Sprawdź email w MailHog: ${data.mailhog_ui}`;
+                } else {
+                    responseEl.textContent = `❌ ${data.message}`;
+                }
+            } catch (error) {
+                responseEl.textContent = `❌ Błąd: ${error.message}`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user_type');
+            localStorage.removeItem('user_data');
+            window.location.href = '/v2/auth';
+        }
+    </script>
+</body>
+</html>
